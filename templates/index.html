@@ -9,9 +9,11 @@
 <div class="container mt-5">
     <h2 class="mb-4">{{ game_name }} - Test Cases</h2>
 
-    <a href="{{ url_for('add', game_name=game_name) }}" class="btn btn-primary mb-3">+ Add New Test Case</a>
-    <a href="{{ url_for('home') }}" class="btn btn-secondary mb-3">Back to Games</a>
-
+    <div class="text-end mb-3">
+        <a href="{{ url_for('add', game_name=game_name) }}" class="btn btn-primary mb-3">+ Add New Test Case</a>
+        <a href="{{ url_for('home') }}" class="btn btn-secondary mb-3">Back to Games</a>
+    </div>
+    
     {% if grouped_cases['All Test Cases'] %}
         <table class="table table-bordered table-hover bg-white">
             <thead>

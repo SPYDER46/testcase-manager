@@ -13,33 +13,75 @@ h2 {
     color: #34495e;
 }
 
+/* Game card styles */
 .game-card {
     background: white;
     border-radius: 12px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: pointer;
     user-select: none;
+    padding: 1.5rem;
+    text-align: center;
+    text-decoration: none;
 }
 
 .game-card:hover {
     transform: translateY(-6px);
-    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
     text-decoration: none;
 }
 
 .game-icon {
     width: 64px;
     height: 64px;
-    margin: 0 auto;
+    margin: 0 auto 1rem;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
+/* Game name inside the card */
 h5.text-primary {
     font-size: 1.2rem;
     letter-spacing: 0.03em;
+    font-weight: 600;
 }
 
+/* Add Game Form */
+.add-game-form {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    margin-bottom: 40px;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+}
 
+.add-game-form input[type="text"] {
+    flex: 1 1 auto;
+    min-width: 200px;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    font-size: 1rem;
+}
+
+.add-game-form button {
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    background-color: #007bff;
+    border: none;
+    color: white;
+    transition: background-color 0.2s ease;
+}
+
+.add-game-form button:hover {
+    background-color: #0056b3;
+}
