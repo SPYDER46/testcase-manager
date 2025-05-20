@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>{{ game_name }} - Test Cases</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+    <h2 class="mb-4">{{ game_name }} - Test Cases</h2>
+
+    <a href="{{ url_for('add', game_name=game_name) }}" class="btn btn-primary mb-3">+ Add New Test Case</a>
+    <a href="{{ url_for('home') }}" class="btn btn-secondary mb-3">Back to Games</a>
+
+    {% if grouped_cases['All Test Cases'] %}
+        <table class="table table-bordered table-hover bg-white">
+            <thead>
+                <tr>
+                    <th>TestCase ID</th>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Priority</th>
+                    <th>Iteration</th>
+                    <th>Date Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for case in grouped_cases['All Test Cases'] %}
+                <tr>
+                    <td>{{ case.id }}</td>
+                    <td>{{ case.title }}</td>
+                    <td>{{ case.status }}</td>
+                    <td>{{ case.priority }}</td>
+                    <td>{{ case.iteration }}</td>
+                    <td>{{ case.date_created }}</td>
+                    <td>
+                        <a href="{{ url_for('view_testcase', game_name=game_name, testcase_id=case.id) }}" class="btn btn-sm btn-info">View</a>
+                        <form action="{{ url_for('delete_testcase', game_name=game_name, testcase_id=case.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this test case?');">
+                            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No test cases found.</p>
+    {% endif %}
+</div>
+</body>
+</html>
