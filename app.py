@@ -1,11 +1,13 @@
 # app.py
 import sqlite3 
 from flask import Flask, render_template, request, redirect, url_for
-from models import init_db, add_test_case, get_all_test_cases, get_test_case_by_id, update_test_case
+from models import init_db, add_test_case, get_all_test_cases, get_test_case_by_id,backfill_testcase_numbers, update_test_case
 from collections import defaultdict
+from datetime import datetime
 
 app = Flask(__name__)
 init_db()
+backfill_testcase_numbers()
 
 GAMES = ['Aviator', 'CricketX', 'Piggy Dash', 'Roller Blitz','Marble Gp', 'Hilo', 'Mines','Roulette', 'Keno','Tower', 'Rummy', 'TeenPatti', 'Ludo', 'Snake&Ladder', 'Andar Bahar'
          , 'Poker', 'Carrom' ]
@@ -34,16 +36,15 @@ def add(game_name):
             'description': request.form['description'],
             'steps': request.form['steps'],
             'expected_result': request.form['expected_result'],
-            'actual_result': request.form['actual_result'],
+            # 'actual_result': request.form['actual_result'],
             'status': request.form['status'],
             'priority': request.form['priority'],
-            'iteration': request.form['iteration'],
+            'iteration': 0,
         }
         created_by = request.form.get('created_by', 'Unknown')  # safer fallback
         add_test_case(game_name, data, created_by)
         return redirect(url_for('index', game_name=game_name))
     return render_template('add_testcase.html', game_name=game_name)
-
 
 @app.route('/games/<game_name>/testcase/<int:testcase_id>', methods=['GET', 'POST'])
 def view_testcase(game_name, testcase_id):
@@ -78,7 +79,7 @@ def view_testcase(game_name, testcase_id):
         game_name=game_name,
         test_case=test_case,
         history=history,
-        user_name=''  # Pre-fill if you have a login system
+        user_name=''  
     )
 
 @app.route('/games/<game_name>/delete/<int:testcase_id>', methods=['POST'])
@@ -104,6 +105,55 @@ def update_testcase(game_name, testcase_id):
     )
 
     return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
+
+@app.route('/games/<game_name>/testcase/<int:testcase_id>/iteration/<int:iteration_id>/edit', methods=['GET', 'POST'])
+def edit_iteration(game_name, testcase_id, iteration_id):
+    with sqlite3.connect('database.db') as conn:
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        c.execute('SELECT * FROM test_case_history WHERE id = ?', (iteration_id,))
+        iteration = c.fetchone()
+
+    if not iteration:
+        return "Iteration not found", 404
+
+    if request.method == 'POST':
+        description = request.form['description']
+        steps = request.form['steps']
+        expected_result = request.form['expected_result']
+        actual_result = request.form['actual_result']
+        status = request.form['status']
+        priority = request.form['priority']
+
+        updated_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        with sqlite3.connect('database.db') as conn:
+            c = conn.cursor()
+            c.execute('''UPDATE test_case_history SET 
+                            description = ?, 
+                            steps = ?, 
+                            expected_result = ?, 
+                            actual_result = ?, 
+                            status = ?, 
+                            priority = ?, 
+                            updated_at = ?
+                         WHERE id = ?''',
+                      (description, steps, expected_result, actual_result, status, priority, updated_at, iteration_id))
+            conn.commit()
+
+        return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
+
+    return render_template('edit_iteration.html', iteration=iteration, game_name=game_name, testcase_id=testcase_id)
+
+
+@app.route('/games/<game_name>/testcase/<int:testcase_id>/iteration/<int:iteration_id>/delete', methods=['POST'])
+def delete_iteration(game_name, testcase_id, iteration_id):
+    with sqlite3.connect('database.db') as conn:
+        c = conn.cursor()
+        c.execute('DELETE FROM test_case_history WHERE id = ?', (iteration_id,))
+        conn.commit()
+    return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
