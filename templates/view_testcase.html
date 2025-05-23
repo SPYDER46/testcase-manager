@@ -5,6 +5,7 @@
     <title>View Test Case - {{ game_name }}</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+     <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet" />
 </head>
 <body class="bg-light">
 <div class="container mt-5">
@@ -18,23 +19,24 @@
     <h4>Test Case Details</h4>
     <table class="table table-bordered table-sm">
         <thead>
-        <tr>
-            <th>Description</th>
+        <tr class="row2">
+            <th style="width: 200px;">Description</th>
             <th>Steps</th>
-            <th>Expected</th>
-            <th>Actual</th>
-            <th>Status</th>
-            <th>Priority</th>
-            <th>Created By</th>
-            <th>Date Created</th>
+            <th style="width: 200px;">Expected</th>
+            <th style="width: 200px;">Actual</th>
+            <th style="width: 75px;">Status</th>
+            <th style="width: 80px;">Priority</th>
+            <th style="width: 100px;">Created By</th>
+            <th style="width: 100px;">Date Created</th>
         </tr>
         </thead>
+        
         <tbody>
-        <tr>
-            <td>{{ test_case.description }}</td>
-            <td>{{ test_case.steps }}</td>
-            <td>{{ test_case.expected_result }}</td>
-            <td>{{ test_case.actual_result }}</td>
+        <tr class="row2">
+            <td style="text-align: left;">{{ test_case.description }}</td>
+            <td style="text-align: left;">{{ test_case.steps }}</td>
+            <td style="text-align: left;">{{ test_case.expected_result }}</td>
+            <td style="text-align: left;">{{ test_case.actual_result }}</td>
             <td>{{ test_case.status }}</td>
             <td>{{ test_case.priority }}</td>
             <td>{{ test_case.created_by }}</td>

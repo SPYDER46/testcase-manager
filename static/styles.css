@@ -5,7 +5,7 @@ body {
 }
 
 .container {
-    max-width: 900px;
+    max-width: 1200px;
 }
 
 h2 {
@@ -84,6 +84,16 @@ h5.text-primary {
 
 .add-game-form button:hover {
     background-color: #0056b3;
+}
+.row1{
+    text-align: center;
+    vertical-align: center;
+    padding: 5px;
+}
+.row2{
+    text-align: center;
+    vertical-align: center;
+    padding: 5px;
 }
 
 /* test */
