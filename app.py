@@ -48,16 +48,6 @@ def add(game_name):
 
 @app.route('/games/<game_name>/testcase/<int:testcase_id>', methods=['GET', 'POST'])
 def view_testcase(game_name, testcase_id):
-    test_case = get_test_case_by_id(testcase_id)
-    if not test_case:
-        return f"Test Case with ID {testcase_id} not found.", 404
-
-    with sqlite3.connect('database.db') as conn:
-        conn.row_factory = sqlite3.Row
-        c = conn.cursor()
-        c.execute('SELECT * FROM test_case_history WHERE test_case_id = ? ORDER BY iteration ASC', (testcase_id,))
-        history = c.fetchall()
-
     if request.method == 'POST':
         iteration = int(request.form['iteration'])
         actual_result = request.form['actual_result']
@@ -68,19 +58,39 @@ def view_testcase(game_name, testcase_id):
         priority = request.form['priority']
         created_by = request.form['created_by']
 
+        requirement_references = request.form.get('requirement_references')
+        doc_versions = request.form.get('doc_versions')
+        approval_for_release = request.form.get('approval_for_release')
+        phase_no = int(request.form.get('phase_no'))
+        date_time_received = request.form.get('date_time_received')
+
         update_test_case(
             testcase_id, actual_result, status, iteration, 
-            description, steps, expected_result, priority, created_by
+            description, steps, expected_result, priority, created_by,
+            requirement_references, doc_versions, approval_for_release, phase_no, date_time_received
         )
+
         return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
+
+    # GET logic
+    test_case = get_test_case_by_id(testcase_id)
+    if not test_case:
+        return f"Test Case with ID {testcase_id} not found.", 404
+
+    with sqlite3.connect('database.db') as conn:
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        c.execute('SELECT * FROM test_case_history WHERE test_case_id = ? ORDER BY iteration ASC', (testcase_id,))
+        history = c.fetchall()
 
     return render_template(
         'view_testcase.html',
         game_name=game_name,
         test_case=test_case,
         history=history,
-        user_name=''  
+        user_name=''
     )
+
 
 @app.route('/games/<game_name>/delete/<int:testcase_id>', methods=['POST'])
 def delete_testcase(game_name, testcase_id):
@@ -153,6 +163,59 @@ def delete_iteration(game_name, testcase_id, iteration_id):
         c.execute('DELETE FROM test_case_history WHERE id = ?', (iteration_id,))
         conn.commit()
     return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
+
+
+@app.route('/games/<game_name>/summary')
+def summary_report(game_name):
+    with sqlite3.connect('database.db') as conn:
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+
+        c.execute('SELECT * FROM test_cases WHERE game = ?', (game_name,))
+        test_cases = c.fetchall()
+
+        total_cases = len(test_cases)
+        total_scenarios = sum(tc['iteration'] for tc in test_cases)
+
+        status_counts = {'Pass': 0, 'Fail': 0, 'Pending': 0, 'Hold': 0, 'Discussion': 0}
+        priorities = {'Major': 0, 'Medium': 0, 'Minor': 0}
+
+        for tc in test_cases:
+            status = tc['status']
+            priority = tc['priority']
+            if status in status_counts:
+                status_counts[status] += 1
+            if priority in priorities:
+                priorities[priority] += 1
+
+        # Get latest tester and updated_at from test_case_history for this game
+        c.execute('''
+            SELECT created_by, updated_at 
+            FROM test_case_history 
+            WHERE test_case_id IN (SELECT id FROM test_cases WHERE game = ?)
+              AND created_by IS NOT NULL AND TRIM(created_by) != ''
+            ORDER BY updated_at DESC
+            LIMIT 1
+        ''', (game_name,))
+        row = c.fetchone()
+        tester = row['created_by'] if row else "Unknown"
+        date_received = row['updated_at'] if row else "N/A"
+
+        return render_template(
+            'summary.html',
+            game_name=game_name,
+            total_cases=total_cases,
+            total_scenarios=total_scenarios,
+            status_counts=status_counts,
+            priorities=priorities,
+            tester=tester,
+            developer="Karthik Raja",
+            date_received=date_received,   # dynamic latest update datetime
+            date_delivered="02/01/2025 3.50 PM",  # static for now, can be made dynamic too
+            phase_no=2,
+            iteration=1
+        )
+
 
 
 if __name__ == '__main__':

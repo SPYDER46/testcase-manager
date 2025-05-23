@@ -35,6 +35,11 @@ def init_db():
             priority TEXT,
             updated_at TEXT,
             created_by TEXT,
+            requirement_references TEXT,
+            doc_versions TEXT,
+            approval_for_release TEXT,
+            phase_no INTEGER,
+            date_time_received TEXT,
             FOREIGN KEY(test_case_id) REFERENCES test_cases(id)
         )''')
         conn.commit()
@@ -79,7 +84,9 @@ def backfill_testcase_numbers():
 
 
 def update_test_case(testcase_id, actual_result, status, iteration,
-                     description, steps, expected_result, priority, created_by):
+                     description, steps, expected_result, priority, created_by,
+                     requirement_references=None, doc_versions=None, approval_for_release=None,
+                     phase_no=None, date_time_received=None):
     with sqlite3.connect(DB_NAME) as conn:
         conn.row_factory = sqlite3.Row
         c = conn.cursor()
@@ -99,8 +106,9 @@ def update_test_case(testcase_id, actual_result, status, iteration,
 
         c.execute('''INSERT INTO test_case_history (
             test_case_id, iteration, title, description, steps, 
-            expected_result, actual_result, status, priority, updated_at, created_by
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', (
+            expected_result, actual_result, status, priority, updated_at, created_by,
+            requirement_references, doc_versions, approval_for_release, phase_no, date_time_received
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', (
             testcase_id, iteration, title,
             description or existing_description,
             steps or existing_steps,
@@ -108,7 +116,12 @@ def update_test_case(testcase_id, actual_result, status, iteration,
             actual_result, status,
             priority or existing_priority,
             datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            created_by
+            created_by,
+            requirement_references,
+            doc_versions,
+            approval_for_release,
+            phase_no,
+            date_time_received
         ))
 
         c.execute('''UPDATE test_cases

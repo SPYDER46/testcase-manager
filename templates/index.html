@@ -49,6 +49,37 @@
     {% else %}
         <p>No test cases found.</p>
     {% endif %}
+
+    <!-- <div class="mb-3">
+    <label for="requirement_references">Requirement References</label>
+    <input type="text" name="requirement_references" class="form-control" required>
+</div>
+<div class="mb-3">
+    <label for="doc_versions">Doc Versions</label>
+    <input type="text" name="doc_versions" class="form-control" required>
+</div>
+<div class="mb-3">
+    <label for="approval_for_release">Approval for Release</label>
+    <input type="text" name="approval_for_release" class="form-control" required>
+</div>
+<div class="mb-3">
+    <label for="phase_no">Phase No</label>
+    <input type="number" name="phase_no" class="form-control" value="2" required>
+</div>
+<div class="mb-3">
+    <label for="date_time_received">Date & Time Received</label>
+    <input type="datetime-local" name="date_time_received" class="form-control" required>
+</div> -->
+
+    
+    <!-- Summary page buttons -->
+    <hr>
+   <form method="GET" action="{{ url_for('summary_report', game_name=game_name) }}" onsubmit="return confirm('Are you sure you want to submit and view the summary report?');">
+        <div class="text-end mt-4">
+            <button type="submit" class="btn btn-success">Complete Testing</button>
+        </div>
+   </form>
+
 </div>
 </body>
 </html>
