@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Testing Summary</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-4">
+    <h2>Summary of Testing</h2>
+    <hr>
+
+<div class="mb-4">
+    <a href="{{ url_for('index', game_name=game_name) }}" class="btn btn-outline-secondary">← Back to Test Cases</a>
+</div>
+
+
+    <div class="row">
+        <div class="col-md-6">
+            <p><strong>Iteration:</strong> {{ iteration }}</p>
+            <p><strong>Approval for release:</strong> __________</p>
+            <p><strong>Phase No:</strong> {{ phase_no }}</p>
+            <p><strong>Game Name:</strong> {{ game_name }}</p>
+            <p><strong>Date & Time received:</strong> {{ date_received }}</p>
+            <p><strong>Tester:</strong> {{ tester }}</p>
+        </div>
+        <div class="col-md-6">
+            <p><strong>Developer:</strong> {{ developer }}</p>
+            <p><strong>Date & Time Delivered:</strong> {{ date_delivered }}</p>
+            <p><strong>Requirement References:</strong> Art, UI/UX, Dev, Backend</p>
+            <p><strong>Doc Versions:</strong> __________</p>
+        </div>
+    </div>
+
+    <h5 class="mt-4">Test Summary</h5>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Total Test Cases</th>
+                <th>Total Scenarios</th>
+                <th>Passed</th>
+                <th>Failed</th>
+                <th>Pending</th>
+                <th>Hold</th>
+                <th>Discussion</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ total_cases }}</td>
+                <td>{{ total_scenarios }}</td>
+                <td>{{ status_counts['Pass'] }}</td>
+                <td>{{ status_counts['Fail'] }}</td>
+                <td>{{ status_counts['Pending'] }}</td>
+                <td>{{ status_counts['Hold'] }}</td>
+                <td>{{ status_counts['Discussion'] }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h5 class="mt-4">Priority Breakdown</h5>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Major</th>
+                <th>Medium</th>
+                <th>Minor</th>
+                <th>Repeated Bugs</th>
+                <th>New Bugs</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{ priorities['Major'] }}</td>
+                <td>{{ priorities['Medium'] }}</td>
+                <td>{{ priorities['Minor'] }}</td>
+                <td>0</td>
+                <td>-</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>

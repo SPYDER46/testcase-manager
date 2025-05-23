@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Iteration</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body class="bg-light">
+<div class="container mt-5">
+    <h2>Edit Iteration {{ iteration.iteration }} - {{ game_name }}</h2>
+    <form method="post">
+
+        <div class="mb-3">
+            <label>Description</label>
+            <input type="text" class="form-control" name="description" value="{{ iteration.description }}" required>
+        </div>
+
+        <div class="mb-3">
+            <label>Steps</label>
+            <textarea class="form-control" name="steps" required>{{ iteration.steps }}</textarea>
+        </div>
+
+        <div class="mb-3">
+            <label>Expected Result</label>
+            <textarea class="form-control" name="expected_result" required>{{ iteration.expected_result }}</textarea>
+        </div>
+
+        <div class="mb-3">
+            <label>Actual Result</label>
+            <textarea class="form-control" name="actual_result" required>{{ iteration.actual_result }}</textarea>
+        </div>
+
+        <div class="mb-3">
+            <label>Status</label>
+            <select name="status" class="form-control" required>
+                {% for option in ['Pass', 'Fail', 'To Do', 'Hold', 'Doubt', 'Not applicable', 'Pending'] %}
+                    <option {% if iteration.status == option %}selected{% endif %}>{{ option }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label>Priority</label>
+            <select name="priority" class="form-control">
+                {% for level in ['Low', 'Medium', 'High'] %}
+                    <option {% if iteration.priority == level %}selected{% endif %}>{{ level }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="btn btn-success">Save Changes</button>
+        <a href="{{ url_for('view_testcase', game_name=game_name, testcase_id=testcase_id) }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+</body>
+</html>
