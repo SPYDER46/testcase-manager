@@ -58,16 +58,16 @@ def view_testcase(game_name, testcase_id):
         priority = request.form['priority']
         created_by = request.form['created_by']
 
-        requirement_references = request.form.get('requirement_references')
-        doc_versions = request.form.get('doc_versions')
-        approval_for_release = request.form.get('approval_for_release')
-        phase_no = int(request.form.get('phase_no'))
-        date_time_received = request.form.get('date_time_received')
+        # requirement_references = request.form.get('requirement_references')
+        # doc_versions = request.form.get('doc_versions')
+        # approval_for_release = request.form.get('approval_for_release')
+        # phase_no = int(request.form.get('phase_no'))
+        # date_time_received = request.form.get('date_time_received')
 
         update_test_case(
             testcase_id, actual_result, status, iteration, 
             description, steps, expected_result, priority, created_by,
-            requirement_references, doc_versions, approval_for_release, phase_no, date_time_received
+            # requirement_references, doc_versions, approval_for_release, phase_no, date_time_received
         )
 
         return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
@@ -165,6 +165,8 @@ def delete_iteration(game_name, testcase_id, iteration_id):
     return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
 
 
+from flask import request  # Make sure this is imported
+
 @app.route('/games/<game_name>/summary')
 def summary_report(game_name):
     with sqlite3.connect('database.db') as conn:
@@ -175,7 +177,7 @@ def summary_report(game_name):
         test_cases = c.fetchall()
 
         total_cases = len(test_cases)
-        total_scenarios = sum(tc['iteration'] for tc in test_cases)
+        # total_scenarios = sum(tc['iteration'] for tc in test_cases)
 
         status_counts = {'Pass': 0, 'Fail': 0, 'Pending': 0, 'Hold': 0, 'Discussion': 0}
         priorities = {'Major': 0, 'Medium': 0, 'Minor': 0}
@@ -188,7 +190,14 @@ def summary_report(game_name):
             if priority in priorities:
                 priorities[priority] += 1
 
-        # Get latest tester and updated_at from test_case_history for this game
+        # Calculate status percentages
+        def calc_percent(count):
+            return round((count / total_cases) * 100, 2) if total_cases > 0 else 0.0
+
+        pass_percentage = calc_percent(status_counts['Pass'])
+        fail_percentage = calc_percent(status_counts['Fail'])
+
+        # Get latest tester and updated_at from test_case_history
         c.execute('''
             SELECT created_by, updated_at 
             FROM test_case_history 
@@ -199,24 +208,35 @@ def summary_report(game_name):
         ''', (game_name,))
         row = c.fetchone()
         tester = row['created_by'] if row else "Unknown"
-        date_received = row['updated_at'] if row else "N/A"
+        last_updated = row['updated_at'] if row else "N/A"
+
+        # Get manually entered values from query string
+        art_version = request.args.get('Art_version', 'N/A')
+        uiux_version = request.args.get('UI/UX_version', 'N/A')
+        developer = request.args.get('Developer Name', 'N/A')
+        phase_no = request.args.get('phase_no', 1)
+        date_received = request.args.get('date_time_received', 'N/A')
+        date_delivered = datetime.now().strftime('%Y-%m-%d %I:%M %p')  # 💡 Now dynamic
+        iteration_no = request.args.get('iteration_no', 'N/A')
 
         return render_template(
             'summary.html',
             game_name=game_name,
             total_cases=total_cases,
-            total_scenarios=total_scenarios,
+            # total_scenarios=total_scenarios,
             status_counts=status_counts,
             priorities=priorities,
+            pass_percentage=pass_percentage,
+            fail_percentage=fail_percentage,
             tester=tester,
-            developer="Karthik Raja",
-            date_received=date_received,   # dynamic latest update datetime
-            date_delivered="02/01/2025 3.50 PM",  # static for now, can be made dynamic too
-            phase_no=2,
-            iteration=1
+            developer=developer,
+            date_received=date_received,
+            date_delivered=date_delivered,
+            phase_no=phase_no,
+            iteration=iteration_no,
+            art_version=art_version,
+            uiux_version=uiux_version
         )
-
-
 
 if __name__ == '__main__':
     app.run(debug=True)

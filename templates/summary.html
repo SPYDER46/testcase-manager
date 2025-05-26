@@ -8,50 +8,55 @@
     <h2>Summary of Testing</h2>
     <hr>
 
-<div class="mb-4">
+<div class="text-end mb-3">
     <a href="{{ url_for('index', game_name=game_name) }}" class="btn btn-outline-secondary">← Back to Test Cases</a>
 </div>
 
 
     <div class="row">
         <div class="col-md-6">
-            <p><strong>Iteration:</strong> {{ iteration }}</p>
-            <p><strong>Approval for release:</strong> __________</p>
+            <p><strong>Iteration:</strong> {{ iteration_no }}</p>
+            <!-- <p><strong>Approval for release:</strong> __________</p> -->
             <p><strong>Phase No:</strong> {{ phase_no }}</p>
             <p><strong>Game Name:</strong> {{ game_name }}</p>
             <p><strong>Date & Time received:</strong> {{ date_received }}</p>
-            <p><strong>Tester:</strong> {{ tester }}</p>
+            <!-- <p><strong>Date & Time Delivered:</strong> {{ date_delivered }}</p> -->
+            <p><strong>Date Delivered:</strong> {{ date_delivered }}</p>
+           
         </div>
         <div class="col-md-6">
             <p><strong>Developer:</strong> {{ developer }}</p>
-            <p><strong>Date & Time Delivered:</strong> {{ date_delivered }}</p>
-            <p><strong>Requirement References:</strong> Art, UI/UX, Dev, Backend</p>
-            <p><strong>Doc Versions:</strong> __________</p>
+            <p><strong>Tester:</strong> {{ tester }}</p>
+            <p><strong>Art Document Version:</strong> {{ art_version }}</p>
+            <p><strong>UI/UX Document Version:</strong> {{ uiux_version }}</p>
+            <p><strong>Pass %:</strong> {{ pass_percentage }}%</p>
+            <p><strong>Fail %:</strong> {{ fail_percentage }}%</p>
+
         </div>
     </div>
 
-    <h5 class="mt-4">Test Summary</h5>
+    <h5 class="mt-2">Test Summary</h5>
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>Total Test Cases</th>
-                <th>Total Scenarios</th>
-                <th>Passed</th>
-                <th>Failed</th>
-                <th>Pending</th>
-                <th>Hold</th>
-                <th>Discussion</th>
+                <th style="width: 30px; text-align: center;">Total Test Cases</th>
+                <!-- <th>Total Scenarios</th> -->
+                <th style="width: 30px; text-align: center;">Passed</th>
+                <th style="width: 30px; text-align: center;">Failed</th>
+                <th style="width: 3cap; text-align: center;">Pending</th>
+                <th style="width: 30px; text-align: center;">Hold</th>
+                <th style="width: 30px; text-align: center;">Discussion</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>{{ total_cases }}</td>
-                <td>{{ total_scenarios }}</td>
-                <td>{{ status_counts['Pass'] }}</td>
-                <td>{{ status_counts['Fail'] }}</td>
-                <td>{{ status_counts['Pending'] }}</td>
-                <td>{{ status_counts['Hold'] }}</td>
-                <td>{{ status_counts['Discussion'] }}</td>
+                <td style =" text-align: center;">{{ total_cases }}</td>
+                <!-- <td>{{ total_scenarios }}</td> -->
+                <td style =" text-align: center;">{{ status_counts['Pass'] }}</td>
+                <td style =" text-align: center;">{{ status_counts['Fail'] }}</td>
+                <td style =" text-align: center;">{{ status_counts['Pending'] }}</td>
+                <td style =" text-align: center;">{{ status_counts['Hold'] }}</td>
+                <td style =" text-align: center;">{{ status_counts['Discussion'] }}</td>
             </tr>
         </tbody>
     </table>
@@ -60,20 +65,20 @@
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>Major</th>
-                <th>Medium</th>
-                <th>Minor</th>
-                <th>Repeated Bugs</th>
-                <th>New Bugs</th>
+                <th style =" text-align: center;">Major</th>
+                <th style =" text-align: center;">Medium</th>
+                <th style =" text-align: center;">Minor</th>
+                <th style =" text-align: center;" >Repeated Bugs</th>
+                <th style =" text-align: center;">New Bugs</th>
             </tr>
         </thead>
         <tbody>
             <tr>
-                <td>{{ priorities['Major'] }}</td>
-                <td>{{ priorities['Medium'] }}</td>
-                <td>{{ priorities['Minor'] }}</td>
-                <td>0</td>
-                <td>-</td>
+                <td style =" text-align: center;">{{ priorities['Major'] }}</td>
+                <td style =" text-align: center;">{{ priorities['Medium'] }}</td>
+                <td style =" text-align: center;">{{ priorities['Minor'] }}</td>
+                <td style =" text-align: center;">0</td>
+                <td style =" text-align: center;">-</td>
             </tr>
         </tbody>
     </table>
