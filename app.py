@@ -28,6 +28,14 @@ def index(game_name):
         grouped_cases['All Test Cases'].append(case)
     return render_template('index.html', game_name=game_name, grouped_cases=dict(grouped_cases))
 
+# @app.route('/add_game', methods=['POST'])
+# def add_game():
+#     new_game = request.form.get('new_game')
+#     if new_game:
+#         GAMES.append(new_game)
+#     return redirect(url_for('home'))
+
+
 @app.route('/games/<game_name>/add', methods=['GET', 'POST'])
 def add(game_name):
     if request.method == 'POST':
@@ -135,7 +143,7 @@ def edit_iteration(game_name, testcase_id, iteration_id):
         status = request.form['status']
         priority = request.form['priority']
 
-        updated_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        updated_at = datetime.now().strftime('%Y-%m-%d %I:%M %p')
 
         with sqlite3.connect('database.db') as conn:
             c = conn.cursor()
@@ -214,9 +222,9 @@ def summary_report(game_name):
         art_version = request.args.get('Art_version', 'N/A')
         uiux_version = request.args.get('UI/UX_version', 'N/A')
         developer = request.args.get('Developer Name', 'N/A')
-        phase_no = request.args.get('phase_no', 1)
+        phase_no = request.args.get('phase_no', 'N/A')
         date_received = request.args.get('date_time_received', 'N/A')
-        date_delivered = datetime.now().strftime('%Y-%m-%d %I:%M %p')  # 💡 Now dynamic
+        date_delivered = datetime.now().strftime('%Y-%m-%d %I:%M %p')
         iteration_no = request.args.get('iteration_no', 'N/A')
 
         return render_template(
@@ -237,6 +245,8 @@ def summary_report(game_name):
             art_version=art_version,
             uiux_version=uiux_version
         )
+    
+    
 
 if __name__ == '__main__':
     app.run(debug=True)

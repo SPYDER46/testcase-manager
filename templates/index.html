@@ -7,6 +7,16 @@
     <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet" />
 </head>
 <body class="bg-light">
+
+<!-- Loader -->
+  <!-- Loader Wrapper -->
+<div id="page-loader">
+  <div class="bar-loader">
+    <div></div><div></div><div></div><div></div>
+  </div>
+</div>
+
+
 <div class="container mt-5">
     <h2 class="mb-4">{{ game_name }} - Test Cases</h2>
 
@@ -37,7 +47,7 @@
                         <td style="width:fit-content; text-align: left;">{{ case.title }}</td>
                         <td>{{ case.status }}</td>
                         <td>{{ case.priority }}</td>
-                        <td>{{ case.iteration if case.iteration > 0 else '-' }}</td>
+                        <td class="iteration">{{ case.iteration if case.iteration > 0 else '-' }}</td>
                         <td>{{ case.last_updated }}</td>
                         <td class="text-center">
                             <div class="btn-group" role="group" aria-label="Actions">
@@ -58,10 +68,10 @@
 {% endif %}
 
 
-    <!-- Complete Testing Button -->
-    <hr>
+<!-- Complete Testing Button -->
+ <hr>
     <div class="text-end mt-4">
-        <button type="button" class="btn btn-success" id="openSummaryModalBtn">
+        <button type="button" class="btn btn-success" id="openSummaryModalBtn" disabled>
             Complete Testing
         </button>
     </div>
@@ -91,7 +101,7 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <form method="GET" action="{{ url_for('summary_report', game_name=game_name) }}">
-        <div class="modal-header">
+        <div class="modal-header" >
           <h5 class="modal-title" id="summaryFormModalLabel">Requirement References</h5>
           <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
         </div>
@@ -114,7 +124,7 @@
           </div>
           <div class="mb-3">
             <label for="phase_no">Phase No</label>
-            <input type="number" name="phase_no" class="form-control" value="2" required>
+            <input type="number" name="phase_no" class="form-control" value="" required>
           </div>
           <div class="mb-3">
             <label for="date_time_received">Date & Time Received</label>
@@ -134,11 +144,14 @@
   </div>
 </div>
 
+
 <!-- Bootstrap JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <!-- Your custom script.js -->
 <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+
 
 </body>
 </html>

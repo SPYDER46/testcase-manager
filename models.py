@@ -59,7 +59,7 @@ def add_test_case(game, data, created_by):
             game, next_number, data['title'], data['description'], data['steps'],
             data['expected_result'], data['status'],
             data['priority'], data['iteration'], created_by,
-            datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            datetime.now().strftime('%Y-%m-%d %I:%M %p')
         ))
         conn.commit()
 
@@ -115,7 +115,7 @@ def update_test_case(testcase_id, actual_result, status, iteration,
             expected_result or existing_expected_result,
             actual_result, status,
             priority or existing_priority,
-            datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            datetime.now().strftime('%Y-%m-%d %I:%M %p'),
             created_by,
             requirement_references,
             doc_versions,

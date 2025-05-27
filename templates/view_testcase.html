@@ -19,6 +19,7 @@
       }
     </style>
 </head>
+
 <body class="bg-light">
 <div class="container mt-5">
     <h2>Test Case {{ test_case.testcase_number }} - {{ test_case.title }} ({{ game_name }})</h2>
@@ -51,7 +52,6 @@
             <td class="wrap-text text-start">{{ test_case.steps }}</td>
             <td class="wrap-text text-start">{{ test_case.expected_result }}</td>
             <!-- <td class="wrap-text text-start">{{ test_case.actual_result }}</td> -->
-
             <td style="text-align: center;">{{ test_case.status }}</td>
             <td style="text-align: center;">{{ test_case.priority }}</td>
             <td>{{ test_case.created_by }}</td>
@@ -61,7 +61,14 @@
     </table>
 
     {% if history %}
-    <h4 class="mt-4">Iteration History</h4>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4 class="mb-0">Iteration History</h4>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateModal">
+          Update Next Iteration
+        </button>
+      </div>
+      
+
     <!-- <div class="table-responsive"> -->
     <table class="table table-bordered table-sm">
 
@@ -83,13 +90,13 @@
         <tbody>
         {% for h in history %}
         <tr>
-            <td style="text-align: center;">{{ h.iteration }}</td>
+            <td class="iteration" style="text-align: center;" data-iteration="{{ h.iteration }}">{{ h.iteration }}</td>
             <td class="wrap-text">{{ h.title }}</td>
             <td class="wrap-text">{{ h.description }}</td>
             <!-- <td class="wrap-text">{{ h.steps }}</td> -->
             <!-- <td class="wrap-text">{{ h.expected_result }}</td> -->
             <td class="wrap-text">{{ h.actual_result }}</td>
-            <td class="status" style="text-align: center;">{{ h.status }}</td>
+            <td class="status text-center" data-status="{{ h.status }}">{{ h.status }}</td>
             <td class="priority" style="text-align: center;">{{ h.priority }}</td>
             <td class="updated_by" style="text-align: center;">{{ h.created_by or 'None' }}</td>
             <td class="date_created" style="text-align: center;">{{ h.updated_at }}</td>
@@ -103,11 +110,6 @@
         </tbody>
     </table>
     {% endif %}
-
-    <!-- Update Next Iteration Button -->
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateModal">
-        Update Next Iteration
-    </button>
 
     <!-- Update Iteration Modal -->
     <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
@@ -164,7 +166,6 @@
             </div>
         </div>
     </div>
-
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

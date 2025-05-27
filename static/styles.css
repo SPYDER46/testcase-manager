@@ -2,18 +2,37 @@ body {
     background-color: #f0f4f8;
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
     color: #2c3e50;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
 }
 
 .container {
     max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
 }
 
+/* Heading */
 h2 {
     font-weight: 700;
     color: #34495e;
+    animation: fadeInDown 0.8s ease forwards;
 }
 
-/* Game card styles */
+/* Fade In Animation */
+@keyframes fadeInDown {
+    0% {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Game Card */
 .game-card {
     background: white;
     border-radius: 12px;
@@ -23,13 +42,13 @@ h2 {
     user-select: none;
     padding: 1.5rem;
     text-align: center;
-    text-decoration: none;
+    position: relative;
+    will-change: transform, box-shadow;
 }
 
 .game-card:hover {
     transform: translateY(-6px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    text-decoration: none;
 }
 
 .game-icon {
@@ -39,9 +58,14 @@ h2 {
     display: flex;
     justify-content: center;
     align-items: center;
+    transition: transform 0.3s ease;
 }
 
-/* Game name inside the card */
+.game-card:hover .game-icon {
+    transform: scale(1.1);
+}
+
+/* Game Name */
 h5.text-primary {
     font-size: 1.2rem;
     letter-spacing: 0.03em;
@@ -63,7 +87,7 @@ h5.text-primary {
 }
 
 .add-game-form input[type="text"] {
-    flex: 1 1 auto;
+    flex: 1;
     min-width: 200px;
     padding: 0.6rem 1rem;
     border-radius: 8px;
@@ -85,23 +109,12 @@ h5.text-primary {
 .add-game-form button:hover {
     background-color: #0056b3;
 }
-.row1{
-    text-align: center;
-    vertical-align: center;
-    padding: 5px;
-}
-.row2{
-    text-align: center;
-    vertical-align: center;
-    padding: 5px;
-}
 
-/* === Responsive Table Styling === */
-
+/* Responsive Table */
 .responsive-table {
     width: 100%;
     border-collapse: collapse;
-    table-layout: fixed; /* Force fixed layout for wrapping */
+    table-layout: fixed;
     word-wrap: break-word;
     margin-top: 1.5rem;
     background: white;
@@ -118,13 +131,11 @@ h5.text-primary {
     font-size: 0.95rem;
 }
 
-/* Ensure long text wraps inside cells */
 .wrap-text {
     word-break: break-word;
     white-space: pre-wrap;
 }
 
-/* Responsive adjustments for smaller screens */
 @media (max-width: 768px) {
     .responsive-table th,
     .responsive-table td {
@@ -147,11 +158,9 @@ h5.text-primary {
     word-wrap: break-word;
     white-space: normal;
     vertical-align: top;
-    text-align: left; /* ensures left alignment */
+    text-align: left;
 }
 
-
-/* Force table to not scroll and be layout-fixed */
 .no-scroll-table {
     table-layout: fixed;
     width: 100%;
@@ -166,7 +175,6 @@ h5.text-primary {
     font-size: 0.9rem;
 }
 
-/* Column-specific widths */
 .desc-col { max-width: 180px; }
 .steps-col { max-width: 180px; }
 .exp-col { max-width: 160px; }
@@ -176,22 +184,75 @@ h5.text-primary {
 .created-col { max-width: 120px; }
 .date-col { max-width: 120px; }
 
-/* Optional: prevent wrapping on short fields */
 .status-col, .priority-col, .created-col, .date-col {
     white-space: nowrap;
 }
 
-
 .btn-group > form {
-  margin-left: 5px;
-}
-
-\.container {
-    max-width: 1200px;
-    margin: 0 auto; /* This will center it horizontally */
-    padding-left: 15px;
-    padding-right: 15px;
+    margin-left: 5px;
 }
 
 
 
+/* Loader */
+#page-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #fff;
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.5s ease;
+}
+
+
+
+
+.bar-loader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    margin: 40px auto;
+    height: 40px;
+  }
+  
+  .bar-loader div {
+    width: 6px;
+    height: 100%;
+    background: #007bff;
+    animation: fadeBar 1s infinite;
+  }
+  
+  .bar-loader div:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+  .bar-loader div:nth-child(3) {
+    animation-delay: 0.2s;
+  }
+  .bar-loader div:nth-child(4) {
+    animation-delay: 0.3s;
+  }
+  
+  @keyframes fadeBar {
+    0%, 100% {
+      transform: scaleY(0.4);
+      opacity: 0.6;
+    }
+    50% {
+      transform: scaleY(1);
+      opacity: 1;
+    }
+  }
+
+  #page-loader.fade-out {
+    opacity: 0;
+    transition: opacity 0.5s ease-out;
+}
+
+  
+  
