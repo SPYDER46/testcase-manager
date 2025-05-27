@@ -175,9 +175,10 @@ def edit_iteration(game_name, testcase_id, iteration_id):
 
 @app.route('/games/<game_name>/testcase/<int:testcase_id>/iteration/<int:iteration_id>/delete', methods=['POST'])
 def delete_iteration_route(game_name, testcase_id, iteration_id):
-    print(f"Deleting iteration: {iteration_id}")
     delete_iteration_by_id(iteration_id)
+    flash('Iteration deleted successfully.', 'success')
     return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
+
 
 
 @app.route('/games/<game_name>/summary')
