@@ -1,37 +1,36 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // === Delete Modal Setup ===
-    let deleteFormToSubmit = null;
-    const deleteConfirmModal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'), {
+    // === Delete Confirmation Modal ===
+    const deleteConfirmModalEl = document.getElementById('deleteConfirmModal');
+    const deleteConfirmForm = document.getElementById('deleteConfirmForm');
+    const deleteConfirmModal = new bootstrap.Modal(deleteConfirmModalEl, {
         backdrop: 'static',
         keyboard: false
     });
-    const confirmDeleteBtn = document.getElementById('confirmDeleteBtn');
 
     document.querySelectorAll('.btn-delete').forEach(button => {
         button.addEventListener('click', function () {
-            deleteFormToSubmit = this.closest('form');
-            deleteConfirmModal.show();
+            const deleteUrl = this.getAttribute('data-url');
+            if (deleteUrl && deleteConfirmForm) {
+                deleteConfirmForm.action = deleteUrl;
+                deleteConfirmModal.show();
+            }
         });
-    });
-
-    confirmDeleteBtn.addEventListener('click', function () {
-        if (deleteFormToSubmit) {
-            deleteFormToSubmit.submit();
-        }
     });
 
     // === Summary Modal Setup ===
     const summaryModalEl = document.getElementById('summaryFormModal');
-    const summaryModal = new bootstrap.Modal(summaryModalEl, {
-        backdrop: 'static',
-        keyboard: false
-    });
-
-    const openSummaryBtn = document.getElementById('openSummaryModalBtn');
-    if (openSummaryBtn) {
-        openSummaryBtn.addEventListener('click', function () {
-            summaryModal.show();
+    if (summaryModalEl) {
+        const summaryModal = new bootstrap.Modal(summaryModalEl, {
+            backdrop: 'static',
+            keyboard: false
         });
+
+        const openSummaryBtn = document.getElementById('openSummaryModalBtn');
+        if (openSummaryBtn) {
+            openSummaryBtn.addEventListener('click', function () {
+                summaryModal.show();
+            });
+        }
     }
 
     // === Toast Setup ===
@@ -47,13 +46,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (completeBtn && iterationCells.length > 0) {
         const iterations = Array.from(iterationCells).map(cell => cell.textContent.trim());
-
-        // Filter out empty or '-' iterations
         const validIterations = iterations.filter(iter => iter !== '-' && iter !== '');
-
-        // Check if all valid iteration numbers are the same AND that all testcases have valid iteration (count matches)
-        const allSame = validIterations.length === iterationCells.length && validIterations.every(iter => iter === validIterations[0]);
-
+        const allSame = validIterations.length === iterationCells.length &&
+                        validIterations.every(iter => iter === validIterations[0]);
         completeBtn.disabled = !allSame;
     }
 

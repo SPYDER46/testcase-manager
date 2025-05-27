@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
     <title>View Test Case - {{ game_name }}</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet" />
     <style>
@@ -17,10 +20,15 @@
       td.status, td.priority, td.updated_by, td.date_created, td.actions {
           white-space: nowrap;
       }
+      .wrap-text {
+          white-space: pre-wrap;
+          word-break: break-word;
+      }
     </style>
 </head>
 
 <body class="bg-light">
+
 <div class="container mt-5">
     <h2>Test Case {{ test_case.testcase_number }} - {{ test_case.title }} ({{ game_name }})</h2>
 
@@ -30,85 +38,82 @@
 
     <!-- Base Test Case Data -->
     <h4>Test Case Details</h4>
-    <!-- <div class="table-responsive"> -->
-    <table class="table table-bordered table-sm">
 
+    <table class="table table-bordered table-sm">
         <thead>
-        <tr class="row2">
-            <th style="width: 200px;">Description</th>
-            <th>Steps</th>
-            <th style="width: 200px;">Expected</th>
-            <!-- <th style="width: 200px;">Actual</th> -->
-            <th style="width: 75px;">Status</th>
-            <th style="width: 80px;">Priority</th>
-            <th style="width: 100px;">Created By</th>
-            <th style="width: 120px;">Date Created</th>
-        </tr>
+            <tr class="row2">
+                <th style="width: 200px;">Description</th>
+                <th>Steps</th>
+                <th style="width: 200px;">Expected</th>
+                <th style="width: 75px;">Status</th>
+                <th style="width: 80px;">Priority</th>
+                <th style="width: 100px;">Created By</th>
+                <th style="width: 120px;">Date Created</th>
+            </tr>
         </thead>
-        
         <tbody>
-        <tr class="row2" >
-            <td class="wrap-text text-start">{{ test_case.description }}</td>
-            <td class="wrap-text text-start">{{ test_case.steps }}</td>
-            <td class="wrap-text text-start">{{ test_case.expected_result }}</td>
-            <!-- <td class="wrap-text text-start">{{ test_case.actual_result }}</td> -->
-            <td style="text-align: center;">{{ test_case.status }}</td>
-            <td style="text-align: center;">{{ test_case.priority }}</td>
-            <td>{{ test_case.created_by }}</td>
-            <td style="width: 100px;">{{ test_case.date_created }}</td>
-        </tr>
+            <tr class="row2">
+                <td class="wrap-text text-start">{{ test_case.description }}</td>
+                <td class="wrap-text text-start">{{ test_case.steps }}</td>
+                <td class="wrap-text text-start">{{ test_case.expected_result }}</td>
+                <td class="text-center">{{ test_case.status }}</td>
+                <td class="text-center">{{ test_case.priority }}</td>
+                <td>{{ test_case.created_by }}</td>
+                <td class="text-center">{{ test_case.date_created }}</td>
+            </tr>
         </tbody>
     </table>
+
+    <div class="d-flex justify-content-between align-items-center mb-3 mt-2">
+        <h4>Iteration History</h4>
+        <button
+          type="button"
+          class="btn btn-primary btn-sm"
+          data-bs-toggle="modal"
+          data-bs-target="#updateModal"
+        >
+          Update Iteration
+        </button>
+    </div>
 
     {% if history %}
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="mb-0">Iteration History</h4>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#updateModal">
-          Update Next Iteration
-        </button>
-      </div>
-      
-
-    <!-- <div class="table-responsive"> -->
     <table class="table table-bordered table-sm">
-
         <thead>
-        <tr style="text-align: center;">
-            <th>Iteration</th>
-            <th style="min-width: 150px;">Title</th>
-            <th style="min-width: 220px;">Description</th>
-            <!-- <th style="min-width: 180px;">Steps</th> -->
-            <!-- <th style="min-width: 180px;">Expected</th> -->
-            <th style="min-width: 180px;">Actual</th>
-            <th class="status">Status</th>
-            <th class="priority">Priority</th>
-            <th class="updated_by">Updated By</th>
-            <th class="date_created">Date Created</th>
-            <th class="actions">Actions</th>
-        </tr>
+            <tr class="text-center">
+                <th>Iteration</th>
+                <th style="min-width: 150px;">Title</th>
+                <th style="min-width: 220px;">Description</th>
+                <th style="min-width: 180px;">Actual</th>
+                <th class="status">Status</th>
+                <th class="priority">Priority</th>
+                <th class="updated_by">Updated By</th>
+                <th class="date_created">Date Created</th>
+                <th class="actions">Actions</th>
+            </tr>
         </thead>
         <tbody>
-        {% for h in history %}
-        <tr>
-            <td class="iteration" style="text-align: center;" data-iteration="{{ h.iteration }}">{{ h.iteration }}</td>
-            <td class="wrap-text">{{ h.title }}</td>
-            <td class="wrap-text">{{ h.description }}</td>
-            <!-- <td class="wrap-text">{{ h.steps }}</td> -->
-            <!-- <td class="wrap-text">{{ h.expected_result }}</td> -->
-            <td class="wrap-text">{{ h.actual_result }}</td>
-            <td class="status text-center" data-status="{{ h.status }}">{{ h.status }}</td>
-            <td class="priority" style="text-align: center;">{{ h.priority }}</td>
-            <td class="updated_by" style="text-align: center;">{{ h.created_by or 'None' }}</td>
-            <td class="date_created" style="text-align: center;">{{ h.updated_at }}</td>
-            <td class="actions" style="text-align: center;">
-                <a href="{{ url_for('edit_iteration', game_name=game_name, testcase_id=test_case.id, iteration_id=h.id) }}" class="btn btn-sm btn-warning">Edit</a>
-                <form action="{{ url_for('delete_iteration', game_name=game_name, testcase_id=test_case.id, iteration_id=h.id) }}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this iteration?');">
-                </form>
-            </td>
-        </tr>
-        {% endfor %}
+            {% for h in history %}
+            <tr>
+                <td class="iteration text-center">{{ h.iteration }}</td>
+                <td class="wrap-text">{{ h.title }}</td>
+                <td class="wrap-text">{{ h.description }}</td>
+                <td class="wrap-text">{{ h.actual_result }}</td>
+                <td class="text-center">{{ h.status }}</td>
+                <td class="text-center">{{ h.priority }}</td>
+                <td class="text-center">{{ h.created_by or 'None' }}</td>
+                <td class="text-center">{{ h.updated_at }}</td>
+                <td class="text-center d-flex justify-content-center gap-2">
+                    <a href="{{ url_for('edit_iteration', game_name=game_name, testcase_id=test_case.id, iteration_id=h.id) }}" class="btn btn-sm btn-warning">Edit</a>
+                    <form method="POST" action="{{ url_for('delete_iteration_route', game_name=game_name, testcase_id=test_case.id, iteration_id=h.id) }}" style="display:inline;">
+                        <button type="submit" class="btn btn-sm btn-danger btn-delete">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
         </tbody>
     </table>
+    {% else %}
+        <p>No iteration history available.</p>
     {% endif %}
 
     <!-- Update Iteration Modal -->
@@ -121,41 +126,38 @@
                 </div>
                 <form method="POST" action="{{ url_for('view_testcase', game_name=game_name, testcase_id=test_case.id) }}">
                     <div class="modal-body">
+                        <input type="hidden" name="iteration" value="{{ history|length + 1 }}">
                         <div class="mb-3">
-                            <label for="iteration">Iteration Number</label>
-                            <input type="number" name="iteration" class="form-control" value="{{ history|length + 1 }}" readonly>
+                            <label for="description" class="form-label">Description</label>
+                            <textarea id="description" name="description" class="form-control" readonly>{{ test_case.description }}</textarea>
                         </div>
                         <div class="mb-3">
-                            <label for="description">Description</label>
-                            <textarea name="description" class="form-control" readonly>{{ test_case.description }}</textarea>
+                            <label for="steps" class="form-label">Steps</label>
+                            <textarea id="steps" name="steps" class="form-control" readonly>{{ test_case.steps }}</textarea>
                         </div>
                         <div class="mb-3">
-                            <label for="steps">Steps</label>
-                            <textarea name="steps" class="form-control" readonly>{{ test_case.steps }}</textarea>
+                            <label for="expected_result" class="form-label">Expected Result</label>
+                            <textarea id="expected_result" name="expected_result" class="form-control" readonly>{{ test_case.expected_result }}</textarea>
                         </div>
                         <div class="mb-3">
-                            <label for="expected_result">Expected Result</label>
-                            <textarea name="expected_result" class="form-control" readonly>{{ test_case.expected_result }}</textarea>
+                            <label for="actual_result" class="form-label">Actual Result</label>
+                            <textarea id="actual_result" name="actual_result" class="form-control" placeholder="Actual Result" required></textarea>
                         </div>
                         <div class="mb-3">
-                            <label for="actual_result">Actual Result</label>
-                            <textarea name="actual_result" class="form-control" placeholder="Actual Result">{{ test_case.actual_result }}</textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label for="status">Status</label>
-                            <select name="status" class="form-control">
+                            <label for="status" class="form-label">Status</label>
+                            <select id="status" name="status" class="form-select" required>
                                 {% for option in ['Pass', 'Fail', 'To Do', 'Hold', 'Doubt', 'Not applicable', 'Pending'] %}
-                                <option {% if test_case.status == option %}selected{% endif %}>{{ option }}</option>
+                                    <option value="{{ option }}" {% if test_case.status == option %}selected{% endif %}>{{ option }}</option>
                                 {% endfor %}
                             </select>
                         </div>
                         <div class="mb-3">
-                            <label for="priority">Priority</label>
-                            <input type="text" name="priority" class="form-control" value="{{ test_case.priority }}" readonly>
+                            <label for="priority" class="form-label">Priority</label>
+                            <input id="priority" type="text" name="priority" class="form-control" value="{{ test_case.priority }}" readonly>
                         </div>
                         <div class="mb-3">
-                            <label for="created_by">Updated By</label>
-                            <input type="text" name="created_by" class="form-control" value="{{ user_name }}" placeholder="Tester name" required>
+                            <label for="created_by" class="form-label">Updated By</label>
+                            <input id="created_by" type="text" name="created_by" class="form-control" placeholder="Tester name" required>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -166,6 +168,7 @@
             </div>
         </div>
     </div>
+
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
