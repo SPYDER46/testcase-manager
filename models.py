@@ -249,17 +249,27 @@ def get_iteration_by_id(iteration_id):
             c.execute('SELECT * FROM iteration WHERE id = %s', (iteration_id,))
             return c.fetchone()
 
-
 def update_iteration(iteration_id, description, steps, expected_result, actual_result, status, priority, updated_at):
     with get_connection() as conn:
-        with conn.cursor() as c:
-            c.execute('''
+        with conn.cursor() as cursor:
+            cursor.execute("""
                 UPDATE iteration
-                SET description = %s, steps = %s, expected_result = %s,
-                    actual_result = %s, status = %s, priority = %s, updated_at = %s
+                SET description = %s,
+                    steps = %s,
+                    expected_result = %s,
+                    actual_result = %s,
+                    status = %s,
+                    priority = %s,
+                    updated_at = %s
                 WHERE id = %s
-            ''', (description, steps, expected_result, actual_result, status, priority, updated_at, iteration_id))
+            """, (
+                description, steps, expected_result, actual_result,
+                status, priority, updated_at, iteration_id
+            ))
             conn.commit()
+    return True
+
+
 
 def reorder_iterations(test_case_id):
     conn = get_connection()
@@ -306,15 +316,46 @@ def get_latest_tester_and_update(game_name):
             if row:
                 return row[0], row[1]
             return "N/A", "N/A"
-
-
-def update_iteration(testcase_id, iteration):
+        
+def get_all_test_cases_with_latest(game):
     with get_connection() as conn:
-        with conn.cursor() as c:
-            c.execute('UPDATE test_cases SET iteration = %s WHERE id = %s', (iteration, testcase_id))
-            conn.commit()
-            return True
-        
-        
+        with conn.cursor(cursor_factory=RealDictCursor) as c:
+            c.execute('SELECT * FROM test_cases WHERE game = %s ORDER BY testcase_number', (game,))
+            test_cases = c.fetchall()
+            
+            for case in test_cases:
+                testcase_id = case['id']
+
+                # Fetch latest from test_case_history
+                c.execute('''
+                    SELECT status, priority, iteration, updated_at 
+                    FROM test_case_history
+                    WHERE test_case_id = %s
+                    ORDER BY updated_at DESC
+                    LIMIT 1
+                ''', (testcase_id,))
+                latest_hist = c.fetchone()
+
+                if latest_hist:
+                    case['status'] = latest_hist['status'] or case['status']
+                    case['priority'] = latest_hist['priority'] or case['priority']
+                    case['iteration'] = latest_hist['iteration'] or case['iteration']
+                    if latest_hist['updated_at']:
+                        case['last_updated'] = latest_hist['updated_at'].strftime("%b %d, %Y %I:%M %p")
+                else:
+                    # Fallback if no history found
+                    case['iteration'] = case['iteration'] or 0
+                    if case['date_created']:
+                        try:
+                            case['last_updated'] = case['date_created'].strftime("%b %d, %Y %I:%M %p")
+                        except Exception:
+                            case['last_updated'] = str(case['date_created'])
+                    else:
+                        case['last_updated'] = '-'
+            
+            return test_cases
+
+
+
 
 

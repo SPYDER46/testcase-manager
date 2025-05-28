@@ -41,7 +41,7 @@ def index(game_name):
     grouped_cases = defaultdict(list)
     for case in test_cases:
         grouped_cases['All Test Cases'].append(case)
-    return render_template('index.html', game_name=game_name, grouped_cases=dict(grouped_cases))
+    return render_template('index.html', game_name=game_name, grouped_cases=grouped_cases)
 
 
 @app.route('/games/<game_name>/add', methods=['GET', 'POST'])
@@ -180,17 +180,20 @@ def edit_iteration(game_name, testcase_id, iteration_id):
 
     # GET request - render form with current iteration data
     return render_template(
-        'edit_iteration.html',
-        game_name=game_name,
-        testcase_id=testcase_id,
-        iteration_id=iteration_id,
-        description=iteration.description,
-        steps=iteration.steps,
-        expected_result=iteration.expected_result,
-        actual_result=iteration.actual_result,
-        status=iteration.status,
-        priority=iteration.priority,
-    )
+            'edit_iteration.html',
+            game_name=game_name,
+            testcase_id=testcase_id,
+            iteration_id=iteration_id,
+            iteration=iteration,  # 👈 THIS is the key fix
+            description=iteration['description'],
+            steps=iteration['steps'],
+            expected_result=iteration['expected_result'],
+            actual_result=iteration['actual_result'],
+            status=iteration['status'],
+            priority=iteration['priority'],
+)
+
+
 
 from models import delete_iteration_by_id, reorder_iterations
 @app.route('/game/<game_name>/testcase/<int:testcase_id>/iteration/<int:iteration_id>/delete', methods=['POST'])
