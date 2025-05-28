@@ -79,19 +79,19 @@ def view_testcase(game_name, testcase_id):
         steps = request.form.get('steps', '')
         expected_result = request.form.get('expected_result', '')
         priority = request.form.get('priority', '')
-        created_by = request.form.get('created_by', 'Unknown')
+        created_by = request.form.get('created_by', '')
 
         add_iteration(
             testcase_id,
+            actual_result,
+            status,
+            iteration,
             description,
             steps,
             expected_result,
-            actual_result,
-            status, 
             priority,
             created_by
-        )
-
+)
 
         # Optionally update the main test case iteration count
         update_test_case_iteration(testcase_id, iteration)
@@ -123,11 +123,6 @@ def view_testcase(game_name, testcase_id):
     # Get iterations properly from models
     iterations = get_iterations_by_test_case_id(testcase_id)
 
-    # Format iteration updated_at timestamps
-    for entry in iterations:
-        dt_updated_at = parse_datetime(entry.get('updated_at'))
-        entry['updated_at'] = dt_updated_at.strftime("%b %d, %Y %I:%M %p") if dt_updated_at else ''
-
     # Render template with iterations instead of undefined history
     return render_template(
         'view_testcase.html',
@@ -136,7 +131,6 @@ def view_testcase(game_name, testcase_id):
         iterations=iterations,
         user_name=''
     )
-
 
 
 @app.route('/game/<game_name>/delete/<int:testcase_id>', methods=['POST'])
@@ -166,26 +160,25 @@ def update_testcase_route(game_name, testcase_id):
 
 @app.route('/games/<game_name>/testcase/<int:testcase_id>/iteration/<int:iteration_id>/edit', methods=['GET', 'POST'])
 def edit_iteration(game_name, testcase_id, iteration_id):
-    iteration = get_iteration_by_id(iteration_id) 
-    
+    # Your edit logic here, e.g. render edit form or process edits
+    iteration = get_iteration_by_id(iteration_id)
     if not iteration:
         return "Iteration not found", 404
 
     if request.method == 'POST':
+        # process update form
         description = request.form['description']
         steps = request.form['steps']
         expected_result = request.form['expected_result']
         actual_result = request.form['actual_result']
         status = request.form['status']
         priority = request.form['priority']
-
-        updated_at = datetime.now().strftime('%Y-%m-%d %I:%M %p')
+        updated_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
         update_iteration(iteration_id, description, steps, expected_result, actual_result, status, priority, updated_at)
-
         return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
 
-    # Render the edit form on GET
+    # GET request - render form with current iteration data
     return render_template(
         'edit_iteration.html',
         game_name=game_name,
@@ -199,14 +192,13 @@ def edit_iteration(game_name, testcase_id, iteration_id):
         priority=iteration.priority,
     )
 
-
 from models import delete_iteration_by_id, reorder_iterations
-@app.route('/games/<game_name>/testcase/<int:testcase_id>/iteration/<int:iteration_id>/delete', methods=['POST'])
+@app.route('/game/<game_name>/testcase/<int:testcase_id>/iteration/<int:iteration_id>/delete', methods=['POST'])
 def delete_iteration_route(game_name, testcase_id, iteration_id):
     delete_iteration_by_id(iteration_id)
     reorder_iterations(testcase_id)
     return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
-
+pass
 
 
 @app.route('/games/<game_name>/summary')
@@ -284,13 +276,17 @@ def update_iteration_route(game_name, testcase_id):
     return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
 
 @app.template_filter('datetimeformat')
-def datetimeformat(value, format="%b %d, %Y %I:%M %p"):
-    if isinstance(value, str):
+def datetimeformat(value):
+    from datetime import datetime
+    if not value:
+        return ''
+    for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"):
         try:
-            value = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+            dt = datetime.strptime(value, fmt)
+            return dt.strftime("%b %d, %Y %I:%M %p")
         except ValueError:
-            return value  # If parsing fails, return the string as-is
-    return value.strftime(format)
+            continue
+    return value 
 
 
 if __name__ == '__main__':

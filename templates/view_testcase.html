@@ -59,7 +59,7 @@
                 <td class="text-center">{{ test_case.status }}</td>
                 <td class="text-center">{{ test_case.priority }}</td>
                 <td>{{ test_case.created_by }}</td>
-                <td class="text-center">{{ test_case.date_created }}</td>
+                <td class="text-center">{{ test_case.date_created | datetimeformat }}</td>
             </tr>
         </tbody>
     </table>
@@ -94,23 +94,21 @@
     <tbody>
 {% for h in iterations %}
 <tr>
-    <td class="iteration text-center">{{ h.iteration }}</td>
-    <!-- <td class="wrap-text">{{ h.title }}</td>               {# Title #} -->
-    <td class="wrap-text">{{ h.description }}</td>         {# Description #}
-    <td class="wrap-text">{{ h.actual_result }}</td>       {# Actual #}
-    <td class="text-center">{{ h.status }}</td>
-    <td class="text-center">{{ h.priority }}</td>
-    <td class="text-center">{{ h.updated_by or 'Unknown' }}</td>
-    <td class="text-center">{{ h.updated_at }}</td>
+    <td>{{ loop.index }}</td>
+    <td>{{ h.description }}</td>
+    <td>{{ h.actual_result }}</td>
+    <td>{{ h.status }}</td>
+    <td>{{ h.priority }}</td>
+    <td>{{ h.updated_by }}</td>
+    <td>{{ h.updated_at | datetimeformat }}</td>
     <td class="text-center d-flex justify-content-center gap-2">
-        <a href="{{ url_for('edit_iteration', game_name=game_name, testcase_id=test_case.id, iteration_id=h.id) }}" class="btn btn-sm btn-warning">Edit</a>
-        <form method="POST" action="{{ url_for('delete_iteration_route', game_name=game_name, testcase_id=test_case.id, iteration_id=h.id) }}" style="display:inline;">
-            <button type="button"
-                    class="btn btn-sm btn-danger btn-delete"
-                    data-url="{{ url_for('delete_iteration_route', game_name=game_name, testcase_id=test_case.id, iteration_id=h.id) }}">
-                Delete
-            </button>
-        </form>
+<a href="{{ url_for('edit_iteration', game_name=game_name, testcase_id=test_case['id'], iteration_id=h['id']) }}" class="btn btn-sm btn-warning">Edit</a>
+    <form method="POST" action="{{ url_for('delete_iteration_route', game_name=game_name, testcase_id=test_case.id, iteration_id=h.id) }}" style="display:inline;">
+    <button type="submit" class="btn btn-sm btn-danger">
+        Delete
+    </button>
+</form>
+
     </td>
 </tr>
 {% endfor %}
@@ -126,7 +124,8 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="updateModalLabel">Update Test Case for Iteration {{ history|length + 1 }}</h5>
+                    <input type="hidden" name="iteration" value="{{ iterations|length + 1 }}">
+                    <h5>Update Test Case for Iteration {{ iterations|length + 1 }}</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <form method="POST" action="{{ url_for('view_testcase', game_name=game_name, testcase_id=test_case.id) }}">

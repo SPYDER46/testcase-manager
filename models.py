@@ -56,19 +56,21 @@ def init_db():
             ''')
             c.execute('''
                 CREATE TABLE IF NOT EXISTS iteration (
-                    id SERIAL PRIMARY KEY,
-                    test_case_id INTEGER REFERENCES test_cases(id),
-                    iteration INTEGER,
-                    description TEXT,
-                    steps TEXT,
-                    expected_result TEXT,
-                    actual_result TEXT,
-                    status TEXT,
-                    priority TEXT,
-                    created_by TEXT,
-                    updated_at TEXT
-                )
+                id SERIAL PRIMARY KEY,
+                test_case_id INTEGER NOT NULL,
+                iteration INTEGER NOT NULL,
+                description TEXT,
+                steps TEXT,
+                expected_result TEXT,
+                actual_result TEXT,
+                status VARCHAR(50),
+                priority VARCHAR(50),
+                created_by VARCHAR(100),
+                updated_at TIMESTAMP,
+                FOREIGN KEY (test_case_id) REFERENCES test_cases(id)
+                );
             ''')
+
 
 def add_test_case(game, data, created_by):
     with get_connection() as conn:
@@ -76,7 +78,7 @@ def add_test_case(game, data, created_by):
             c.execute('SELECT COALESCE(MAX(testcase_number), 0) FROM test_cases WHERE game = %s', (game,))
             max_tc_num = c.fetchone()['coalesce'] or 0  # Using RealDictCursor
             new_tc_num = max_tc_num + 1
-            now = datetime.now()  # Keep it as datetime object
+            now = datetime.now()  
             
             c.execute('''
                 INSERT INTO test_cases (
@@ -173,69 +175,73 @@ def get_test_case_history_by_test_case_id(testcase_id):
             ''', (testcase_id,))
             return c.fetchall()
         
-def add_iteration(test_case_id, actual_result, status, description, steps, expected_result, priority, created_by):
+def add_iteration(test_case_id, actual_result, status, iteration, description, steps, expected_result, priority, created_by):
     conn = get_connection()
     cursor = conn.cursor()
 
-    # Get max iteration number for this test case
     cursor.execute("SELECT MAX(iteration) FROM iteration WHERE test_case_id = %s", (test_case_id,))
     max_iteration = cursor.fetchone()[0] or 0
     new_iteration_number = max_iteration + 1
 
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Proper timestamp for updated_at
+    now = datetime.now()  # keep it as a datetime object for TIMESTAMP
 
     cursor.execute("""
-        INSERT INTO iteration
-            (test_case_id, actual_result, status, iteration, description, steps,
-             expected_result, priority, created_by, updated_at)
+        INSERT INTO iteration (
+            iteration, test_case_id, description, steps, expected_result,
+            actual_result, status, priority, created_by, updated_at
+        )
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """, (
-        test_case_id, actual_result, status, new_iteration_number,
-        description, steps, expected_result, priority, created_by, now
+        new_iteration_number, test_case_id, description, steps, expected_result,
+        actual_result, status, priority, created_by, now
     ))
-    
+
     conn.commit()
-    conn.close()   
+    conn.close()
+ 
+
+from psycopg2.extras import RealDictCursor  
 
 def get_iterations_by_test_case_id(testcase_id):
     iterations = []
     conn = get_connection()
     try:
-        with conn.cursor() as cursor:
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
             cursor.execute("""
-                SELECT id, test_case_id, iteration, description, steps, expected_result,
-                       actual_result, status, priority, created_at, updated_at, created_by
+                SELECT id, iteration, description, actual_result, status, priority, created_by, updated_at
                 FROM iteration
                 WHERE test_case_id = %s
-                ORDER BY updated_at ASC
+                ORDER BY iteration ASC
             """, (testcase_id,))
+
 
             rows = cursor.fetchall()
 
             for row in rows:
-                # Format updated_at
                 updated_at = ''
-                if row[10]:
-                    if isinstance(row[10], str):
-                        updated_at = parser.parse(row[10]).strftime("%b %d, %Y %I:%M %p")
-                    else:
-                        updated_at = row[10].strftime("%b %d, %Y %I:%M %p")
+
+                if row['updated_at']:
+                    try:
+                        updated_at = row['updated_at'].strftime("%b %d, %Y %I:%M %p")
+                    except Exception as e:
+                        print("Date format error:", e)
+                        updated_at = str(row['updated_at'])
+
 
                 iterations.append({
-                    'id': row[0],
-                    'iteration': row[2],
-                    'description': row[3],
-                    'steps': row[4],
-                    'expected_result': row[5],
-                    'actual_result': row[6],
-                    'status': row[7].capitalize() if row[7] else '',
-                    'priority': row[8].capitalize() if row[8] else '',
-                    'updated_by': row[11] or 'Unknown',
+                    'id': row['id'], 
+                    'iteration': row['iteration'],
+                    'description': row['description'] or '',
+                    'actual_result': row['actual_result'] or '',
+                    'status': row['status'].capitalize() if row['status'] else '',
+                    'priority': row['priority'] or '',
+                    'updated_by': row['created_by'] or 'Unknown',
                     'updated_at': updated_at
                 })
     finally:
         conn.close()
     return iterations
+
 
 def get_iteration_by_id(iteration_id):
     with get_connection() as conn:
