@@ -11,7 +11,7 @@ from models import (
     backfill_testcase_numbers,
     update_test_case,
     delete_test_case,
-    get_test_case_history_by_test_case_id,
+    get_iterations_by_test_case_id,
     get_iteration_by_id,
     update_iteration,
     delete_iteration_by_id,
@@ -62,13 +62,16 @@ def add(game_name):
     return render_template('add_testcase.html', game_name=game_name)
 
 
+from models import add_iteration, update_test_case_iteration
 @app.route('/games/<game_name>/testcase/<int:testcase_id>', methods=['GET', 'POST'])
 def view_testcase(game_name, testcase_id):
     if request.method == 'POST':
         try:
             iteration = int(request.form['iteration'])
+            if iteration < 1:
+                iteration = 1
         except (ValueError, TypeError):
-            iteration = 0  # Default iteration if invalid input
+            iteration = 1  
 
         actual_result = request.form.get('actual_result', '')
         status = request.form.get('status', '')
@@ -78,10 +81,21 @@ def view_testcase(game_name, testcase_id):
         priority = request.form.get('priority', '')
         created_by = request.form.get('created_by', 'Unknown')
 
-        update_test_case(
-            testcase_id, actual_result, status, iteration,
-            description, steps, expected_result, priority, created_by
+        add_iteration(
+            testcase_id,
+            description,
+            steps,
+            expected_result,
+            actual_result,
+            status, 
+            priority,
+            created_by
         )
+
+
+        # Optionally update the main test case iteration count
+        update_test_case_iteration(testcase_id, iteration)
+
         return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
 
     # GET request
@@ -106,22 +120,23 @@ def view_testcase(game_name, testcase_id):
     dt_created = parse_datetime(test_case.get('date_created'))
     test_case['date_created'] = dt_created.strftime("%b %d, %Y %I:%M %p") if dt_created else ''
 
-    # Format history dates
-    history = get_test_case_history_by_test_case_id(testcase_id)
-    for entry in history:
-        dt_created_at = parse_datetime(entry.get('created_at'))
-        dt_updated_at = parse_datetime(entry.get('updated_at'))
+    # Get iterations properly from models
+    iterations = get_iterations_by_test_case_id(testcase_id)
 
-        entry['created_at'] = dt_created_at.strftime("%b %d, %Y %I:%M %p") if dt_created_at else ''
+    # Format iteration updated_at timestamps
+    for entry in iterations:
+        dt_updated_at = parse_datetime(entry.get('updated_at'))
         entry['updated_at'] = dt_updated_at.strftime("%b %d, %Y %I:%M %p") if dt_updated_at else ''
 
+    # Render template with iterations instead of undefined history
     return render_template(
         'view_testcase.html',
         game_name=game_name,
         test_case=test_case,
-        history=history,
+        iterations=iterations,
         user_name=''
     )
+
 
 
 @app.route('/game/<game_name>/delete/<int:testcase_id>', methods=['POST'])
@@ -170,13 +185,26 @@ def edit_iteration(game_name, testcase_id, iteration_id):
 
         return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
 
-    return render_template('edit_iteration.html', iteration=iteration, game_name=game_name, testcase_id=testcase_id)
+    # Render the edit form on GET
+    return render_template(
+        'edit_iteration.html',
+        game_name=game_name,
+        testcase_id=testcase_id,
+        iteration_id=iteration_id,
+        description=iteration.description,
+        steps=iteration.steps,
+        expected_result=iteration.expected_result,
+        actual_result=iteration.actual_result,
+        status=iteration.status,
+        priority=iteration.priority,
+    )
 
 
+from models import delete_iteration_by_id, reorder_iterations
 @app.route('/games/<game_name>/testcase/<int:testcase_id>/iteration/<int:iteration_id>/delete', methods=['POST'])
 def delete_iteration_route(game_name, testcase_id, iteration_id):
     delete_iteration_by_id(iteration_id)
-    flash('Iteration deleted successfully.', 'success')
+    reorder_iterations(testcase_id)
     return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
 
 
@@ -235,17 +263,34 @@ def summary_report(game_name):
         uiux_version=uiux_version
     )
 
-
 @app.route('/games/<game_name>/testcase/<int:testcase_id>/update_iteration', methods=['POST'])
 def update_iteration_route(game_name, testcase_id):
-    iteration = request.form.get('iteration', type=int)
-    if iteration is None or iteration < 1:
+    iteration_id = request.form.get('iteration_id', type=int)
+    if not iteration_id:
         return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
-    success = update_iteration(testcase_id, iteration)
+
+    description = request.form.get('description', '')
+    steps = request.form.get('steps', '')
+    expected_result = request.form.get('expected_result', '')
+    actual_result = request.form.get('actual_result', '')
+    status = request.form.get('status', '')
+    priority = request.form.get('priority', '')
+    updated_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    success = update_iteration(iteration_id, description, steps, expected_result, actual_result, status, priority, updated_at)
     if not success:
         pass
 
     return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
+
+@app.template_filter('datetimeformat')
+def datetimeformat(value, format="%b %d, %Y %I:%M %p"):
+    if isinstance(value, str):
+        try:
+            value = datetime.strptime(value, "%Y-%m-%d %H:%M:%S")
+        except ValueError:
+            return value  # If parsing fails, return the string as-is
+    return value.strftime(format)
 
 
 if __name__ == '__main__':

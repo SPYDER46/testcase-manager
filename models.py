@@ -1,6 +1,7 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import datetime
+from dateutil import parser
 
 DB_CONFIG = {
     'host': 'localhost',
@@ -164,7 +165,6 @@ def delete_test_case(testcase_id):
             c.execute('DELETE FROM test_cases WHERE id = %s', (testcase_id,))
             conn.commit()
 
-
 def get_test_case_history_by_test_case_id(testcase_id):
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as c:
@@ -172,7 +172,70 @@ def get_test_case_history_by_test_case_id(testcase_id):
                 SELECT * FROM test_case_history WHERE test_case_id = %s ORDER BY created_at DESC
             ''', (testcase_id,))
             return c.fetchall()
+        
+def add_iteration(test_case_id, actual_result, status, description, steps, expected_result, priority, created_by):
+    conn = get_connection()
+    cursor = conn.cursor()
 
+    # Get max iteration number for this test case
+    cursor.execute("SELECT MAX(iteration) FROM iteration WHERE test_case_id = %s", (test_case_id,))
+    max_iteration = cursor.fetchone()[0] or 0
+    new_iteration_number = max_iteration + 1
+
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # Proper timestamp for updated_at
+
+    cursor.execute("""
+        INSERT INTO iteration
+            (test_case_id, actual_result, status, iteration, description, steps,
+             expected_result, priority, created_by, updated_at)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    """, (
+        test_case_id, actual_result, status, new_iteration_number,
+        description, steps, expected_result, priority, created_by, now
+    ))
+    
+    conn.commit()
+    conn.close()   
+
+def get_iterations_by_test_case_id(testcase_id):
+    iterations = []
+    conn = get_connection()
+    try:
+        with conn.cursor() as cursor:
+            cursor.execute("""
+                SELECT id, test_case_id, iteration, description, steps, expected_result,
+                       actual_result, status, priority, created_at, updated_at, created_by
+                FROM iteration
+                WHERE test_case_id = %s
+                ORDER BY updated_at ASC
+            """, (testcase_id,))
+
+            rows = cursor.fetchall()
+
+            for row in rows:
+                # Format updated_at
+                updated_at = ''
+                if row[10]:
+                    if isinstance(row[10], str):
+                        updated_at = parser.parse(row[10]).strftime("%b %d, %Y %I:%M %p")
+                    else:
+                        updated_at = row[10].strftime("%b %d, %Y %I:%M %p")
+
+                iterations.append({
+                    'id': row[0],
+                    'iteration': row[2],
+                    'description': row[3],
+                    'steps': row[4],
+                    'expected_result': row[5],
+                    'actual_result': row[6],
+                    'status': row[7].capitalize() if row[7] else '',
+                    'priority': row[8].capitalize() if row[8] else '',
+                    'updated_by': row[11] or 'Unknown',
+                    'updated_at': updated_at
+                })
+    finally:
+        conn.close()
+    return iterations
 
 def get_iteration_by_id(iteration_id):
     with get_connection() as conn:
@@ -192,12 +255,38 @@ def update_iteration(iteration_id, description, steps, expected_result, actual_r
             ''', (description, steps, expected_result, actual_result, status, priority, updated_at, iteration_id))
             conn.commit()
 
+def reorder_iterations(test_case_id):
+    conn = get_connection()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT id FROM iteration WHERE test_case_id = %s ORDER BY iteration
+    """, (test_case_id,))
+    rows = cursor.fetchall()
+    
+    for idx, (iteration_id,) in enumerate(rows, start=1):
+        cursor.execute("""
+            UPDATE iteration SET iteration = %s WHERE id = %s
+        """, (idx, iteration_id))
+    
+    conn.commit()
+    conn.close()
+
 
 def delete_iteration_by_id(iteration_id):
     with get_connection() as conn:
         with conn.cursor() as c:
             c.execute('DELETE FROM iteration WHERE id = %s', (iteration_id,))
             conn.commit()
+
+def update_test_case_iteration(testcase_id, iteration):
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("UPDATE test_cases SET iteration = %s WHERE id = %s", (iteration, testcase_id))
+    conn.commit()
+    cursor.close()
+    conn.close()
+
 
 def get_latest_tester_and_update(game_name):
     with get_connection() as conn:
@@ -220,12 +309,6 @@ def update_iteration(testcase_id, iteration):
             conn.commit()
             return True
         
-def get_iterations_by_test_case_id(testcase_id):
-    with get_connection() as conn:
-        with conn.cursor(cursor_factory=RealDictCursor) as c:
-            c.execute('SELECT * FROM iteration WHERE test_case_id = %s ORDER BY id DESC', (testcase_id,))
-            return c.fetchall()
-
         
 
 

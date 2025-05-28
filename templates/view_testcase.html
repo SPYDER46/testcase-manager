@@ -65,61 +65,61 @@
     </table>
 
     <div class="d-flex justify-content-between align-items-center mb-3 mt-2">
-        <h4>Iteration History</h4>
-        <button
-          type="button"
-          class="btn btn-primary btn-sm"
-          data-bs-toggle="modal"
-          data-bs-target="#updateModal"
-        >
-          Update Iteration
-        </button>
-    </div>
+    <h4>Iteration History</h4>
+    <button
+      type="button"
+      class="btn btn-primary btn-sm"
+      data-bs-toggle="modal"
+      data-bs-target="#updateModal"
+    >
+      Update Iteration
+    </button>
+</div>
 
-    {% if history %}
-    <table class="table table-bordered table-sm">
-        <thead>
-            <tr class="text-center">
-                <th>Iteration</th>
-                <th style="min-width: 150px;">Title</th>
-                <th style="min-width: 220px;">Description</th>
-                <th style="min-width: 180px;">Actual</th>
-                <th class="status">Status</th>
-                <th class="priority">Priority</th>
-                <th class="updated_by">Updated By</th>
-                <th class="date_created">Date Created</th>
-                <th class="actions">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for h in history %}
-            <tr>
-                <td class="iteration text-center">{{ h.iteration }}</td>
-                <td class="wrap-text">{{ h.title }}</td>
-                <td class="wrap-text">{{ h.description }}</td>
-                <td class="wrap-text">{{ h.actual_result }}</td>
-                <td class="text-center">{{ h.status }}</td>
-                <td class="text-center">{{ h.priority }}</td>
-                <td class="text-center">{{ h.created_by or 'None' }}</td>
-                <td class="text-center">{{ h.updated_at }}</td>
-                <td class="text-center d-flex justify-content-center gap-2">
-                    <a href="{{ url_for('edit_iteration', game_name=game_name, testcase_id=test_case.id, iteration_id=h.id) }}" class="btn btn-sm btn-warning">Edit</a>
-                    <form method="POST" action="{{ url_for('delete_iteration_route', game_name=game_name, testcase_id=test_case.id, iteration_id=h.id) }}" style="display:inline;">
-                        <button type="button"
-                                class="btn btn-sm btn-danger btn-delete"
-                                data-url="{{ url_for('delete_iteration_route', game_name=game_name, testcase_id=test_case.id, iteration_id=h.id) }}">
-                            Delete
-                        </button>
+{% if iterations %}
+<table class="table table-bordered table-sm">
+    <thead>
+        <tr class="text-center">
+            <th>Iteration</th>
+            <!-- <th style="min-width: 150px;">Title</th> -->
+            <th style="min-width: 220px;">Description</th>
+            <th style="min-width: 180px;">Actual</th>
+            <th class="status">Status</th>
+            <th class="priority">Priority</th>
+            <th class="updated_by">Updated By</th>
+            <th class="date_created">Update date</th>
+            <th class="actions">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+{% for h in iterations %}
+<tr>
+    <td class="iteration text-center">{{ h.iteration }}</td>
+    <!-- <td class="wrap-text">{{ h.title }}</td>               {# Title #} -->
+    <td class="wrap-text">{{ h.description }}</td>         {# Description #}
+    <td class="wrap-text">{{ h.actual_result }}</td>       {# Actual #}
+    <td class="text-center">{{ h.status }}</td>
+    <td class="text-center">{{ h.priority }}</td>
+    <td class="text-center">{{ h.updated_by or 'Unknown' }}</td>
+    <td class="text-center">{{ h.updated_at }}</td>
+    <td class="text-center d-flex justify-content-center gap-2">
+        <a href="{{ url_for('edit_iteration', game_name=game_name, testcase_id=test_case.id, iteration_id=h.id) }}" class="btn btn-sm btn-warning">Edit</a>
+        <form method="POST" action="{{ url_for('delete_iteration_route', game_name=game_name, testcase_id=test_case.id, iteration_id=h.id) }}" style="display:inline;">
+            <button type="button"
+                    class="btn btn-sm btn-danger btn-delete"
+                    data-url="{{ url_for('delete_iteration_route', game_name=game_name, testcase_id=test_case.id, iteration_id=h.id) }}">
+                Delete
+            </button>
+        </form>
+    </td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% else %}
+<p>No iteration history available.</p>
+{% endif %}
 
-                    </form>
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    {% else %}
-        <p>No iteration history available.</p>
-    {% endif %}
 
     <!-- Update Iteration Modal -->
     <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
