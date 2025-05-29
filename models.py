@@ -5,31 +5,31 @@ from datetime import datetime
 from dateutil import parser
 
 
-DB_CONFIG = {
-    'host': 'localhost',
-    'database': 'testdb',
-    'user': 'postgres',
-    'password': 'root',
-    'port': 5432
-}
-
-# def get_connection():
-#     url = os.environ.get('DATABASE_URL')
-#     if not url:
-#         raise Exception("DATABASE_URL not found in environment variables.")
-
-#     parsed = urlparse.urlparse(url)
-#     db_config = {
-#         'dbname': parsed.path[1:],  # remove leading /
-#         'user': parsed.username,
-#         'password': parsed.password,
-#         'host': parsed.hostname,
-#         'port': parsed.port
-#     }
-#     return psycopg2.connect(**db_config)
+# DB_CONFIG = {
+#     'host': 'localhost',
+#     'database': 'testdb',
+#     'user': 'postgres',
+#     'password': 'root',
+#     'port': 5432
+# }
 
 def get_connection():
-    return psycopg2.connect(**DB_CONFIG)
+    url = os.environ.get('DATABASE_URL')
+    if not url:
+        raise Exception("DATABASE_URL not found in environment variables.")
+
+    parsed = urlparse.urlparse(url)
+    db_config = {
+        'dbname': parsed.path[1:],  
+        'user': parsed.username,
+        'password': parsed.password,
+        'host': parsed.hostname,
+        'port': parsed.port
+    }
+    return psycopg2.connect(**db_config)
+
+# def get_connection():
+#     return psycopg2.connect(**DB_CONFIG)
 
 def init_db():
     with get_connection() as conn:
@@ -410,9 +410,3 @@ def get_all_test_cases_with_latest(game):
                 print(f"ID: {c['id']} Status: {c.get('status')} Priority: {c.get('priority')} Iteration: {c.get('iteration')} Last Updated: {c.get('last_updated')}")
             
             return test_cases
-
-
-
-
-
-

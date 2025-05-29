@@ -238,8 +238,6 @@ def summary_report(game_name):
     phase_no = request.args.get('phase_no', 'N/A')
     date_received_raw = request.args.get('date_time_received', 'N/A')
     date_delivered_raw = request.args.get('date_time_delivered', 'N/A')
-    new_bugs = request.args.get('New_bug', 'N/A')
-    repeated_bugs = request.args.get('Repeated_bugs', 'N/A')
 
     def format_date(dt_str):
         try:
@@ -286,6 +284,40 @@ def summary_report(game_name):
 
     priorities = calculate_priorities(test_cases)
 
+    # ✅ Auto-compute bugs based on iteration comparison
+    new_bugs = 0
+    repeated_bugs = 0
+
+    try:
+        current_iteration = int(iteration_no)
+    except ValueError:
+        current_iteration = None
+
+    if current_iteration and current_iteration > 1:
+        iteration_status_map = defaultdict(dict)
+        for tc in test_cases:
+            tc_id = extract_tc_id(tc)
+            if tc_id is None:
+                continue
+            iteration = tc.get('iteration')
+            status = tc.get('status', '').strip().lower()
+            if iteration is not None:
+                iteration_status_map[iteration][tc_id] = status
+
+        prev_status_map = iteration_status_map.get(current_iteration - 1, {})
+        current_status_map = iteration_status_map.get(current_iteration, {})
+
+        for tc_id, curr_status in current_status_map.items():
+            prev_status = prev_status_map.get(tc_id)
+            if curr_status == 'fail':
+                if prev_status == 'pass':
+                    new_bugs += 1
+                elif prev_status == 'fail':
+                    repeated_bugs += 1
+    else:
+        new_bugs = 0
+        repeated_bugs = 0
+
     return render_template('summary.html',
                            game_name=game_name,
                            iteration_no=iteration_no,
@@ -303,6 +335,7 @@ def summary_report(game_name):
                            priorities=priorities,
                            repeated_bugs=repeated_bugs,
                            new_bugs=new_bugs)
+
 
 @app.route('/games/<game_name>/testcase/<int:testcase_id>/update_iteration', methods=['POST'])
 def update_iteration_route(game_name, testcase_id):
