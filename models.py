@@ -18,7 +18,7 @@ def get_connection():
     if not url:
         raise Exception("DATABASE_URL not found in environment variables.")
 
-    parsed = urlparse.urlparse(url)
+    parsed = urlparse(url)  
     db_config = {
         'dbname': parsed.path[1:],  
         'user': parsed.username,
