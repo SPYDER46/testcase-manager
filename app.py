@@ -196,7 +196,7 @@ def edit_iteration(game_name, testcase_id, iteration_id):
             game_name=game_name,
             testcase_id=testcase_id,
             iteration_id=iteration_id,
-            iteration=iteration,  # 👈 THIS is the key fix
+            iteration=iteration,  
             description=iteration['description'],
             steps=iteration['steps'],
             expected_result=iteration['expected_result'],
@@ -228,6 +228,8 @@ def get_test_cases(game_name):
         {'status': 'Fail', 'priority': 'Minor', 'game_name': game_name},
         {'status': 'Hold', 'priority': 'Minor', 'game_name': game_name},
     ]
+
+
 @app.route('/games/<game_name>/summary')
 def summary_report(game_name):
     iteration_no = request.args.get('iteration_no', 'N/A')
@@ -238,6 +240,17 @@ def summary_report(game_name):
     phase_no = request.args.get('phase_no', 'N/A')
     date_received_raw = request.args.get('date_time_received', 'N/A')
     date_delivered_raw = request.args.get('date_time_delivered', 'N/A')
+
+    # Try to parse new/repeated bugs from form
+    try:
+        new_bugs = int(request.args.get('New_bug'))
+    except (TypeError, ValueError):
+        new_bugs = None
+
+    try:
+        repeated_bugs = int(request.args.get('Repeated_bugs'))
+    except (TypeError, ValueError):
+        repeated_bugs = None
 
     def format_date(dt_str):
         try:
@@ -284,16 +297,16 @@ def summary_report(game_name):
 
     priorities = calculate_priorities(test_cases)
 
-    # ✅ Auto-compute bugs based on iteration comparison
-    new_bugs = 0
-    repeated_bugs = 0
-
+    # Calculate new/repeated bugs only if not given
     try:
         current_iteration = int(iteration_no)
     except ValueError:
         current_iteration = None
 
-    if current_iteration and current_iteration > 1:
+    if (new_bugs is None or repeated_bugs is None) and current_iteration and current_iteration > 1:
+        new_bugs = 0
+        repeated_bugs = 0
+
         iteration_status_map = defaultdict(dict)
         for tc in test_cases:
             tc_id = extract_tc_id(tc)
@@ -315,8 +328,11 @@ def summary_report(game_name):
                 elif prev_status == 'fail':
                     repeated_bugs += 1
     else:
-        new_bugs = 0
-        repeated_bugs = 0
+        # If still None (e.g. no iteration or < 2), set to 0
+        if new_bugs is None:
+            new_bugs = 0
+        if repeated_bugs is None:
+            repeated_bugs = 0
 
     return render_template('summary.html',
                            game_name=game_name,
