@@ -103,53 +103,68 @@
 
 
 <!-- Summary Form Modal -->
-<div class="modal fade" id="summaryFormModal" tabindex="-1" aria-labelledby="summaryFormModalLabel" aria-hidden="true">
+<div class="modal fade" id="summaryFormModal" tabindex="-1" aria-labelledby="summaryFormModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <form method="GET" action="{{ url_for('summary_report', game_name=game_name) }}">
-  <div class="modal-body">
-    <div class="mb-3">
-      <label for="iteration_no">Iteration no</label>
-      <input type="text" name="iteration_no" class="form-control" required>
-    </div>
-    <div class="mb-3">
-      <label for="art_version">Art Document Version</label>
-      <input type="text" name="art_version" class="form-control" required>
-    </div>
-    <div class="mb-3">
-      <label for="uiux_version">UI/UX Document Version</label>
-      <input type="text" name="uiux_version" class="form-control" required>
-    </div>
-    <div class="mb-3">
-      <label for="developer_name">Developer Name</label>
-      <input type="text" name="developer_name" class="form-control" required>
-    </div>
-    <div class="mb-3">
-      <label for="tester">Tester Name</label>
-      <input type="text" name="tester" class="form-control" required>
-    </div>
-    <div class="mb-3">
-      <label for="phase_no">Phase No</label>
-      <input type="number" name="phase_no" class="form-control" required>
-    </div>
-    <div class="mb-3">
-      <label for="date_time_received">Date & Time Received</label>
-      <input type="datetime-local" name="date_time_received" class="form-control" required>
-    </div>
-    <div class="mb-3">
-      <label for="date_time_delivered">Date & Time Delivered</label>
-      <input type="datetime-local" name="date_time_delivered" class="form-control" required>
-    </div>
-  </div>
-  <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-    <button type="submit" class="btn btn-success">Submit & View Report</button>
-  </div>
-</form>
-
+        <div class="modal-header">
+          <h5 class="modal-title" id="summaryFormModalLabel">Summary Report Details</h5>
+        </div>
+        <div class="modal-body">
+          <div class="container-fluid">
+            <div class="row gx-3">
+              <div class="col-6 mb-3">
+                <label for="iteration_no" class="form-label">Iteration no</label>
+                <input type="number" name="iteration_no" class="form-control" required>
+              </div>
+              <div class="col-6 mb-3">
+                <label for="New_bug" class="form-label">New Bug</label>
+                <input type="number" name="New_bug" class="form-control" required>
+              </div>
+              <div class="col-6 mb-3">
+                <label for="Repeated_bugs" class="form-label">Repeated Bug</label>
+                <input type="number" name="Repeated_bugs" class="form-control" required>
+              </div>
+              <div class="col-6 mb-3">
+                <label for="art_version" class="form-label">Art Document Version</label>
+                <input type="text" name="art_version" class="form-control" required>
+              </div>
+              <div class="col-6 mb-3">
+                <label for="uiux_version" class="form-label">UI/UX Document Version</label>
+                <input type="text" name="uiux_version" class="form-control" required>
+              </div>
+              <div class="col-6 mb-3">
+                <label for="developer_name" class="form-label">Developer Name</label>
+                <input type="text" name="developer_name" class="form-control" required>
+              </div>
+              <div class="col-6 mb-3">
+                <label for="tester" class="form-label">Tester Name</label>
+                <input type="text" name="tester" class="form-control" required>
+              </div>
+              <div class="col-6 mb-3">
+                <label for="phase_no" class="form-label">Phase No</label>
+                <input type="number" name="phase_no" class="form-control" required>
+              </div>
+              <div class="col-6 mb-3">
+                <label for="date_time_received" class="form-label">Date & Time Received</label>
+                <input type="datetime-local" name="date_time_received" class="form-control" required>
+              </div>
+              <div class="col-6 mb-3">
+                <label for="date_time_delivered" class="form-label">Date & Time Delivered</label>
+                <input type="datetime-local" name="date_time_delivered" class="form-control" required>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer py-2">
+          <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-success btn-sm">Submit & View Report</button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
+
 
 
 

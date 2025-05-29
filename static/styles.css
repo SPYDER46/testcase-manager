@@ -264,4 +264,8 @@ h5.text-primary {
     transform: scale(1.0);
 }
 
-  
+.custom-modal-dialog {
+  margin-top: 2vh;
+  max-height: 50vh;
+  overflow-y: auto;
+}

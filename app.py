@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for
 import models
 from collections import defaultdict
 from datetime import datetime
+from collections import defaultdict
 
 from models import (
     init_db,
@@ -227,8 +228,6 @@ def get_test_cases(game_name):
         {'status': 'Fail', 'priority': 'Minor', 'game_name': game_name},
         {'status': 'Hold', 'priority': 'Minor', 'game_name': game_name},
     ]
-
-
 @app.route('/games/<game_name>/summary')
 def summary_report(game_name):
     iteration_no = request.args.get('iteration_no', 'N/A')
@@ -239,16 +238,40 @@ def summary_report(game_name):
     phase_no = request.args.get('phase_no', 'N/A')
     date_received_raw = request.args.get('date_time_received', 'N/A')
     date_delivered_raw = request.args.get('date_time_delivered', 'N/A')
+    new_bugs = request.args.get('New_bug', 'N/A')
+    repeated_bugs = request.args.get('Repeated_bugs', 'N/A')
+
+    def format_date(dt_str):
+        try:
+            dt = datetime.fromisoformat(dt_str)
+            return dt.strftime("%b %d, %Y %I:%M %p")
+        except Exception:
+            return dt_str
 
     date_received = format_date(date_received_raw) if date_received_raw != 'N/A' else 'N/A'
     date_delivered = format_date(date_delivered_raw) if date_delivered_raw != 'N/A' else 'N/A'
 
     test_cases, _ = get_all_test_cases(game_name)
-    total_cases = len(test_cases)
 
-    # Count statuses case-insensitively
+    def extract_tc_id(tc):
+        return tc.get('id') if 'id' in tc else tc.get('testcase_id')
+
+    total_cases = len(set(extract_tc_id(tc) for tc in test_cases if extract_tc_id(tc) is not None))
+
     def count_status(status_name):
-        return sum(tc['status'].strip().lower() == status_name.lower() for tc in test_cases)
+        try:
+            current_iteration = int(iteration_no)
+        except:
+            current_iteration = None
+
+        if current_iteration is None:
+            return sum(tc.get('status', '').strip().lower() == status_name.lower() for tc in test_cases)
+
+        return sum(
+            tc.get('status', '').strip().lower() == status_name.lower()
+            and tc.get('iteration') == current_iteration
+            for tc in test_cases
+        )
 
     status_counts = {
         'Pass': count_status('Pass'),
@@ -261,9 +284,7 @@ def summary_report(game_name):
     pass_percentage = round((status_counts['Pass'] / total_cases) * 100, 2) if total_cases else 0
     fail_percentage = round((status_counts['Fail'] / total_cases) * 100, 2) if total_cases else 0
 
-
-    # For priorities, same as your existing code
-    priorities = calculate_priorities(test_cases)  # Your function
+    priorities = calculate_priorities(test_cases)
 
     return render_template('summary.html',
                            game_name=game_name,
@@ -279,8 +300,9 @@ def summary_report(game_name):
                            status_counts=status_counts,
                            pass_percentage=pass_percentage,
                            fail_percentage=fail_percentage,
-                           priorities=priorities)
-
+                           priorities=priorities,
+                           repeated_bugs=repeated_bugs,
+                           new_bugs=new_bugs)
 
 @app.route('/games/<game_name>/testcase/<int:testcase_id>/update_iteration', methods=['POST'])
 def update_iteration_route(game_name, testcase_id):
@@ -325,6 +347,8 @@ def format_date(dt_str):
         return dt.strftime("%b %d, %Y %I:%M %p")  
     except Exception:
         return dt_str
+    
+
 
 
 if __name__ == '__main__':

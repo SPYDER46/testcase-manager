@@ -3,30 +3,34 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import datetime
 from dateutil import parser
-import urllib.parse as urlparse
 
-# DB_CONFIG = {
-#     'host': 'localhost',
-#     'database': 'testdb',
-#     'user': 'postgres',
-#     'password': 'root',
-#     'port': 5432
-# }
+
+DB_CONFIG = {
+    'host': 'localhost',
+    'database': 'testdb',
+    'user': 'postgres',
+    'password': 'root',
+    'port': 5432
+}
+
+# def get_connection():
+#     url = os.environ.get('DATABASE_URL')
+#     if not url:
+#         raise Exception("DATABASE_URL not found in environment variables.")
+
+#     parsed = urlparse.urlparse(url)
+#     db_config = {
+#         'dbname': parsed.path[1:],  # remove leading /
+#         'user': parsed.username,
+#         'password': parsed.password,
+#         'host': parsed.hostname,
+#         'port': parsed.port
+#     }
+#     return psycopg2.connect(**db_config)
 
 def get_connection():
-    url = os.environ.get('DATABASE_URL')
-    if not url:
-        raise Exception("DATABASE_URL not found in environment variables.")
+    return psycopg2.connect(**DB_CONFIG)
 
-    parsed = urlparse.urlparse(url)
-    db_config = {
-        'dbname': parsed.path[1:], 
-        'user': parsed.username,
-        'password': parsed.password,
-        'host': parsed.hostname,
-        'port': parsed.port
-    }
-    return psycopg2.connect(**db_config)
 def init_db():
     with get_connection() as conn:
         with conn.cursor() as c:
@@ -44,7 +48,8 @@ def init_db():
                     priority TEXT,
                     iteration INTEGER,
                     created_by TEXT,
-                    date_created TIMESTAMP
+                    date_created TEXT
+                
                 )
             ''')
             c.execute('''

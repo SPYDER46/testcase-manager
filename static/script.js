@@ -2,10 +2,10 @@ document.addEventListener('DOMContentLoaded', function () {
     // === Delete Confirmation Modal ===
     const deleteConfirmModalEl = document.getElementById('deleteConfirmModal');
     const deleteConfirmForm = document.getElementById('deleteConfirmForm');
-    const deleteConfirmModal = new bootstrap.Modal(deleteConfirmModalEl, {
+    const deleteConfirmModal = deleteConfirmModalEl ? new bootstrap.Modal(deleteConfirmModalEl, {
         backdrop: 'static',
         keyboard: false
-    });
+    }) : null;
 
     document.querySelectorAll('.btn-delete').forEach(button => {
         button.addEventListener('click', function () {
@@ -60,4 +60,37 @@ document.addEventListener('DOMContentLoaded', function () {
             setTimeout(() => loader.style.display = 'none', 500);
         }
     });
+
+    // === Download PDF Report ===
+    const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+    if (downloadPdfBtn) {
+        downloadPdfBtn.addEventListener('click', () => {
+            console.log('Download PDF button clicked');
+
+            const report = document.getElementById('report-content');
+            if (!report) {
+                alert('Report content not found!');
+                console.error('No element with id "report-content" found.');
+                return;
+            }
+
+            html2canvas(report, { scale: 2 }).then(canvas => {
+                console.log('Canvas created from report-content');
+
+                const imgData = canvas.toDataURL('image/png');
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                // Add image to PDF at fixed position and width (auto height)
+                doc.addImage(imgData, 'PNG', 10, 10, 180, 0);
+                doc.save('Testing_Summary.pdf');
+                console.log('PDF saved');
+            }).catch(err => {
+                console.error('Error generating PDF:', err);
+                alert('Failed to generate PDF. See console for details.');
+            });
+        });
+    } else {
+        console.warn('Download PDF button (#downloadPdfBtn) not found.');
+    }
 });

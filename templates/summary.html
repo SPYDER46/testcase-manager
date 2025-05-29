@@ -5,82 +5,114 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="container mt-4">
-    <h2>Summary of Testing</h2>
-    <hr>
 
-<div class="text-end mb-3">
-    <a href="{{ url_for('index', game_name=game_name) }}" class="btn btn-outline-secondary">← Back to Test Cases</a>
-</div>
+    <div id="report-content" style="background: white; padding: 20px;">
+        <h2>Summary of Testing</h2>
+        <hr>
 
-
-    <div class="row">
-        <div class="col-md-6">
-            <p><strong>Iteration:</strong> {{ iteration_no }}</p>
-            <!-- <p><strong>Approval for release:</strong> __________</p> -->
-            <p><strong>Phase No:</strong> {{ phase_no }}</p>
-            <p><strong>Game Name:</strong> {{ game_name }}</p>
-            <p><strong>Date & Time received:</strong> {{ date_received }}</p>
-            <!-- <p><strong>Date & Time Delivered:</strong> {{ date_delivered }}</p> -->
-            <p><strong>Date Delivered:</strong> {{ date_delivered }}</p>
-           
+        <div class="text-end mb-3">
+            <a href="{{ url_for('index', game_name=game_name) }}" class="btn btn-outline-secondary">← Back to Test Cases</a>
+            <button id="downloadPdfBtn" class="btn btn-primary ms-2">Download Report</button>
         </div>
-        <div class="col-md-6">
-            <p><strong>Developer:</strong> {{ developer }}</p>
-            <p><strong>Tester:</strong> {{ tester }}</p>
-            <p><strong>Art Document Version:</strong> {{ art_version }}</p>
-            <p><strong>UI/UX Document Version:</strong> {{ uiux_version }}</p>
-            <p><strong>Pass:</strong> {{ pass_percentage }}%</p>
-            <p><strong>Fail:</strong> {{ fail_percentage }}%</p>
 
+        <div class="row">
+            <div class="col-md-6">
+                <p><strong>Iteration:</strong> {{ iteration_no }}</p>
+                <p><strong>Phase No:</strong> {{ phase_no }}</p>
+                <p><strong>Game Name:</strong> {{ game_name }}</p>
+                <p><strong>Date & Time received:</strong> {{ date_received }}</p>
+                <p><strong>Date Delivered:</strong> {{ date_delivered }}</p>
+            </div>
+            <div class="col-md-6">
+                <p><strong>Developer:</strong> {{ developer }}</p>
+                <p><strong>Tester:</strong> {{ tester }}</p>
+                <p><strong>Art Document Version:</strong> {{ art_version }}</p>
+                <p><strong>UI/UX Document Version:</strong> {{ uiux_version }}</p>
+                <p><strong>Pass:</strong> {{ pass_percentage }}%</p>
+                <p><strong>Fail:</strong> {{ fail_percentage }}%</p>
+            </div>
         </div>
+
+        <h5 class="mt-2">Test Summary</h5>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th style="width: 30px; text-align: center;">Total Test Cases</th>
+                    <th style="width: 30px; text-align: center;">Passed</th>
+                    <th style="width: 30px; text-align: center;">Failed</th>
+                    <th style="width: 30px; text-align: center;">Pending</th>
+                    <th style="width: 30px; text-align: center;">Hold</th>
+                    <th style="width: 30px; text-align: center;">Discussion</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="text-align: center;">{{ total_cases }}</td>
+                    <td style="text-align: center;">{{ status_counts['Pass'] }}</td>
+                    <td style="text-align: center;">{{ status_counts['Fail'] }}</td>
+                    <td style="text-align: center;">{{ status_counts['Pending'] }}</td>
+                    <td style="text-align: center;">{{ status_counts['Hold'] }}</td>
+                    <td style="text-align: center;">{{ status_counts['Discussion'] }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h5 class="mt-4">Priority Breakdown</h5>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th style="text-align: center;">Major</th>
+                    <th style="text-align: center;">Medium</th>
+                    <th style="text-align: center;">Minor</th>
+                    <th style="text-align: center;">Repeated Bugs</th>
+                    <th style="text-align: center;">New Bugs</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="text-align: center;">{{ priorities['Major'] }}</td>
+                    <td style="text-align: center;">{{ priorities['Medium'] }}</td>
+                    <td style="text-align: center;">{{ priorities['Minor'] }}</td>
+                    <td style="text-align: center;">{{ repeated_bugs }}</td>
+                    <td style="text-align: center;">{{ new_bugs }}</td>
+
+                </tr>
+            </tbody>
+        </table>
     </div>
 
-    <h5 class="mt-2">Test Summary</h5>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th style="width: 30px; text-align: center;">Total Test Cases</th>
-                <!-- <th>Total Scenarios</th> -->
-                <th style="width: 30px; text-align: center;">Passed</th>
-                <th style="width: 30px; text-align: center;">Failed</th>
-                <th style="width: 3cap; text-align: center;">Pending</th>
-                <th style="width: 30px; text-align: center;">Hold</th>
-                <th style="width: 30px; text-align: center;">Discussion</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td style =" text-align: center;">{{ total_cases }}</td>
-                <!-- <td>{{ total_scenarios }}</td> -->
-                <td style =" text-align: center;">{{ status_counts['Pass'] }}</td>
-                <td style =" text-align: center;">{{ status_counts['Fail'] }}</td>
-                <td style =" text-align: center;">{{ status_counts['Pending'] }}</td>
-                <td style =" text-align: center;">{{ status_counts['Hold'] }}</td>
-                <td style =" text-align: center;">{{ status_counts['Discussion'] }}</td>
-            </tr>
-        </tbody>
-    </table>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <h5 class="mt-4">Priority Breakdown</h5>
-    <table class="table table-bordered">
-        <thead>
-            <tr>
-                <th style =" text-align: center;">Major</th>
-                <th style =" text-align: center;">Medium</th>
-                <th style =" text-align: center;">Minor</th>
-                <th style =" text-align: center;" >Repeated Bugs</th>
-                <th style =" text-align: center;">New Bugs</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td style =" text-align: center;">{{ priorities['Major'] }}</td>
-                <td style =" text-align: center;">{{ priorities['Medium'] }}</td>
-                <td style =" text-align: center;">{{ priorities['Minor'] }}</td>
-                <td style =" text-align: center;">0</td>
-                <td style =" text-align: center;">-</td>
-            </tr>
-        </tbody>
-    </table>
+<script>
+document.getElementById('downloadPdfBtn').addEventListener('click', async () => {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({
+        unit: 'pt',
+        format: 'a4',
+        putOnlyUsedFonts:true,
+        floatPrecision: 16
+    });
+
+    const report = document.getElementById('report-content');
+
+    try {
+        await doc.html(report, {
+            callback: function (doc) {
+                doc.save('Testing_Summary.pdf');
+            },
+            x: 20,
+            y: 20,
+            width: 555,
+            windowWidth: report.scrollWidth
+        });
+    } catch (e) {
+        console.error('PDF generation error:', e);
+        alert('Error generating PDF, check console for details.');
+    }
+});
+</script>
+
 </body>
 </html>
