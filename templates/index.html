@@ -17,7 +17,18 @@
 
 
 <div class="container mt-5">
-    <h2 class="mb-4">{{ game_name }} - Test Cases</h2>
+    <h2 class="mb-4 ">{{ game_name }} - Test Cases</h2>
+      <div class="mb-4">
+
+      <!-- <h5>Import Test Cases</h5>
+      <form id="csvUploadForm" enctype="multipart/form-data">
+        <input type="hidden" id="gameName" value="MyActualGameName" />
+        <input type="file" name="file" accept=".csv" required class="form-control mb-2" />
+        <button type="submit" class="btn btn-primary">Upload CSV</button>
+      </form> -->
+
+      <div id="uploadStatus" class="mt-2"></div>
+    </div>
 
     <div class="text-end mb-3">
         <a href="{{ url_for('add', game_name=game_name) }}" class="btn btn-primary mb-3">+ Add New Test Case</a>
@@ -29,7 +40,7 @@
         <div class="w-100" style="max-width: 1200px;">
           <table class="table table-bordered table-hover bg-white no-scroll-table">
                 <thead>
-                    <tr class="row1" >
+                    <tr class="row1" style="text-align: center;" >
                         <th style="white-space: nowrap;">TestCase ID</th>
                         <th>Title</th>
                         <th style="min-width: 100px;">Status</th>
@@ -40,29 +51,31 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for case in grouped_cases['All Test Cases'] %}
-                    <tr class="row1">
-                        <td>{{ case.testcase_number }}</td>
-                        <td>{{ case.title }}</td>
-                        <td>{{ case.status }}</td>
-                        <td>{{ case.priority }}</td>
-                        <td>{{ case.iteration }}</td>
-                        <td>{{ case.last_updated }}</td>
+              {% for case in grouped_cases['All Test Cases'] %}
+              <tr class="row1">
+                            <td style="text-align: center;">{{ case.testcase_number }}</td>
+                            <td>{{ case.title }}</td>
+                            <td style="text-align: center;">{{ case.status }}</td>
+                            <td style="text-align: center;">{{ case.priority }}</td>
+                            <!-- Add class iteration here -->
+                            <td class="iteration" style="text-align: center;">{{ case.iteration }}</td>
+                            <td style="text-align: center;">{{ case.last_updated }}</td>
 
-                        <td class="text-center">
-                            <div class="btn-group" role="group" aria-label="Actions" >
-                                <a href="{{ url_for('view_testcase', game_name=game_name, testcase_id=case.id) }}" class="btn btn-sm btn-info">View</a>
-                                <form action="{{ url_for('delete_testcase', game_name=game_name, testcase_id=case.id) }}" method="post" style="display:inline;">
-                                   <button type="button" class="btn btn-sm btn-danger btn-delete"
-                                          data-url="{{ url_for('delete_testcase', game_name=game_name, testcase_id=case.id) }}">
-                                      Delete
-                                  </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
+                            <td class="text-center">
+                  <div class="btn-group" role="group" aria-label="Actions" >
+                    <a href="{{ url_for('view_testcase', game_name=game_name, testcase_id=case.id) }}" class="btn btn-sm btn-info">View</a>
+                    <form action="{{ url_for('delete_testcase', game_name=game_name, testcase_id=case.id) }}" method="post" style="display:inline;">
+                      <button type="button" class="btn btn-sm btn-danger btn-delete"
+                              data-url="{{ url_for('delete_testcase', game_name=game_name, testcase_id=case.id) }}">
+                        Delete
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+
             </table>
         </div>
     </div>
@@ -73,11 +86,11 @@
 <!-- Complete Testing Button -->
 <hr>
 <div class="text-end mt-4">
-    <form method="POST" action="{{ url_for('complete_testing', game_name=game_name) }}">
-        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#summaryFormModal">
-            Complete Testing
-        </button>
-    </form>
+  <form method="POST" action="{{ url_for('complete_testing', game_name=game_name) }}">
+    <button id="openSummaryModalBtn" type="button" class="btn btn-success"  data-bs-toggle="modal"  data-bs-target="#summaryFormModal"  disabled>
+      Complete Testing
+    </button>
+  </form>
 </div>
 
 

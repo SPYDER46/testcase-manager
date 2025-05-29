@@ -2,7 +2,9 @@ from flask import Flask, render_template, request, redirect, url_for
 import models
 from collections import defaultdict
 from datetime import datetime
-from collections import defaultdict
+import csv
+from io import StringIO
+from flask import jsonify
 
 from models import (
     init_db,
@@ -26,6 +28,12 @@ backfill_testcase_numbers()
 GAMES = ['Aviator', 'CricketX', 'Piggy Dash', 'Roller Blitz', 'Marble Gp', 'Hilo', 'Mines', 'Roulette', 'Keno',
          'Tower', 'Rummy', 'TeenPatti', 'Ludo', 'Snake&Ladder', 'Andar Bahar', 'Poker', 'Carrom']
 
+
+
+def smart_csv_reader(file_contents):
+    sniffer = csv.Sniffer()
+    dialect = sniffer.sniff(file_contents.splitlines()[0])
+    return csv.DictReader(StringIO(file_contents), dialect=dialect)
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
@@ -267,22 +275,40 @@ def summary_report(game_name):
     def extract_tc_id(tc):
         return tc.get('id') if 'id' in tc else tc.get('testcase_id')
 
-    total_cases = len(set(extract_tc_id(tc) for tc in test_cases if extract_tc_id(tc) is not None))
+    # Get unique iteration numbers from test cases
+    iterations_in_cases = {int(tc.get('iteration', 0)) for tc in test_cases if tc.get('iteration') is not None}
+
+    # Check if all iterations are the same (only one unique iteration)
+    all_same_iteration = len(iterations_in_cases) == 1
+
+    # Parse iteration_no safely
+    try:
+        requested_iteration = int(iteration_no)
+    except (ValueError, TypeError):
+        requested_iteration = None
+
+    # Determine which iteration to use for filtering
+    if all_same_iteration:
+        iteration_to_use = None  # No filtering — show all
+    else:
+        # Filter by requested iteration if valid, else fallback to max iteration
+        if requested_iteration in iterations_in_cases:
+            iteration_to_use = requested_iteration
+        else:
+            iteration_to_use = max(iterations_in_cases) if iterations_in_cases else None
 
     def count_status(status_name):
-        try:
-            current_iteration = int(iteration_no)
-        except:
-            current_iteration = None
-
-        if current_iteration is None:
-            return sum(tc.get('status', '').strip().lower() == status_name.lower() for tc in test_cases)
-
-        return sum(
-            tc.get('status', '').strip().lower() == status_name.lower()
-            and tc.get('iteration') == current_iteration
-            for tc in test_cases
-        )
+        status_name_lower = status_name.lower()
+        if iteration_to_use is None:
+            # No iteration filtering - count all test cases with status
+            return sum(tc.get('status', '').strip().lower() == status_name_lower for tc in test_cases)
+        else:
+            # Filter by iteration_to_use
+            return sum(
+                (tc.get('status', '').strip().lower() == status_name_lower) and
+                (int(tc.get('iteration', 0)) == iteration_to_use)
+                for tc in test_cases if tc.get('iteration') is not None
+            )
 
     status_counts = {
         'Pass': count_status('Pass'),
@@ -292,18 +318,19 @@ def summary_report(game_name):
         'Discussion': count_status('Discussion'),
     }
 
+    total_cases = len(set(
+        extract_tc_id(tc)
+        for tc in test_cases
+        if iteration_to_use is None or int(tc.get('iteration', 0)) == iteration_to_use
+    ))
+
     pass_percentage = round((status_counts['Pass'] / total_cases) * 100, 2) if total_cases else 0
     fail_percentage = round((status_counts['Fail'] / total_cases) * 100, 2) if total_cases else 0
 
     priorities = calculate_priorities(test_cases)
 
-    # Calculate new/repeated bugs only if not given
-    try:
-        current_iteration = int(iteration_no)
-    except ValueError:
-        current_iteration = None
-
-    if (new_bugs is None or repeated_bugs is None) and current_iteration and current_iteration > 1:
+    # Calculate new/repeated bugs only if not given and iteration > 1
+    if (new_bugs is None or repeated_bugs is None) and iteration_to_use and iteration_to_use > 1:
         new_bugs = 0
         repeated_bugs = 0
 
@@ -317,8 +344,8 @@ def summary_report(game_name):
             if iteration is not None:
                 iteration_status_map[iteration][tc_id] = status
 
-        prev_status_map = iteration_status_map.get(current_iteration - 1, {})
-        current_status_map = iteration_status_map.get(current_iteration, {})
+        prev_status_map = iteration_status_map.get(iteration_to_use - 1, {})
+        current_status_map = iteration_status_map.get(iteration_to_use, {})
 
         for tc_id, curr_status in current_status_map.items():
             prev_status = prev_status_map.get(tc_id)
@@ -328,7 +355,6 @@ def summary_report(game_name):
                 elif prev_status == 'fail':
                     repeated_bugs += 1
     else:
-        # If still None (e.g. no iteration or < 2), set to 0
         if new_bugs is None:
             new_bugs = 0
         if repeated_bugs is None:
@@ -351,6 +377,7 @@ def summary_report(game_name):
                            priorities=priorities,
                            repeated_bugs=repeated_bugs,
                            new_bugs=new_bugs)
+
 
 
 @app.route('/games/<game_name>/testcase/<int:testcase_id>/update_iteration', methods=['POST'])
@@ -396,8 +423,6 @@ def format_date(dt_str):
         return dt.strftime("%b %d, %Y %I:%M %p")  
     except Exception:
         return dt_str
-    
-
 
 
 if __name__ == '__main__':

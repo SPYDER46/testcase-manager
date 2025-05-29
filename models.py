@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 
 # DB_CONFIG = {
 #     'host': 'localhost',
-#     'database': 'testdb',
+#     'database': 'postgres',
 #     'user': 'postgres',
 #     'password': 'root',
 #     'port': 5432
@@ -148,7 +148,10 @@ def get_all_test_cases(game):
                     case['iteration'] = latest_iter['iteration']
                     iteration_numbers.append(latest_iter['iteration'])
                     if latest_iter['updated_at']:
-                        case['last_updated'] = latest_iter['updated_at'].strftime("%b %d, %Y %I:%M %p")
+                        # case['last_updated'] = latest_iter['updated_at'].strftime("%b %d, %Y %I:%M %p")
+                        updated_at_str = latest_iter['updated_at']
+                        updated_at_dt = datetime.strptime(updated_at_str, "%Y-%m-%d %H:%M:%S.%f")
+                        case['last_updated'] = updated_at_dt.strftime("%b %d, %Y %I:%M %p")
                     else:
                         case['last_updated'] = '-'
                 else:
@@ -322,8 +325,6 @@ def update_iteration(iteration_id, description, steps, expected_result, actual_r
             ))
             conn.commit()
     return True
-
-
 
 def reorder_iterations(test_case_id):
     conn = get_connection()

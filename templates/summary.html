@@ -11,9 +11,13 @@
         <hr>
 
         <div class="text-end mb-3">
-            <a href="{{ url_for('index', game_name=game_name) }}" class="btn btn-outline-secondary">← Back to Test Cases</a>
-            <button id="downloadPdfBtn" class="btn btn-primary ms-2">Download Report</button>
-        </div>
+    <a href="{{ url_for('index', game_name=game_name) }}" class="btn btn-outline-secondary">← Back to Test Cases</a>
+    <button id="downloadPdfBtn" class="btn btn-primary ms-2">Download Report</button>
+    <div id="pdfLoader" class="spinner-border text-primary ms-2" role="status" style="display: none;">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+</div>
+
 
         <div class="row">
             <div class="col-md-6">
@@ -84,35 +88,81 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
 
 <script>
-document.getElementById('downloadPdfBtn').addEventListener('click', async () => {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({
-        unit: 'pt',
-        format: 'a4',
-        putOnlyUsedFonts:true,
-        floatPrecision: 16
+document.getElementById('downloadPdfBtn').addEventListener('click', () => {
+    const loader = document.getElementById('pdfLoader');
+    loader.style.display = 'inline-block'; // Show loader
+
+    const doc = new jspdf.jsPDF();
+    const marginLeft = 15;
+    let y = 20;
+
+    doc.setFontSize(16);
+    doc.text("Summary of Testing", marginLeft, y);
+    y += 10;
+
+    doc.setFontSize(10);
+    doc.text(`Iteration: {{ iteration_no }}`, marginLeft, y += 10);
+    doc.text(`Phase No: {{ phase_no }}`, marginLeft, y += 7);
+    doc.text(`Game Name: {{ game_name }}`, marginLeft, y += 7);
+    doc.text(`Date & Time Received: {{ date_received }}`, marginLeft, y += 7);
+    doc.text(`Date Delivered: {{ date_delivered }}`, marginLeft, y += 7);
+
+    doc.text(`Developer: {{ developer }}`, 110, 30);
+    doc.text(`Tester: {{ tester }}`, 110, 37);
+    doc.text(`Art Document Version: {{ art_version }}`, 110, 44);
+    doc.text(`UI/UX Document Version: {{ uiux_version }}`, 110, 51);
+    doc.text(`Pass: {{ pass_percentage }}%`, 110, 58);
+    doc.text(`Fail: {{ fail_percentage }}%`, 110, 65);
+
+    y += 15;
+
+    // First table
+    doc.autoTable({
+        startY: y,
+        head: [['Total Test Cases', 'Passed', 'Failed', 'Pending', 'Hold', 'Discussion']],
+        body: [[
+            '{{ total_cases }}',
+            '{{ status_counts["Pass"] }}',
+            '{{ status_counts["Fail"] }}',
+            '{{ status_counts["Pending"] }}',
+            '{{ status_counts["Hold"] }}',
+            '{{ status_counts["Discussion"] }}'
+        ]],
+        margin: { left: marginLeft },
+        theme: 'grid'
     });
 
-    const report = document.getElementById('report-content');
+    y = doc.lastAutoTable.finalY + 10;
 
-    try {
-        await doc.html(report, {
-            callback: function (doc) {
-                doc.save('Testing_Summary.pdf');
-            },
-            x: 20,
-            y: 20,
-            width: 555,
-            windowWidth: report.scrollWidth
-        });
-    } catch (e) {
-        console.error('PDF generation error:', e);
-        alert('Error generating PDF, check console for details.');
-    }
+    // Second table
+    doc.autoTable({
+        startY: y,
+        head: [['Major', 'Medium', 'Minor', 'Repeated Bugs', 'New Bugs']],
+        body: [[
+            '{{ priorities["Major"] }}',
+            '{{ priorities["Medium"] }}',
+            '{{ priorities["Minor"] }}',
+            '{{ repeated_bugs }}',
+            '{{ new_bugs }}'
+        ]],
+        margin: { left: marginLeft },
+        theme: 'grid'
+    });
+
+    // Save and hide loader
+    setTimeout(() => {
+        doc.save('Testing_Summary.pdf');
+        loader.style.display = 'none';
+    }, 500); // Add slight delay to ensure UI updates
 });
 </script>
+
+
+
 
 </body>
 </html>

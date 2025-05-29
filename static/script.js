@@ -93,4 +93,66 @@ document.addEventListener('DOMContentLoaded', function () {
     } else {
         console.warn('Download PDF button (#downloadPdfBtn) not found.');
     }
+    
+
+    // === CSV Upload Form Handler ===
+    const csvUploadForm = document.getElementById('csvUploadForm');
+    if (csvUploadForm) {
+        csvUploadForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const fileInput = csvUploadForm.querySelector('input[name="file"]');
+            const uploadStatus = document.getElementById('uploadStatus');
+            uploadStatus.textContent = '';
+            uploadStatus.style.color = '';
+
+            if (!fileInput.files.length) {
+                uploadStatus.textContent = 'Please select a CSV file.';
+                uploadStatus.style.color = 'red';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            // Get the actual game name from hidden input or fallback
+            const gameName = document.getElementById('gameName')?.value || 'DefaultGameName';
+            formData.append('game', gameName);
+
+            try {
+                const response = await fetch('/upload_testcases', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    uploadStatus.textContent = `Success! Imported ${result.added.length} test cases.`;
+                    uploadStatus.style.color = 'green';
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    uploadStatus.textContent = `Error: ${result.error || 'Failed to upload'}`;
+                    uploadStatus.style.color = 'red';
+                }
+            } catch (err) {
+                uploadStatus.textContent = 'Upload failed: ' + err.message;
+                uploadStatus.style.color = 'red';
+            }
+
+            const iterationCells = document.querySelectorAll('td.iteration');
+            const completeBtn = document.getElementById('openSummaryModalBtn');
+
+            if (completeBtn && iterationCells.length > 0) {
+                const iterations = Array.from(iterationCells).map(cell => cell.textContent.trim());
+                const validIterations = iterations.filter(iter => iter !== '-' && iter !== '');
+                const allSame = validIterations.length === iterationCells.length &&
+                                validIterations.every(iter => iter === validIterations[0]);
+                completeBtn.disabled = !allSame;
+            }
+
+        });
+    }
 });
+
+
