@@ -3,7 +3,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from datetime import datetime
 from dateutil import parser
-
+from urllib.parse import urlparse
 
 # DB_CONFIG = {
 #     'host': 'localhost',
