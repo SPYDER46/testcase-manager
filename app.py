@@ -37,11 +37,22 @@ def home():
 
 @app.route('/games/<game_name>')
 def index(game_name):
-    test_cases = get_all_test_cases(game_name)
+    test_cases, all_same_iteration = get_all_test_cases(game_name)
+    print(f"test_cases sample: {test_cases[:2]}")  # Inspect first two test cases
+    
+    # Ensure test_cases is not empty before accessing
+    if test_cases and isinstance(test_cases[0], dict):
+        first_iteration = test_cases[0].get('iteration', None)
+    else:
+        first_iteration = None
+
     grouped_cases = defaultdict(list)
     for case in test_cases:
         grouped_cases['All Test Cases'].append(case)
-    return render_template('index.html', game_name=game_name, grouped_cases=grouped_cases)
+    return render_template('index.html', game_name=game_name, grouped_cases=grouped_cases, all_same_iteration=all_same_iteration)
+
+
+
 
 
 @app.route('/games/<game_name>/add', methods=['GET', 'POST'])
@@ -194,7 +205,6 @@ def edit_iteration(game_name, testcase_id, iteration_id):
 )
 
 
-
 from models import delete_iteration_by_id, reorder_iterations
 @app.route('/game/<game_name>/testcase/<int:testcase_id>/iteration/<int:iteration_id>/delete', methods=['POST'])
 def delete_iteration_route(game_name, testcase_id, iteration_id):
@@ -203,60 +213,74 @@ def delete_iteration_route(game_name, testcase_id, iteration_id):
     return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
 pass
 
+def calculate_priorities(test_cases):
+    priorities = {'Major': 0, 'Medium': 0, 'Minor': 0}
+    for tc in test_cases:
+        p = tc.get('priority', 'Minor')
+        if p in priorities:
+            priorities[p] += 1
+    return priorities
+
+def get_test_cases(game_name):
+    return [
+        {'status': 'Pass', 'priority': 'Major', 'game_name': game_name},
+        {'status': 'Fail', 'priority': 'Minor', 'game_name': game_name},
+        {'status': 'Hold', 'priority': 'Minor', 'game_name': game_name},
+    ]
+
 
 @app.route('/games/<game_name>/summary')
 def summary_report(game_name):
-    from flask import request  
+    iteration_no = request.args.get('iteration_no', 'N/A')
+    art_version = request.args.get('art_version', 'N/A')
+    uiux_version = request.args.get('uiux_version', 'N/A')
+    developer = request.args.get('developer_name', 'N/A')
+    tester = request.args.get('tester', 'N/A')
+    phase_no = request.args.get('phase_no', 'N/A')
+    date_received_raw = request.args.get('date_time_received', 'N/A')
+    date_delivered_raw = request.args.get('date_time_delivered', 'N/A')
 
-    test_cases = get_all_test_cases(game_name)
+    date_received = format_date(date_received_raw) if date_received_raw != 'N/A' else 'N/A'
+    date_delivered = format_date(date_delivered_raw) if date_delivered_raw != 'N/A' else 'N/A'
+
+    test_cases, _ = get_all_test_cases(game_name)
     total_cases = len(test_cases)
 
-    status_counts = {'Pass': 0, 'Fail': 0, 'Pending': 0, 'Hold': 0, 'Discussion': 0}
-    priorities = {'Major': 0, 'Medium': 0, 'Minor': 0}
+    # Count statuses case-insensitively
+    def count_status(status_name):
+        return sum(tc['status'].strip().lower() == status_name.lower() for tc in test_cases)
 
-    for tc in test_cases:
-        status = tc['status']
-        priority = tc['priority']
-        if status in status_counts:
-            status_counts[status] += 1
-        if priority in priorities:
-            priorities[priority] += 1
+    status_counts = {
+        'Pass': count_status('Pass'),
+        'Fail': count_status('Fail'),
+        'Pending': count_status('Pending'),
+        'Hold': count_status('Hold'),
+        'Discussion': count_status('Discussion'),
+    }
 
-    def calc_percent(count):
-        return round((count / total_cases) * 100, 2) if total_cases > 0 else 0.0
+    pass_percentage = round((status_counts['Pass'] / total_cases) * 100, 2) if total_cases else 0
+    fail_percentage = round((status_counts['Fail'] / total_cases) * 100, 2) if total_cases else 0
 
-    pass_percentage = calc_percent(status_counts['Pass'])
-    fail_percentage = calc_percent(status_counts['Fail'])
 
-    # Get latest tester and updated_at from test_case_history
-    tester, last_updated = get_latest_tester_and_update(game_name)
+    # For priorities, same as your existing code
+    priorities = calculate_priorities(test_cases)  # Your function
 
-    # Get manually entered values from query string
-    art_version = request.args.get('Art_version', 'N/A')
-    uiux_version = request.args.get('UI/UX_version', 'N/A')
-    developer = request.args.get('Developer Name', 'N/A')
-    phase_no = request.args.get('phase_no', 'N/A')
-    date_received = request.args.get('date_time_received', 'N/A')
-    date_delivered = datetime.now().strftime('%Y-%m-%d %I:%M %p')
-    iteration_no = request.args.get('iteration_no', 'N/A')
+    return render_template('summary.html',
+                           game_name=game_name,
+                           iteration_no=iteration_no,
+                           art_version=art_version,
+                           uiux_version=uiux_version,
+                           developer=developer,
+                           tester=tester,
+                           phase_no=phase_no,
+                           date_received=date_received,
+                           date_delivered=date_delivered,
+                           total_cases=total_cases,
+                           status_counts=status_counts,
+                           pass_percentage=pass_percentage,
+                           fail_percentage=fail_percentage,
+                           priorities=priorities)
 
-    return render_template(
-        'summary.html',
-        game_name=game_name,
-        total_cases=total_cases,
-        status_counts=status_counts,
-        priorities=priorities,
-        pass_percentage=pass_percentage,
-        fail_percentage=fail_percentage,
-        tester=tester,
-        developer=developer,
-        date_received=date_received,
-        date_delivered=date_delivered,
-        phase_no=phase_no,
-        iteration=iteration_no,
-        art_version=art_version,
-        uiux_version=uiux_version
-    )
 
 @app.route('/games/<game_name>/testcase/<int:testcase_id>/update_iteration', methods=['POST'])
 def update_iteration_route(game_name, testcase_id):
@@ -290,6 +314,17 @@ def datetimeformat(value):
         except ValueError:
             continue
     return value 
+
+@app.route('/games/<game_name>/complete_testing', methods=['POST'])
+def complete_testing(game_name):
+    return redirect(url_for('summary_report', game_name=game_name))
+
+def format_date(dt_str):
+    try:
+        dt = datetime.fromisoformat(dt_str)
+        return dt.strftime("%b %d, %Y %I:%M %p")  
+    except Exception:
+        return dt_str
 
 
 if __name__ == '__main__':

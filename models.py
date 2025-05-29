@@ -101,13 +101,49 @@ def add_test_case(game, data, created_by):
 
             return new_id, formatted_date_created
 
-
-
 def get_all_test_cases(game):
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as c:
-            c.execute('SELECT * FROM test_cases WHERE game = %s ORDER BY testcase_number', (game,))
-            return c.fetchall()
+            c.execute('''
+                SELECT * FROM test_cases WHERE game = %s ORDER BY testcase_number
+            ''', (game,))
+            test_cases = c.fetchall()
+
+            iteration_numbers = []
+
+            for case in test_cases:
+                testcase_id = case['id']
+
+                # Get latest iteration data
+                c.execute('''
+                    SELECT iteration, status, priority, updated_at, created_by
+                    FROM iteration
+                    WHERE test_case_id = %s
+                    ORDER BY iteration DESC
+                    LIMIT 1
+                ''', (testcase_id,))
+                latest_iter = c.fetchone()
+
+                if latest_iter:
+                    case['status'] = latest_iter['status']
+                    case['priority'] = latest_iter['priority']
+                    case['iteration'] = latest_iter['iteration']
+                    iteration_numbers.append(latest_iter['iteration'])
+                    if latest_iter['updated_at']:
+                        case['last_updated'] = latest_iter['updated_at'].strftime("%b %d, %Y %I:%M %p")
+                    else:
+                        case['last_updated'] = '-'
+                else:
+                    case['iteration'] = 0
+                    iteration_numbers.append(0)
+                    case['last_updated'] = case['date_created'].strftime("%b %d, %Y %I:%M %p") if case['date_created'] else '-'
+
+            # Check if all iterations are equal
+            all_same_iteration = len(set(iteration_numbers)) == 1
+
+            return test_cases, all_same_iteration
+
+
 
 
 def get_test_case_by_id(testcase_id):
@@ -326,7 +362,6 @@ def get_all_test_cases_with_latest(game):
             for case in test_cases:
                 testcase_id = case['id']
 
-                # Fetch latest from test_case_history
                 c.execute('''
                     SELECT status, priority, iteration, updated_at 
                     FROM test_case_history
@@ -343,7 +378,6 @@ def get_all_test_cases_with_latest(game):
                     if latest_hist['updated_at']:
                         case['last_updated'] = latest_hist['updated_at'].strftime("%b %d, %Y %I:%M %p")
                 else:
-                    # Fallback if no history found
                     case['iteration'] = case['iteration'] or 0
                     if case['date_created']:
                         try:
@@ -353,7 +387,12 @@ def get_all_test_cases_with_latest(game):
                     else:
                         case['last_updated'] = '-'
             
+            print("DEBUG test_cases after update:")
+            for c in test_cases:
+                print(f"ID: {c['id']} Status: {c.get('status')} Priority: {c.get('priority')} Iteration: {c.get('iteration')} Last Updated: {c.get('last_updated')}")
+            
             return test_cases
+
 
 
 

@@ -29,7 +29,7 @@
         <div class="w-100" style="max-width: 1200px;">
           <table class="table table-bordered table-hover bg-white no-scroll-table">
                 <thead>
-                    <tr class="row1">
+                    <tr class="row1" >
                         <th style="white-space: nowrap;">TestCase ID</th>
                         <th>Title</th>
                         <th style="min-width: 100px;">Status</th>
@@ -43,11 +43,12 @@
                     {% for case in grouped_cases['All Test Cases'] %}
                     <tr class="row1">
                         <td>{{ case.testcase_number }}</td>
-                        <td style="width:fit-content; text-align: left;">{{ case.title }}</td>
+                        <td>{{ case.title }}</td>
                         <td>{{ case.status }}</td>
                         <td>{{ case.priority }}</td>
-                        <td class="iteration">{{ case.iteration if case.iteration > 0 else '-' }}</td>
+                        <td>{{ case.iteration }}</td>
                         <td>{{ case.last_updated }}</td>
+
                         <td class="text-center">
                             <div class="btn-group" role="group" aria-label="Actions" >
                                 <a href="{{ url_for('view_testcase', game_name=game_name, testcase_id=case.id) }}" class="btn btn-sm btn-info">View</a>
@@ -69,15 +70,16 @@
     <p>No test cases found.</p>
 {% endif %}
 
-
 <!-- Complete Testing Button -->
- <hr>
-    <div class="text-end mt-4">
-        <button type="button" class="btn btn-success" id="openSummaryModalBtn" disabled>
+<hr>
+<div class="text-end mt-4">
+    <form method="POST" action="{{ url_for('complete_testing', game_name=game_name) }}">
+        <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#summaryFormModal">
             Complete Testing
         </button>
-    </div>
+    </form>
 </div>
+
 
 <!-- Delete Confirmation Modal -->
 <form method="POST" id="deleteConfirmForm">
@@ -105,45 +107,46 @@
   <div class="modal-dialog modal-lg">
     <div class="modal-content">
       <form method="GET" action="{{ url_for('summary_report', game_name=game_name) }}">
-        <div class="modal-header" >
-          <h5 class="modal-title" id="summaryFormModalLabel">Requirement References</h5>
-          <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
-        </div>
-        <div class="modal-body">
-          <div class="mb-3">
-            <label for="iteration_no">Iteration no</label>
-            <input type="text" name="iteration_no" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label for="Art_version">Art Document Version</label>
-            <input type="text" name="Art_version" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label for="UI/UX_version">UI/UX Document Version</label>
-            <input type="text" name="UI/UX_version" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label for="Developer Name">Developer Name</label>
-            <input type="text" name="Developer Name" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label for="phase_no">Phase No</label>
-            <input type="number" name="phase_no" class="form-control" value="" required>
-          </div>
-          <div class="mb-3">
-            <label for="date_time_received">Date & Time Received</label>
-            <input type="datetime-local" name="date_time_received" class="form-control" required>
-          </div>
-          <div class="mb-3">
-            <label for="date_time_delivered">Date & Time Delivered</label>
-            <input type="datetime-local" name="date_time_delivered" class="form-control" required>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-success">Submit & View Report</button>
-        </div>
-      </form>
+  <div class="modal-body">
+    <div class="mb-3">
+      <label for="iteration_no">Iteration no</label>
+      <input type="text" name="iteration_no" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label for="art_version">Art Document Version</label>
+      <input type="text" name="art_version" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label for="uiux_version">UI/UX Document Version</label>
+      <input type="text" name="uiux_version" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label for="developer_name">Developer Name</label>
+      <input type="text" name="developer_name" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label for="tester">Tester Name</label>
+      <input type="text" name="tester" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label for="phase_no">Phase No</label>
+      <input type="number" name="phase_no" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label for="date_time_received">Date & Time Received</label>
+      <input type="datetime-local" name="date_time_received" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label for="date_time_delivered">Date & Time Delivered</label>
+      <input type="datetime-local" name="date_time_delivered" class="form-control" required>
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+    <button type="submit" class="btn btn-success">Submit & View Report</button>
+  </div>
+</form>
+
     </div>
   </div>
 </div>

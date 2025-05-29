@@ -209,9 +209,6 @@ h5.text-primary {
     transition: opacity 0.5s ease;
 }
 
-
-
-
 .bar-loader {
     display: flex;
     justify-content: center;
@@ -254,5 +251,17 @@ h5.text-primary {
     transition: opacity 0.5s ease-out;
 }
 
-  
+.btn-success {
+    background-color: #28a745 !important;
+    border-color: #28a745 !important;
+    color: white;
+    font-weight: 600;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-success:hover {
+    background-color: #218838 !important;
+    transform: scale(1.0);
+}
+
   
