@@ -5,31 +5,31 @@ from datetime import datetime
 from dateutil import parser
 from urllib.parse import urlparse
 
-# DB_CONFIG = {
-#     'host': 'localhost',
-#     'database': 'postgres',
-#     'user': 'postgres',
-#     'password': 'root',
-#     'port': 5432
-# }
-
-def get_connection():
-    url = os.environ.get('DATABASE_URL')
-    if not url:
-        raise Exception("DATABASE_URL not found in environment variables.")
-
-    parsed = urlparse(url)  
-    db_config = {
-        'dbname': parsed.path[1:],  
-        'user': parsed.username,
-        'password': parsed.password,
-        'host': parsed.hostname,
-        'port': parsed.port
-    }
-    return psycopg2.connect(**db_config)
+DB_CONFIG = {
+    'host': 'localhost',
+    'database': 'postgres',
+    'user': 'postgres',
+    'password': 'root',
+    'port': 5432
+}
 
 # def get_connection():
-#     return psycopg2.connect(**DB_CONFIG)
+#     url = os.environ.get('DATABASE_URL')
+#     if not url:
+#         raise Exception("DATABASE_URL not found in environment variables.")
+
+#     parsed = urlparse(url)  
+#     db_config = {
+#         'dbname': parsed.path[1:],  
+#         'user': parsed.username,
+#         'password': parsed.password,
+#         'host': parsed.hostname,
+#         'port': parsed.port
+#     }
+#     return psycopg2.connect(**db_config)
+
+def get_connection():
+    return psycopg2.connect(**DB_CONFIG)
 
 def init_db():
     with get_connection() as conn:
@@ -48,7 +48,7 @@ def init_db():
                     priority TEXT,
                     iteration INTEGER,
                     created_by TEXT,
-                    date_created TEXT
+                    date_created TIMESTAMP  
                 
                 )
             ''')
@@ -115,6 +115,10 @@ def add_test_case(game, data, created_by):
 
             conn.commit()
 
+            # formatted_date_created = date_created.strftime("%b %d, %Y %I:%M %p")
+            if isinstance(date_created, str):
+                date_created = parser.parse(date_created)
+
             formatted_date_created = date_created.strftime("%b %d, %Y %I:%M %p")
 
             return new_id, formatted_date_created
@@ -147,24 +151,40 @@ def get_all_test_cases(game):
                     case['priority'] = latest_iter['priority']
                     case['iteration'] = latest_iter['iteration']
                     iteration_numbers.append(latest_iter['iteration'])
+
                     if latest_iter['updated_at']:
-                        # case['last_updated'] = latest_iter['updated_at'].strftime("%b %d, %Y %I:%M %p")
-                        updated_at_str = latest_iter['updated_at']
-                        updated_at_dt = datetime.strptime(updated_at_str, "%Y-%m-%d %H:%M:%S.%f")
-                        case['last_updated'] = updated_at_dt.strftime("%b %d, %Y %I:%M %p")
+                        try:
+                            updated_at_raw = latest_iter['updated_at']
+                            if isinstance(updated_at_raw, str):
+                                updated_at_dt = datetime.strptime(updated_at_raw, "%Y-%m-%d %H:%M:%S.%f")
+                            elif isinstance(updated_at_raw, datetime):
+                                updated_at_dt = updated_at_raw
+                            else:
+                                updated_at_dt = None
+
+                            case['last_updated'] = updated_at_dt.strftime("%b %d, %Y %I:%M %p") if updated_at_dt else '-'
+                        except Exception as e:
+                            print(f"Error formatting updated_at for test_case_id {case['id']}: {e}")
+                            case['last_updated'] = str(latest_iter['updated_at'])
                     else:
                         case['last_updated'] = '-'
                 else:
                     case['iteration'] = 0
                     iteration_numbers.append(0)
-                    case['last_updated'] = case['date_created'].strftime("%b %d, %Y %I:%M %p") if case['date_created'] else '-'
+                    if case['date_created']:
+                        try:
+                            date_obj = parser.parse(case['date_created']) if isinstance(case['date_created'], str) else case['date_created']
+                            case['last_updated'] = date_obj.strftime("%b %d, %Y %I:%M %p")
+                        except Exception as e:
+                            print(f"Error formatting date_created for test_case_id {case['id']}: {e}")
+                            case['last_updated'] = str(case['date_created'])
+                    else:
+                        case['last_updated'] = '-'
 
             # Check if all iterations are equal
             all_same_iteration = len(set(iteration_numbers)) == 1
 
             return test_cases, all_same_iteration
-
-
 
 
 def get_test_case_by_id(testcase_id):
@@ -256,9 +276,6 @@ def add_iteration(test_case_id, actual_result, status, iteration, description, s
     conn.commit()
     conn.close()
  
-
-from psycopg2.extras import RealDictCursor  
-
 def get_iterations_by_test_case_id(testcase_id):
     iterations = []
     conn = get_connection()
