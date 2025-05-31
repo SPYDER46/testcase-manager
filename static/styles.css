@@ -289,3 +289,9 @@ h5.text-primary {
   justify-content: flex-start; /* align cards to left */
   padding: 10px 0;
 }
+
+/* Test Suite Modal Custom Style */
+#testSuiteForm input, 
+#testSuiteForm textarea {
+  border-radius: 4px;
+}

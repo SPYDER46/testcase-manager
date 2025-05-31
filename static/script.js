@@ -81,7 +81,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
 
-                // Add image to PDF at fixed position and width (auto height)
                 doc.addImage(imgData, 'PNG', 10, 10, 180, 0);
                 doc.save('Testing_Summary.pdf');
                 console.log('PDF saved');
@@ -93,7 +92,6 @@ document.addEventListener('DOMContentLoaded', function () {
     } else {
         console.warn('Download PDF button (#downloadPdfBtn) not found.');
     }
-    
 
     // === CSV Upload Form Handler ===
     const csvUploadForm = document.getElementById('csvUploadForm');
@@ -115,7 +113,6 @@ document.addEventListener('DOMContentLoaded', function () {
             const formData = new FormData();
             formData.append('file', fileInput.files[0]);
 
-            // Get the actual game name from hidden input or fallback
             const gameName = document.getElementById('gameName')?.value || 'DefaultGameName';
             formData.append('game', gameName);
 
@@ -139,20 +136,36 @@ document.addEventListener('DOMContentLoaded', function () {
                 uploadStatus.textContent = 'Upload failed: ' + err.message;
                 uploadStatus.style.color = 'red';
             }
+        });
+    }
 
-            const iterationCells = document.querySelectorAll('td.iteration');
-            const completeBtn = document.getElementById('openSummaryModalBtn');
+    // === Test Suite Form Handler ===
+    const testSuiteForm = document.getElementById("testSuiteForm");
 
-            if (completeBtn && iterationCells.length > 0) {
-                const iterations = Array.from(iterationCells).map(cell => cell.textContent.trim());
-                const validIterations = iterations.filter(iter => iter !== '-' && iter !== '');
-                const allSame = validIterations.length === iterationCells.length &&
-                                validIterations.every(iter => iter === validIterations[0]);
-                completeBtn.disabled = !allSame;
+    if (testSuiteForm) {
+        testSuiteForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const suiteName = document.getElementById("suiteName").value.trim();
+            const suiteDescription = document.getElementById("suiteDescription").value.trim();
+
+            if (!suiteName) {
+                alert("Please enter a test suite name.");
+                return;
             }
 
+            // Replace this with a real server call if needed
+            console.log("Suite Created:", { suiteName, suiteDescription });
+
+            // Clear the form
+            testSuiteForm.reset();
+
+            // Close modal
+            const modalEl = document.getElementById('testSuiteModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+
+            alert("Test Suite added successfully!");
         });
     }
 });
-
-

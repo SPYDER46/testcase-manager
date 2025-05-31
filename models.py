@@ -5,13 +5,13 @@ from datetime import datetime
 from dateutil import parser
 from urllib.parse import urlparse
 
-# DB_CONFIG = {
-#     'host': 'localhost',
-#     'database': 'postgres',
-#     'user': 'postgres',
-#     'password': 'root',
-#     'port': 5432
-# }
+DB_CONFIG = {
+    'host': 'localhost',
+    'database': 'postgres',
+    'user': 'postgres',
+    'password': 'root',
+    'port': 5432
+}
 
 def get_connection():
     url = os.environ.get('DATABASE_URL')
@@ -28,8 +28,8 @@ def get_connection():
     }
     return psycopg2.connect(**db_config)
 
-# def get_connection():
-#     return psycopg2.connect(**DB_CONFIG)
+def get_connection():
+    return psycopg2.connect(**DB_CONFIG)
 
 def init_db():
     with get_connection() as conn:
