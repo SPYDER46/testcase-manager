@@ -4,7 +4,11 @@ from collections import defaultdict
 from datetime import datetime
 import csv
 from io import StringIO
+import psycopg2 
 from flask import jsonify
+from models import get_connection
+
+
 
 from models import (
     init_db,
@@ -18,7 +22,8 @@ from models import (
     get_iteration_by_id,
     update_iteration,
     delete_iteration_by_id,
-    get_latest_tester_and_update
+    get_latest_tester_and_update,
+
 )
 
 app = Flask(__name__)
@@ -60,10 +65,6 @@ def index(game_name):
         grouped_cases['All Test Cases'].append(case)
     return render_template('index.html', game_name=game_name, grouped_cases=grouped_cases, all_same_iteration=all_same_iteration)
 
-
-
-
-
 @app.route('/games/<game_name>/add', methods=['GET', 'POST'])
 def add(game_name):
     if request.method == 'POST':
@@ -87,11 +88,11 @@ from models import add_iteration, update_test_case_iteration
 def view_testcase(game_name, testcase_id):
     if request.method == 'POST':
         try:
-            iteration = int(request.form['iteration'])
+            iteration = int(request.form.get('iteration', 0))
             if iteration < 1:
                 iteration = 1
         except (ValueError, TypeError):
-            iteration = 1  
+            iteration = 1
 
         actual_result = request.form.get('actual_result', '')
         status = request.form.get('status', '')
@@ -111,9 +112,8 @@ def view_testcase(game_name, testcase_id):
             expected_result,
             priority,
             created_by
-)
+        )
 
-        # Optionally update the main test case iteration count
         update_test_case_iteration(testcase_id, iteration)
 
         return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
@@ -124,7 +124,6 @@ def view_testcase(game_name, testcase_id):
         return f"Test Case with ID {testcase_id} not found.", 404
 
     def parse_datetime(dt_str):
-        """Helper to parse datetime strings robustly."""
         if not dt_str:
             return None
         if isinstance(dt_str, datetime):
@@ -136,14 +135,14 @@ def view_testcase(game_name, testcase_id):
                 continue
         return None
 
-    # Format test_case date_created
     dt_created = parse_datetime(test_case.get('date_created'))
     test_case['date_created'] = dt_created.strftime("%b %d, %Y %I:%M %p") if dt_created else ''
 
-    # Get iterations properly from models
     iterations = get_iterations_by_test_case_id(testcase_id)
 
-    # Render template with iterations instead of undefined history
+    # Fetch associated test suites for this testcase
+    iterations = get_iterations_by_test_case_id(testcase_id)
+
     return render_template(
         'view_testcase.html',
         game_name=game_name,
@@ -423,6 +422,52 @@ def format_date(dt_str):
         return dt.strftime("%b %d, %Y %I:%M %p")  
     except Exception:
         return dt_str
+    
+@app.route('/add_test_suite', methods=['POST'])
+def add_test_suite():
+    suite_name = request.form.get('suite_name')
+    description = request.form.get('description')
+    testcase_id = request.form.get('testcase_id')
+
+    if not suite_name or not testcase_id:
+        return jsonify({"error": "Missing required fields"}), 400
+
+    try:
+        conn = get_connection()
+        cur = conn.cursor()
+
+        # Insert test suite and get its id and created time
+        cur.execute(
+            "INSERT INTO test_suites (name, description) VALUES (%s, %s) RETURNING id, created_at;",
+            (suite_name, description)
+        )
+        suite_id, created_at = cur.fetchone()
+
+        # Link test suite to test case
+        cur.execute(
+            "INSERT INTO test_case_suites (testcase_id, testsuite_id) VALUES (%s, %s);",
+            (testcase_id, suite_id)
+        )
+
+        conn.commit()
+        cur.close()
+        conn.close()
+
+        return jsonify({
+            "id": suite_id,
+            "name": suite_name,
+            "description": description or '-',
+            "created_at": created_at.strftime('%Y-%m-%d %H:%M:%S')
+        })
+
+    except Exception as e:
+        if conn:
+            conn.rollback()
+        return jsonify({"error": str(e)}), 500
+   
+
+
+
 
 
 if __name__ == '__main__':

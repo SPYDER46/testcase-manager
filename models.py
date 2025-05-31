@@ -7,26 +7,26 @@ from urllib.parse import urlparse
 
 DB_CONFIG = {
     'host': 'localhost',
-    'database': 'postgres',
+    'database': 'testdb',
     'user': 'postgres',
     'password': 'root',
     'port': 5432
 }
 
-def get_connection():
-    url = os.environ.get('DATABASE_URL')
-    if not url:
-        raise Exception("DATABASE_URL not found in environment variables.")
+# def get_connection():
+#     url = os.environ.get('DATABASE_URL')
+#     if not url:
+#         raise Exception("DATABASE_URL not found in environment variables.")
 
-    parsed = urlparse(url)  
-    db_config = {
-        'dbname': parsed.path[1:],  
-        'user': parsed.username,
-        'password': parsed.password,
-        'host': parsed.hostname,
-        'port': parsed.port
-    }
-    return psycopg2.connect(**db_config)
+#     parsed = urlparse(url)  
+#     db_config = {
+#         'dbname': parsed.path[1:],  
+#         'user': parsed.username,
+#         'password': parsed.password,
+#         'host': parsed.hostname,
+#         'port': parsed.port
+#     }
+#     return psycopg2.connect(**db_config)
 
 def get_connection():
     return psycopg2.connect(**DB_CONFIG)
@@ -34,6 +34,7 @@ def get_connection():
 def init_db():
     with get_connection() as conn:
         with conn.cursor() as c:
+            # Existing tables
             c.execute('''
                 CREATE TABLE IF NOT EXISTS test_cases (
                     id SERIAL PRIMARY KEY,
@@ -48,48 +49,66 @@ def init_db():
                     priority TEXT,
                     iteration INTEGER,
                     created_by TEXT,
-                    date_created TIMESTAMP  
-                
+                    test_suite TEXT,
+                    date_created TIMESTAMP
                 )
             ''')
             c.execute('''
                 CREATE TABLE IF NOT EXISTS test_case_history (
-                id SERIAL PRIMARY KEY,
-                test_case_id INTEGER REFERENCES test_cases(id),
-                iteration INTEGER,
-                title TEXT,
-                description TEXT,
-                steps TEXT,
-                expected_result TEXT,
-                actual_result TEXT,
-                status TEXT,
-                priority TEXT,
-                updated_at TEXT,
-                created_by TEXT,
-                requirement_references TEXT,
-                defect_references TEXT,
-                defect_status TEXT,
-                created_at TEXT
-            )
+                    id SERIAL PRIMARY KEY,
+                    test_case_id INTEGER REFERENCES test_cases(id),
+                    iteration INTEGER,
+                    title TEXT,
+                    description TEXT,
+                    steps TEXT,
+                    expected_result TEXT,
+                    actual_result TEXT,
+                    status TEXT,
+                    priority TEXT,
+                    updated_at TEXT,
+                    created_by TEXT,
+                    requirement_references TEXT,
+                    defect_references TEXT,
+                    defect_status TEXT,
+                    created_at TEXT
+                )
             ''')
             c.execute('''
                 CREATE TABLE IF NOT EXISTS iteration (
-                id SERIAL PRIMARY KEY,
-                test_case_id INTEGER NOT NULL,
-                iteration INTEGER NOT NULL,
-                description TEXT,
-                steps TEXT,
-                expected_result TEXT,
-                actual_result TEXT,
-                status VARCHAR(50),
-                priority VARCHAR(50),
-                created_by VARCHAR(100),
-                updated_at TIMESTAMP,
-                FOREIGN KEY (test_case_id) REFERENCES test_cases(id)
+                    id SERIAL PRIMARY KEY,
+                    test_case_id INTEGER NOT NULL,
+                    iteration INTEGER NOT NULL,
+                    description TEXT,
+                    steps TEXT,
+                    expected_result TEXT,
+                    actual_result TEXT,
+                    status VARCHAR(50),
+                    priority VARCHAR(50),
+                    created_by VARCHAR(100),
+                    updated_at TIMESTAMP,
+                    FOREIGN KEY (test_case_id) REFERENCES test_cases(id)
                 );
             ''')
 
+            c.execute('''
+                CREATE TABLE IF NOT EXISTS test_suites (
+                    id SERIAL PRIMARY KEY,
+                    name VARCHAR(255) NOT NULL,
+                    description TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            ''')
 
+            c.execute('''
+                CREATE TABLE IF NOT EXISTS test_case_suites (
+                    testcase_id INTEGER REFERENCES test_cases(id) ON DELETE CASCADE,
+                    testsuite_id INTEGER REFERENCES test_suites(id) ON DELETE CASCADE,
+                    PRIMARY KEY (testcase_id, testsuite_id)
+                )
+            ''')
+
+            conn.commit()
+        
 def add_test_case(game, data, created_by):
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as c:
@@ -428,3 +447,10 @@ def get_all_test_cases_with_latest(game):
                 print(f"ID: {c['id']} Status: {c.get('status')} Priority: {c.get('priority')} Iteration: {c.get('iteration')} Last Updated: {c.get('last_updated')}")
             
             return test_cases
+
+
+
+            
+
+
+

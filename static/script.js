@@ -139,33 +139,44 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // === Test Suite Form Handler ===
-    const testSuiteForm = document.getElementById("testSuiteForm");
-
+    // === Add Test Suite form submit handler ===
+    const testSuiteForm = document.getElementById('testSuiteForm');
     if (testSuiteForm) {
-        testSuiteForm.addEventListener("submit", function (e) {
-            e.preventDefault();
+        testSuiteForm.addEventListener('submit', function(event) {
+            event.preventDefault();
 
-            const suiteName = document.getElementById("suiteName").value.trim();
-            const suiteDescription = document.getElementById("suiteDescription").value.trim();
+            const testCaseId = document.getElementById('hiddenTestcaseId').value;
+            const suiteName = document.getElementById('suiteName').value.trim();
+            const suiteDescription = document.getElementById('suiteDescription').value.trim();
 
             if (!suiteName) {
-                alert("Please enter a test suite name.");
+                alert('Test Suite Name is required.');
                 return;
             }
 
-            // Replace this with a real server call if needed
-            console.log("Suite Created:", { suiteName, suiteDescription });
-
-            // Clear the form
-            testSuiteForm.reset();
-
-            // Close modal
-            const modalEl = document.getElementById('testSuiteModal');
-            const modal = bootstrap.Modal.getInstance(modalEl);
-            modal.hide();
-
-            alert("Test Suite added successfully!");
+            fetch('/add_test_suite', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    test_case_id: testCaseId,
+                    suite_name: suiteName,
+                    description: suiteDescription
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Test Suite added successfully.');
+                    const modalEl = document.getElementById('testSuiteModal');
+                    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                    modalInstance.hide();
+                    location.reload();
+                } else {
+                    alert('Failed to add test suite.');
+                }
+            })
+            .catch(() => alert('Error adding test suite.'));
         });
     }
+
 });
