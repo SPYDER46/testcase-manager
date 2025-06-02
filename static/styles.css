@@ -304,3 +304,13 @@ h5.text-primary {
     box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
 }
 
+select.form-select {
+  -webkit-appearance: menulist !important;
+  -moz-appearance: menulist !important;
+  appearance: menulist !important;
+  background-image: none !important;
+  background-color: white !important;
+  color: #000 !important;
+  border: 1px solid #ced4da !important;
+}
+

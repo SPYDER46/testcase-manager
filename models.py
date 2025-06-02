@@ -435,23 +435,22 @@ def get_test_suites(testcase_id):
     conn = get_connection()
     with conn.cursor() as cur:
         cur.execute("""
-            SELECT id, testcase_id, suite_name, description, created_at
+            SELECT id, suite_name, description, status, created_at
             FROM test_suites
             WHERE testcase_id = %s
-            ORDER BY created_at DESC
         """, (testcase_id,))
         rows = cur.fetchall()
+    conn.close()
+    return [
+        {
+            'id': row[0],
+            'suite_name': row[1],
+            'description': row[2],
+            'status': row[3],
+            'created_at': row[4]
+        }
+        for row in rows
+    ]
 
-        # Convert rows to dicts
-        suites = []
-        for row in rows:
-            suites.append({
-                'id': row[0],
-                'testcase_id': row[1],
-                'suite_name': row[2],
-                'description': row[3],
-                'created_at': row[4],
-            })
-        return suites
 
 

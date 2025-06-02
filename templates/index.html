@@ -65,7 +65,7 @@
                   <div class="btn-group" role="group" aria-label="Actions" >
                     <a href="{{ url_for('view_testcase', game_name=game_name, testcase_id=case.id) }}" class="btn btn-sm btn-info">View</a>
                     <form action="{{ url_for('delete_testcase', game_name=game_name, testcase_id=case.id) }}" method="post" style="display:inline;">
-                      <button type="submit" class="btn btn-sm btn-danger btn-delete"
+                      <button type="button" class="btn btn-sm btn-danger btn-delete"
                               data-url="{{ url_for('delete_testcase', game_name=game_name, testcase_id=case.id) }}" data-item="testcase">
                         Delete
                       </button>

@@ -79,6 +79,7 @@
     <tr class="text-center">
       <th>Suite Name</th>
       <th>Description</th>
+      <th>Status</th> 
       <th>Created At</th>
       <th>Actions</th>
     </tr>
@@ -88,7 +89,8 @@
     <tr>
       <td>{{ suite.suite_name }}</td>
       <td>{{ suite.description }}</td>
-      <td>{{ suite.created_at | datetimeformat }}</td>
+      <td class="text-center">{{ suite.status }}</td>
+      <td style="text-align: center;">{{ suite.created_at | datetimeformat }}</td>
       <td class="text-center">
         <a href="{{ url_for('edit_suite', game_name=game_name, testcase_id=test_case.id, suite_id=suite.id) }}" class="btn btn-sm btn-warning">Edit</a>
         <form method="POST" action="{{ url_for('delete_suite', game_name=game_name, testcase_id=test_case.id, suite_id=suite.id) }}" style="display:inline;">
@@ -206,10 +208,10 @@
                   </div>
 
                   <div>
-                    <label for="status" class="form-label fw-semibold">Status <span class="text-danger">*</span></label>
-                    <select id="status" name="status" class="form-select" required>
+                    <label for="iteration_status" class="form-label fw-semibold">Status <span class="text-danger">*</span></label>
+                      <select id="iteration_status" name="status" class="form-select" required>
                       {% for option in ['Pass', 'Fail', 'To Do', 'Hold', 'Doubt', 'Not applicable', 'Pending'] %}
-                        <option value="{{ option }}" {% if test_case.status == option %}selected{% endif %}>{{ option }}</option>
+                        <option value="{{ option }}" {% if option == current_status %}selected{% endif %}>{{ option }}</option>
                       {% endfor %}
                     </select>
                   </div>
@@ -269,7 +271,20 @@
             <label for="description" class="form-label">Description</label>
             <textarea class="form-control" id="description" name="description" rows="3"></textarea>
           </div>
-        </div>
+
+          <div class="mb-3">
+            <label for="suite_status" class="form-label">Status</label>
+            <select class="form-select" id="suite_status" name="status" required>
+              <option value="">-- Select Status --</option>
+              <option value="To do">To Do</option>
+              <option value="Passed">Passed</option>
+              <option value="Failed">Failed</option>
+              <option value="Pending">Pending</option>
+              <option value="Hold">Hold</option>
+              <option value="Discussion">Discussion</option>
+            </select>
+          </div>
+          
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
           <button type="submit" class="btn btn-primary">Add Suite</button>

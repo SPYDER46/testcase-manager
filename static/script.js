@@ -45,20 +45,30 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     // === Summary Modal Setup ===
-    const summaryModalEl = document.getElementById('summaryFormModal');
-    if (summaryModalEl) {
-        const summaryModal = new bootstrap.Modal(summaryModalEl, {
-            backdrop: 'static',
-            keyboard: false
-        });
+const summaryModalEl = document.getElementById('summaryFormModal');
+if (summaryModalEl) {
+    const summaryModal = new bootstrap.Modal(summaryModalEl, {
+        backdrop: 'static',
+        keyboard: false
+    });
 
-        const openSummaryBtn = document.getElementById('openSummaryModalBtn');
-        if (openSummaryBtn) {
-            openSummaryBtn.addEventListener('click', function () {
-                summaryModal.show();
-            });
-        }
+    const openSummaryBtn = document.getElementById('openSummaryModalBtn');
+    if (openSummaryBtn) {
+        openSummaryBtn.addEventListener('click', function () {
+            summaryModal.show();
+        });
     }
+}
+
+// === Add Test Suite Modal Setup ===
+const suiteModalEl = document.getElementById('testSuiteModal');
+if (suiteModalEl) {
+    const suiteModal = new bootstrap.Modal(suiteModalEl, {
+        backdrop: 'static',
+        keyboard: false
+    });
+}
+
 
     // === Toast Setup ===
     const toastEl = document.getElementById('deleteToast');

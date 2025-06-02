@@ -139,8 +139,6 @@ def view_testcase(game_name, testcase_id):
     dt_created = parse_datetime(test_case.get('date_created'))
     test_case['date_created'] = dt_created.strftime("%b %d, %Y %I:%M %p") if dt_created else ''
 
-    iterations = get_iterations_by_test_case_id(testcase_id)
-
     # Fetch associated test suites for this testcase
     iterations = get_iterations_by_test_case_id(testcase_id)
 
@@ -221,7 +219,6 @@ def delete_iteration_route(game_name, testcase_id, iteration_id):
     delete_iteration_by_id(iteration_id)
     reorder_iterations(testcase_id)
     return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
-pass
 
 def calculate_priorities(test_cases):
     priorities = {'Major': 0, 'Medium': 0, 'Minor': 0}
@@ -435,13 +432,14 @@ def format_date(dt_str):
 def add_suite(game_name, testcase_id):
     suite_name = request.form['suite_name']
     description = request.form['description']
+    status = request.form['status']
 
     conn = get_connection()
     with conn.cursor() as cur:
         cur.execute("""
-            INSERT INTO test_suites (testcase_id, suite_name, description)
-            VALUES (%s, %s, %s)
-        """, (testcase_id, suite_name, description))
+            INSERT INTO test_suites (testcase_id, suite_name, description, status)
+            VALUES (%s, %s, %s, %s)
+        """, (testcase_id, suite_name, description, status))
         conn.commit()
 
     return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
@@ -449,27 +447,37 @@ def add_suite(game_name, testcase_id):
 @app.route('/edit_suite/<game_name>/<int:testcase_id>/<int:suite_id>', methods=['GET', 'POST'])
 def edit_suite(game_name, testcase_id, suite_id):
     if request.method == 'POST':
-        # handle form submission and update suite
         suite_name = request.form['suite_name']
         description = request.form['description']
+        status = request.form['status']  # <-- Add this line
+
         conn = get_connection()
         with conn.cursor() as cur:
             cur.execute("""
-                UPDATE test_suites SET suite_name = %s, description = %s WHERE id = %s
-            """, (suite_name, description, suite_id))
+                UPDATE test_suites SET suite_name = %s, description = %s, status = %s WHERE id = %s
+            """, (suite_name, description, status, suite_id))
             conn.commit()
         return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
 
-    # For GET request, fetch suite details and render form
+    # GET request
     conn = get_connection()
     with conn.cursor() as cur:
         cur.execute("SELECT * FROM test_suites WHERE id = %s", (suite_id,))
-        suite = cur.fetchone()
+        row = cur.fetchone()
 
-    if not suite:
+    if not row:
         return "Suite not found", 404
 
+    suite = {
+        'id': row[0],
+        'suite_name': row[1],
+        'description': row[2],
+        'status': row[5], 
+        'created_at': row[5]
+    }
+
     return render_template('edit_suite.html', game_name=game_name, testcase_id=testcase_id, suite_id=suite_id, suite=suite)
+
 
 
 @app.route('/delete_suite/<game_name>/<int:testcase_id>/<int:suite_id>', methods=['POST'])
@@ -481,9 +489,6 @@ def delete_suite(game_name, testcase_id, suite_id):
 
     return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
 
-
-
-    
 
 if __name__ == '__main__':
     app.run(debug=True)
