@@ -49,7 +49,6 @@ def init_db():
                     priority TEXT,
                     iteration INTEGER,
                     created_by TEXT,
-                    test_suite TEXT,
                     date_created TIMESTAMP
                 )
             ''')
@@ -88,23 +87,6 @@ def init_db():
                     updated_at TIMESTAMP,
                     FOREIGN KEY (test_case_id) REFERENCES test_cases(id)
                 );
-            ''')
-
-            c.execute('''
-                CREATE TABLE IF NOT EXISTS test_suites (
-                    id SERIAL PRIMARY KEY,
-                    name VARCHAR(255) NOT NULL,
-                    description TEXT,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-                )
-            ''')
-
-            c.execute('''
-                CREATE TABLE IF NOT EXISTS test_case_suites (
-                    testcase_id INTEGER REFERENCES test_cases(id) ON DELETE CASCADE,
-                    testsuite_id INTEGER REFERENCES test_suites(id) ON DELETE CASCADE,
-                    PRIMARY KEY (testcase_id, testsuite_id)
-                )
             ''')
 
             conn.commit()
@@ -449,8 +431,27 @@ def get_all_test_cases_with_latest(game):
             return test_cases
 
 
+def get_test_suites(testcase_id):
+    conn = get_connection()
+    with conn.cursor() as cur:
+        cur.execute("""
+            SELECT id, testcase_id, suite_name, description, created_at
+            FROM test_suites
+            WHERE testcase_id = %s
+            ORDER BY created_at DESC
+        """, (testcase_id,))
+        rows = cur.fetchall()
 
-            
-
+        # Convert rows to dicts
+        suites = []
+        for row in rows:
+            suites.append({
+                'id': row[0],
+                'testcase_id': row[1],
+                'suite_name': row[2],
+                'description': row[3],
+                'created_at': row[4],
+            })
+        return suites
 
 

@@ -23,6 +23,7 @@ from models import (
     update_iteration,
     delete_iteration_by_id,
     get_latest_tester_and_update,
+    get_test_suites
 
 )
 
@@ -148,6 +149,7 @@ def view_testcase(game_name, testcase_id):
         game_name=game_name,
         test_case=test_case,
         iterations=iterations,
+        suites = get_test_suites(testcase_id), 
         user_name=''
     )
 
@@ -404,13 +406,19 @@ def datetimeformat(value):
     from datetime import datetime
     if not value:
         return ''
+    
+    if isinstance(value, datetime):
+        return value.strftime("%b %d, %Y %I:%M %p")
+    
     for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M"):
         try:
             dt = datetime.strptime(value, fmt)
             return dt.strftime("%b %d, %Y %I:%M %p")
         except ValueError:
             continue
-    return value 
+    
+    return str(value)
+
 
 @app.route('/games/<game_name>/complete_testing', methods=['POST'])
 def complete_testing(game_name):
@@ -423,52 +431,59 @@ def format_date(dt_str):
     except Exception:
         return dt_str
     
-@app.route('/add_test_suite', methods=['POST'])
-def add_test_suite():
-    suite_name = request.form.get('suite_name')
-    description = request.form.get('description')
-    testcase_id = request.form.get('testcase_id')
+@app.route('/add_suite/<game_name>/<int:testcase_id>', methods=['POST'])
+def add_suite(game_name, testcase_id):
+    suite_name = request.form['suite_name']
+    description = request.form['description']
 
-    if not suite_name or not testcase_id:
-        return jsonify({"error": "Missing required fields"}), 400
-
-    try:
-        conn = get_connection()
-        cur = conn.cursor()
-
-        # Insert test suite and get its id and created time
-        cur.execute(
-            "INSERT INTO test_suites (name, description) VALUES (%s, %s) RETURNING id, created_at;",
-            (suite_name, description)
-        )
-        suite_id, created_at = cur.fetchone()
-
-        # Link test suite to test case
-        cur.execute(
-            "INSERT INTO test_case_suites (testcase_id, testsuite_id) VALUES (%s, %s);",
-            (testcase_id, suite_id)
-        )
-
+    conn = get_connection()
+    with conn.cursor() as cur:
+        cur.execute("""
+            INSERT INTO test_suites (testcase_id, suite_name, description)
+            VALUES (%s, %s, %s)
+        """, (testcase_id, suite_name, description))
         conn.commit()
-        cur.close()
-        conn.close()
 
-        return jsonify({
-            "id": suite_id,
-            "name": suite_name,
-            "description": description or '-',
-            "created_at": created_at.strftime('%Y-%m-%d %H:%M:%S')
-        })
+    return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
 
-    except Exception as e:
-        if conn:
-            conn.rollback()
-        return jsonify({"error": str(e)}), 500
-   
+@app.route('/edit_suite/<game_name>/<int:testcase_id>/<int:suite_id>', methods=['GET', 'POST'])
+def edit_suite(game_name, testcase_id, suite_id):
+    if request.method == 'POST':
+        # handle form submission and update suite
+        suite_name = request.form['suite_name']
+        description = request.form['description']
+        conn = get_connection()
+        with conn.cursor() as cur:
+            cur.execute("""
+                UPDATE test_suites SET suite_name = %s, description = %s WHERE id = %s
+            """, (suite_name, description, suite_id))
+            conn.commit()
+        return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
+
+    # For GET request, fetch suite details and render form
+    conn = get_connection()
+    with conn.cursor() as cur:
+        cur.execute("SELECT * FROM test_suites WHERE id = %s", (suite_id,))
+        suite = cur.fetchone()
+
+    if not suite:
+        return "Suite not found", 404
+
+    return render_template('edit_suite.html', game_name=game_name, testcase_id=testcase_id, suite_id=suite_id, suite=suite)
+
+
+@app.route('/delete_suite/<game_name>/<int:testcase_id>/<int:suite_id>', methods=['POST'])
+def delete_suite(game_name, testcase_id, suite_id):
+    conn = get_connection()
+    with conn.cursor() as cur:
+        cur.execute("DELETE FROM test_suites WHERE id = %s", (suite_id,))
+        conn.commit()
+
+    return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
 
 
 
-
+    
 
 if __name__ == '__main__':
     app.run(debug=True)

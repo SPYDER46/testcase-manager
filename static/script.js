@@ -139,44 +139,4 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    // === Add Test Suite form submit handler ===
-    const testSuiteForm = document.getElementById('testSuiteForm');
-    if (testSuiteForm) {
-        testSuiteForm.addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            const testCaseId = document.getElementById('hiddenTestcaseId').value;
-            const suiteName = document.getElementById('suiteName').value.trim();
-            const suiteDescription = document.getElementById('suiteDescription').value.trim();
-
-            if (!suiteName) {
-                alert('Test Suite Name is required.');
-                return;
-            }
-
-            fetch('/add_test_suite', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    test_case_id: testCaseId,
-                    suite_name: suiteName,
-                    description: suiteDescription
-                })
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    alert('Test Suite added successfully.');
-                    const modalEl = document.getElementById('testSuiteModal');
-                    const modalInstance = bootstrap.Modal.getInstance(modalEl);
-                    modalInstance.hide();
-                    location.reload();
-                } else {
-                    alert('Failed to add test suite.');
-                }
-            })
-            .catch(() => alert('Error adding test suite.'));
-        });
-    }
-
 });
