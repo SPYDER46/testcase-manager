@@ -17,7 +17,7 @@ from urllib.parse import urlparse
 #     return psycopg2.connect(**DB_CONFIG)
 
 def get_connection():
-    url = os.environ.get('DATABASE_URL')
+    url = os.environ.get('postgresql://postgres:vzpaWurHqvLchvXjgIexXwijrhLXcupX@postgres.railway.internal:5432/railway')
     if not url:
         raise Exception("DATABASE_URL not found in environment variables.")
 
