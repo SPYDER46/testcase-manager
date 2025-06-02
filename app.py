@@ -433,13 +433,13 @@ def add_suite(game_name, testcase_id):
     suite_name = request.form['suite_name']
     description = request.form['description']
     status = request.form['status']
-
+    iteration = request.form.get('iteration', '')  
     conn = get_connection()
     with conn.cursor() as cur:
         cur.execute("""
-            INSERT INTO test_suites (testcase_id, suite_name, description, status)
-            VALUES (%s, %s, %s, %s)
-        """, (testcase_id, suite_name, description, status))
+            INSERT INTO test_suites (testcase_id, suite_name, description, status, iteration)
+            VALUES (%s, %s, %s, %s, %s)
+        """, (testcase_id, suite_name, description, status, iteration))
         conn.commit()
 
     return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
@@ -449,13 +449,16 @@ def edit_suite(game_name, testcase_id, suite_id):
     if request.method == 'POST':
         suite_name = request.form['suite_name']
         description = request.form['description']
-        status = request.form['status']  # <-- Add this line
+        status = request.form['status']
+        iteration = request.form.get('iteration')  # Optional
 
         conn = get_connection()
         with conn.cursor() as cur:
             cur.execute("""
-                UPDATE test_suites SET suite_name = %s, description = %s, status = %s WHERE id = %s
-            """, (suite_name, description, status, suite_id))
+                UPDATE test_suites
+                SET suite_name = %s, description = %s, status = %s, iteration = %s
+                WHERE id = %s
+            """, (suite_name, description, status, iteration, suite_id))
             conn.commit()
         return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
 
@@ -473,11 +476,11 @@ def edit_suite(game_name, testcase_id, suite_id):
         'suite_name': row[1],
         'description': row[2],
         'status': row[5], 
-        'created_at': row[5]
+        'created_at': row[5],
+        'iteration': row[6],
+
     }
-
     return render_template('edit_suite.html', game_name=game_name, testcase_id=testcase_id, suite_id=suite_id, suite=suite)
-
 
 
 @app.route('/delete_suite/<game_name>/<int:testcase_id>/<int:suite_id>', methods=['POST'])

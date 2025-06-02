@@ -63,11 +63,11 @@
 
                             <td class="text-center">
                   <div class="btn-group" role="group" aria-label="Actions" >
-                    <a href="{{ url_for('view_testcase', game_name=game_name, testcase_id=case.id) }}" class="btn btn-sm btn-info">View</a>
+                    <a href="{{ url_for('view_testcase', game_name=game_name, testcase_id=case.id) }}" class="btn btn-sm btn-info"><i class="bi bi-eye"></i></a>
                     <form action="{{ url_for('delete_testcase', game_name=game_name, testcase_id=case.id) }}" method="post" style="display:inline;">
                       <button type="button" class="btn btn-sm btn-danger btn-delete"
                               data-url="{{ url_for('delete_testcase', game_name=game_name, testcase_id=case.id) }}" data-item="testcase">
-                        Delete
+                         <i class="bi bi-trash"></i>
                       </button>
 
                     </form>
@@ -184,6 +184,8 @@
 
 <!-- Bootstrap JS Bundle -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
+
 
 <!-- Your custom script.js -->
 <script src="{{ url_for('static', filename='script.js') }}"></script>

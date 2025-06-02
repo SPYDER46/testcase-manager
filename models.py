@@ -13,6 +13,9 @@ from urllib.parse import urlparse
 #     'port': 5432
 # }
 
+# def get_connection():
+#     return psycopg2.connect(**DB_CONFIG)
+
 def get_connection():
     url = os.environ.get('DATABASE_URL')
     if not url:
@@ -27,9 +30,6 @@ def get_connection():
         'port': parsed.port
     }
     return psycopg2.connect(**db_config)
-
-# def get_connection():
-#     return psycopg2.connect(**DB_CONFIG)
 
 def init_db():
     with get_connection() as conn:
@@ -435,7 +435,7 @@ def get_test_suites(testcase_id):
     conn = get_connection()
     with conn.cursor() as cur:
         cur.execute("""
-            SELECT id, suite_name, description, status, created_at
+            SELECT id, suite_name, description, status, created_at, iteration
             FROM test_suites
             WHERE testcase_id = %s
         """, (testcase_id,))
@@ -447,7 +447,8 @@ def get_test_suites(testcase_id):
             'suite_name': row[1],
             'description': row[2],
             'status': row[3],
-            'created_at': row[4]
+            'created_at': row[4],
+            'iteration': row[5]
         }
         for row in rows
     ]
