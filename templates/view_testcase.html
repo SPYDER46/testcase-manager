@@ -65,19 +65,14 @@
     </table>
 
 <!-- Iteration History section below Test Suites -->
-<div class="d-flex justify-content-between align-items-center mb-3 mt-2">
-  <h4>Iteration History</h4>
-  <div class="d-flex gap-2">
-    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#updateModal">
-      Update Iteration
-    </button>
-    <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#testSuiteModal">
-      Add Test Suite
-    </button>
-  </div>
+<!-- Test Suites header + Add Test Suite button aligned horizontally -->
+<div class="d-flex justify-content-between align-items-center mb-3 mt-4">
+  <h4>Test Suites</h4>
+  <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#testSuiteModal">
+    Add Test Suite
+  </button>
 </div>
 
-<h4>Test Suites</h4>
 {% if suites %}
 <table class="table table-bordered table-sm mb-4">
   <thead>
@@ -108,7 +103,13 @@
 <p>No test suites added.</p>
 {% endif %}
 
-
+<!-- Iteration History header + Update Iteration button aligned horizontally on a new line -->
+<div class="d-flex justify-content-between align-items-center mb-3 mt-4">
+  <h4>Iteration History</h4>
+  <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#updateModal">
+    Update Iteration
+  </button>
+</div>
 
 {% if iterations %}
 <table class="table table-bordered table-sm">
@@ -149,6 +150,7 @@
 {% else %}
 <p>No iteration history available.</p>
 {% endif %}
+
 
 
     <!-- Update Iteration Modal -->
