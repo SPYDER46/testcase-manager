@@ -89,6 +89,20 @@ def init_db():
                 );
             ''')
 
+            c.execute('''
+            CREATE TABLE IF NOT EXISTS test_suites (
+                id SERIAL PRIMARY KEY,
+                testcase_id INTEGER NOT NULL,
+                suite_name VARCHAR(255) NOT NULL,
+                description TEXT,
+                status VARCHAR(50),
+                iteration VARCHAR(50),
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (testcase_id) REFERENCES test_cases(id)
+            )
+        ''')
+
+
             conn.commit()
         
 def add_test_case(game, data, created_by):
