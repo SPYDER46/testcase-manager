@@ -6,16 +6,40 @@ document.addEventListener('DOMContentLoaded', function () {
         backdrop: 'static',
         keyboard: false
     }) : null;
+    const deleteConfirmMessage = document.getElementById('deleteConfirmMessage');
+
+    let currentForm = null;
 
     document.querySelectorAll('.btn-delete').forEach(button => {
         button.addEventListener('click', function () {
             const deleteUrl = this.getAttribute('data-url');
-            if (deleteUrl && deleteConfirmForm) {
+            const itemType = this.getAttribute('data-item') || 'item'; // new attribute to distinguish type
+
+            if (deleteConfirmForm && deleteConfirmModal && deleteUrl) {
                 deleteConfirmForm.action = deleteUrl;
+
+                // Update modal message depending on item type
+                if (itemType === 'suite') {
+                    deleteConfirmMessage.textContent = "Are you sure you want to delete this Test Suite? This action cannot be undone.";
+                } else if (itemType === 'iteration') {
+                    deleteConfirmMessage.textContent = "Are you sure you want to delete this iteration? This action cannot be undone.";
+                } else {
+                    deleteConfirmMessage.textContent = "Are you sure you want to delete this item? This action cannot be undone.";
+                }
+
+                currentForm = this.closest('form');
                 deleteConfirmModal.show();
             }
         });
     });
+
+    deleteConfirmForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        if (currentForm) {
+            currentForm.submit();
+        }
+    });
+
 
     // === Summary Modal Setup ===
     const summaryModalEl = document.getElementById('summaryFormModal');
