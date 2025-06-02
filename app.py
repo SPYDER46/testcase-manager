@@ -473,11 +473,11 @@ def edit_suite(game_name, testcase_id, suite_id):
 
     suite = {
         'id': row[0],
-        'suite_name': row[1],
-        'description': row[2],
-        'status': row[5], 
+        'suite_name': row[2],
+        'description': row[3],
+        'status': row[4], 
         'created_at': row[5],
-        'iteration': row[6],
+        'iteration': row[5],
 
     }
     return render_template('edit_suite.html', game_name=game_name, testcase_id=testcase_id, suite_id=suite_id, suite=suite)
