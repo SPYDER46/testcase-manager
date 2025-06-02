@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>Edit Test Suite - {{ suite.suite_name }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body class="container mt-5">
+
+    <h2>Edit Test Suite</h2>
+
+    <form method="POST"  action="{{ url_for('edit_suite', game_name=game_name, testcase_id=testcase_id, suite_id=suite_id) }}">
+       
+
+        <div class="mb-3">
+            <label for="suite_name" class="form-label">Iteration</label>
+            <input type="text" class="form-control" id="iteration" name="iteration" value="{{ suite.Iteration}}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="suite_name" class="form-label">Suite Name</label>
+            <input type="text" class="form-control" id="suite_name" name="suite_name" value="{{ suite.suite_name }}" required>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea class="form-control" id="description" name="description" rows="4">{{ suite.description }}</textarea>
+        </div>
+        <div class="mb-3">
+            <label for="status" class="form-label">Status</label>
+            <select class="form-select" id="status" name="status">
+                {% for option in ['To do', 'Passed', 'Failed', 'Pending', 'Hold', 'Discussion'] %}
+                    <option value="{{ option }}" {% if suite.status == option %}selected{% endif %}>{{ option }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+        <a href="{{ url_for('view_testcase', game_name=game_name, testcase_id=testcase_id) }}" class="btn btn-secondary ms-2">Cancel</a>
+
+    </form>
+
+</body>
+</html>
