@@ -500,3 +500,16 @@ td .btn-sm i {
 #deleteConfirmModal .modal-footer button {
     min-width: 100px;
 }
+
+.table-responsive.mx-auto {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.iteration-history-container {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 15px;
+  padding-right: 15px;
+}
