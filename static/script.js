@@ -20,11 +20,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Update modal message depending on item type
                 if (itemType === 'suite') {
-                    deleteConfirmMessage.textContent = "Are you sure you want to delete this Test Suite? This action cannot be undone.";
+                    deleteConfirmMessage.textContent = "Are you sure you want to delete this Test Case? This action cannot be undone.";
                 } else if (itemType === 'iteration') {
                     deleteConfirmMessage.textContent = "Are you sure you want to delete this iteration? This action cannot be undone.";
                 } else if (itemType === 'testcase') {
-                    deleteConfirmMessage.textContent = "Are you sure you want to delete this testcase? This action cannot be undone.";
+                    deleteConfirmMessage.textContent = "Are you sure you want to delete this Test suite? This action cannot be undone.";
                 } else {
                     deleteConfirmMessage.textContent = "Are you sure you want to delete this item? This action cannot be undone.";
                 } 

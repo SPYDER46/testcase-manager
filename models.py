@@ -96,7 +96,8 @@ def init_db():
                 suite_name VARCHAR(255) NOT NULL,
                 description TEXT,
                 status VARCHAR(50),
-                iteration VARCHAR(50),
+                iteration INTEGER,
+                actual TEXT,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (testcase_id) REFERENCES test_cases(id)
             )
@@ -449,23 +450,26 @@ def get_test_suites(testcase_id):
     conn = get_connection()
     with conn.cursor() as cur:
         cur.execute("""
-            SELECT id, suite_name, description, status, created_at, iteration
+            SELECT id, suite_name, description, created_at, testcase_id, status, iteration, actual
             FROM test_suites
             WHERE testcase_id = %s
         """, (testcase_id,))
         rows = cur.fetchall()
     conn.close()
     return [
-        {
-            'id': row[0],
-            'suite_name': row[1],
-            'description': row[2],
-            'status': row[3],
-            'created_at': row[4],
-            'iteration': row[5]
-        }
-        for row in rows
-    ]
+    {
+        'id': row[0],
+        'suite_name': row[1],
+        'description': row[2],
+        'created_at': row[3],
+        'testcase_id': row[4],
+        'status': row[5],
+        'iteration': row[6],
+        'actual': row[7]
+    }
+    for row in rows
+]
+
 
 
 

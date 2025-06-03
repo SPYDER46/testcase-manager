@@ -435,6 +435,7 @@ def add_suite(game_name, testcase_id):
     status = request.form['status']
     iteration = request.form.get('iteration', '')  
     conn = get_connection()
+
     with conn.cursor() as cur:
         cur.execute("""
             INSERT INTO test_suites (testcase_id, suite_name, description, status, iteration)
@@ -450,16 +451,18 @@ def edit_suite(game_name, testcase_id, suite_id):
         suite_name = request.form['suite_name']
         description = request.form['description']
         status = request.form['status']
-        iteration = request.form.get('iteration')  # Optional
+        iteration = request.form.get('iteration') 
+        actual = request.form.get('actual')
 
         conn = get_connection()
         with conn.cursor() as cur:
             cur.execute("""
                 UPDATE test_suites
-                SET suite_name = %s, description = %s, status = %s, iteration = %s
+                SET suite_name = %s, description = %s, status = %s, iteration = %s, actual = %s
                 WHERE id = %s
-            """, (suite_name, description, status, iteration, suite_id))
+            """, (suite_name, description, status, iteration, actual, suite_id))
             conn.commit()
+            
         return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
 
     # GET request
@@ -473,11 +476,13 @@ def edit_suite(game_name, testcase_id, suite_id):
 
     suite = {
         'id': row[0],
-        'suite_name': row[2],
-        'description': row[3],
-        'status': row[4], 
-        'created_at': row[5],
-        'iteration': row[5],
+        'suite_name': row[1],
+        'description': row[2],
+        'created_at': row[3],
+        'testcase_id': row[4],
+        'status': row[5],
+        'iteration': row[6],
+        'actual': row[7]
 
     }
     return render_template('edit_suite.html', game_name=game_name, testcase_id=testcase_id, suite_id=suite_id, suite=suite)

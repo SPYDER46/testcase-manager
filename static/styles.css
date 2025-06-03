@@ -15,10 +15,16 @@ body {
 
 /* Heading */
 h2 {
-    font-weight: 700;
-    color: #34495e;
-    animation: fadeInDown 0.8s ease forwards;
-}
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      color: #333;
+      text-align: center;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 1.5rem;
+    }
+
+    
 
 /* Fade In Animation */
 @keyframes fadeInDown {
@@ -314,3 +320,183 @@ select.form-select {
   border: 1px solid #ced4da !important;
 }
 
+/* Edit suite */
+body {
+      background: #f0f2f5;
+    }
+
+    .card {
+      max-width: 650px;
+      margin: auto;
+    }
+
+    .card-header {
+      padding: 0.75rem 1.25rem;
+    }
+
+    .form-label {
+      font-size: 0.875rem;
+    }
+
+    .form-control, .form-select {
+      font-size: 0.875rem;
+      padding: 0.5rem 0.75rem;
+    }
+
+    .card-footer {
+      padding: 0.75rem 1.25rem;
+    }
+
+    .btn-success {
+      font-size: 0.85rem;
+      padding: 0.45rem 1.2rem;
+    }
+
+    .btn-outline-secondary {
+      font-size: 0.85rem;
+      padding: 0.45rem 1.2rem;
+    }
+
+/* All tables alignment */
+
+    /* Base body styling */
+body {
+    font-family: "Roboto", "Segoe UI", sans-serif;
+    font-size: 15px;
+    color: #212529;
+    background-color: #f7f9fb;
+}
+
+/* Headings */
+h2, h4 {
+    font-weight: 600;
+    color: #1a1a1a;
+    margin-bottom: 1rem;
+}
+
+/* Button styling */
+.btn {
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+/* Table base styling */
+.table {
+    background-color: #fff;
+    border-radius: 6px;
+    overflow: hidden;
+    border: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.table thead th {
+    background-color: #e9ecef;
+    font-weight: 600;
+    color: #495057;
+    border-bottom: 2px solid #dee2e6;
+    text-align: center;
+    vertical-align: middle;
+    padding: 12px;
+}
+
+.table tbody td {
+    background-color: #ffffff;
+    vertical-align: middle;
+    padding: 10px;
+    border-top: 1px solid #dee2e6;
+}
+
+.table-bordered {
+    border: 1px solid #dee2e6;
+}
+
+/* Handle long text with wrapping */
+.wrap-text {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    word-break: break-word;
+}
+
+/* Table cell alignments */
+td.text-center, th.text-center {
+    text-align: center;
+}
+
+/* Control widths for narrow columns */
+th.status, th.priority, th.updated_by, th.date_created, th.actions {
+    white-space: nowrap;
+    text-align: center;
+}
+
+td.status, td.priority, td.updated_by, td.date_created, td.actions {
+    white-space: nowrap;
+    text-align: center;
+}
+
+/* Modal enhancements */
+.modal-content {
+    border-radius: 8px;
+    border: none;
+}
+
+.modal-header {
+    background-color: #0d6efd;
+    color: white;
+    border-bottom: none;
+}
+
+.modal-footer {
+    background-color: #f1f3f5;
+    border-top: none;
+}
+
+/* Form input & textarea enhancements */
+.form-control,
+.form-select {
+    border-radius: 5px;
+    font-size: 0.95rem;
+    border: 1px solid #ced4da;
+}
+
+.form-control:focus,
+.form-select:focus {
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    border-color: #86b7fe;
+}
+
+/* Buttons inside table actions */
+td .btn-sm {
+    padding: 4px 8px;
+    font-size: 0.8rem;
+    margin: 0 2px;
+}
+
+td .btn-sm i {
+    font-size: 1rem;
+}
+
+/* Table responsiveness */
+.table-responsive {
+    margin-bottom: 2rem;
+}
+
+/* Improve modal spacing */
+.modal-body .form-label {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.modal-body .form-control,
+.modal-body .form-select {
+    margin-bottom: 1rem;
+}
+
+/* Delete modal appearance */
+#deleteConfirmModal .modal-header {
+    background-color: #dc3545;
+    color: white;
+}
+
+#deleteConfirmModal .modal-footer button {
+    min-width: 100px;
+}
