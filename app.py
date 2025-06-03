@@ -7,6 +7,8 @@ from io import StringIO
 import psycopg2 
 from flask import jsonify
 from models import get_connection
+from flask import flash, get_flashed_messages
+
 
 
 
@@ -436,14 +438,19 @@ def add_suite(game_name, testcase_id):
     iteration = request.form.get('iteration', '')  
     conn = get_connection()
 
-    with conn.cursor() as cur:
-        cur.execute("""
-            INSERT INTO test_suites (testcase_id, suite_name, description, status, iteration)
-            VALUES (%s, %s, %s, %s, %s)
-        """, (testcase_id, suite_name, description, status, iteration))
-        conn.commit()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO test_suites (testcase_id, suite_name, description, status, iteration)
+                VALUES (%s, %s, %s, %s, %s)
+            """, (testcase_id, suite_name, description, status, iteration))
+            conn.commit()
+    except Exception as e:
+        # Redirect with error flag in URL
+        return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id, error='duplicate'))
 
     return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
+
 
 @app.route('/edit_suite/<game_name>/<int:testcase_id>/<int:suite_id>', methods=['GET', 'POST'])
 def edit_suite(game_name, testcase_id, suite_id):

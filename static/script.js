@@ -175,5 +175,19 @@ if (suiteModalEl) {
             }
         });
     }
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('error') === 'duplicate') {
+    const customAlert = document.getElementById('customAlert');
+    if (customAlert) {
+        customAlert.style.display = 'block';
+    }
 
+    // Remove error param so alert doesn't reappear on reload
+    const url = new URL(window.location);
+    url.searchParams.delete('error');
+    window.history.replaceState({}, document.title, url.toString());
+}
+
+
+    
 });

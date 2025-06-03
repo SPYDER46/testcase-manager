@@ -506,10 +506,41 @@ td .btn-sm i {
   padding-right: 15px;
 }
 
-.iteration-history-container {
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  padding-left: 15px;
-  padding-right: 15px;
-}
+/* Edit iteration  */
+ body {
+            font-size: 0.9rem;
+        }
+        .card {
+            border-radius: 0.5rem;
+        }
+        .form-label {
+            margin-bottom: 0.2rem;
+            font-weight: 500;
+        }
+        textarea.form-control {
+            resize: vertical;
+        }
+
+
+      th.status, th.priority, th.updated_by, th.date_created, th.actions {
+          padding-left: 20px;
+          padding-right: 20px;
+          white-space: nowrap;
+      }
+      /* Keep table data cells normal */
+      td.status, td.priority, td.updated_by, td.date_created, td.actions {
+          white-space: nowrap;
+      }
+      .wrap-text {
+          white-space: pre-wrap;
+          word-break: break-word;
+      }
+      /* Additional minor spacing tweaks */
+      h2, h4, h5 {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+      }
+      .btn {
+        white-space: nowrap;
+      }
+
