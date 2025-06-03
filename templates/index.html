@@ -53,7 +53,7 @@
                 <tbody>
               {% for case in grouped_cases['All Test Cases'] %}
               <tr class="row1">
-                            <td style="text-align: center;">{{ case.testcase_number }}</td>
+                            <td style="text-align: center;">{{ loop.index }}</td>
                             <td>{{ case.title }}</td>
                             <td style="text-align: center;">{{ case.status }}</td>
                             <td style="text-align: center;">{{ case.priority }}</td>

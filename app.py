@@ -33,9 +33,24 @@ app = Flask(__name__)
 init_db()
 backfill_testcase_numbers()
 
+# PHASES = {
+#     'Phase 1': ['Aviator', 'CricketX', 'Hilo', 'Mines', 'Roulette', 'Keno', 'Tower', 'Rummy', 'TeenPatti', 'Ludo', 'Snake&Ladder', 'Andar Bahar', 'Poker', 'Carrom'],
+#     'Phase 2': ['GoColor', 'Ballon'],
+#     'Phase 3': ['Joker', 'TeenPatti']
+# }
+
+# @app.route('/phases')
+# def phases_page():
+#     return render_template('phases.html', phases=PHASES)
+
+# @app.route('/phase/<phase_name>')
+# def games_by_phase(phase_name):
+#     games_in_phase = PHASES.get(phase_name, [])
+#     return render_template('games.html', games=games_in_phase)
+
+
 GAMES = ['Aviator', 'CricketX', 'Piggy Dash', 'Roller Blitz', 'Marble Gp', 'Hilo', 'Mines', 'Roulette', 'Keno',
          'Tower', 'Rummy', 'TeenPatti', 'Ludo', 'Snake&Ladder', 'Andar Bahar', 'Poker', 'Carrom']
-
 
 
 def smart_csv_reader(file_contents):
@@ -503,6 +518,7 @@ def delete_suite(game_name, testcase_id, suite_id):
         conn.commit()
 
     return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
+    
 
 
 if __name__ == '__main__':
