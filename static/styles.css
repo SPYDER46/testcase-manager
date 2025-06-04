@@ -46,7 +46,7 @@ h2 {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     cursor: pointer;
     user-select: none;
-    padding: 2rem 1.25rem 1.25rem 1.25rem;              /* reduced padding */
+    padding: 2rem 1.25rem 1.25rem 1.25rem;             
     text-align: center;
     position: relative;
     will-change: transform, box-shadow;
@@ -783,4 +783,52 @@ h5.text-primary {
 }
 
 
+@media (min-width: 1024px) and (max-width: 1366px) {
+  /* Move main container up */
+  .container {
+    margin-top: 0; /* remove default top margin if any */
+    padding-top: 0;
+  }
+  
+  /* Reduce top margin for headings */
+  h2, h4, h5 {
+    margin-top: 0.5rem;  /* less top margin */
+    margin-bottom: 1rem; /* keep bottom margin */
+  }
+
+  /* Move search and action bars up */
+  .search-container,
+  .game-action-bar,
+  .add-game-form {
+    margin-top: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  /* Move game cards container up */
+  .game-cards-container {
+    padding-top: 6px;
+    margin-top: 0;
+    gap: 16px; /* optional: reduce gap to compact */
+  }
+  
+  /* Reduce vertical padding inside game cards */
+  .game-card {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+  
+  /* Reduce padding for table and related elements */
+  .responsive-table,
+  .table {
+    margin-top: 1rem;
+  }
+
+  .responsive-table th,
+  .responsive-table td,
+  .table thead th,
+  .table tbody td {
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+}
 
