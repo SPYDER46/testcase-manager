@@ -60,17 +60,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Automatically set iteration_no input when modal opens
         summaryModalEl.addEventListener("show.bs.modal", function () {
-            const iterationInput = document.querySelector("input[name='iteration_no']");
-            if (iterationInput) {
-                const iterationCell = document.querySelector("td.iteration");
-                if (iterationCell) {
-                    const iterationNumber = iterationCell.textContent.trim();
-                    iterationInput.value = iterationNumber || '';
-                } else {
-                    iterationInput.value = '';
-                }
+        const iterationInput = document.querySelector("input[name='iteration_no']");
+        if (iterationInput) {
+            const iterationCell = document.querySelector("td.iteration");
+            if (iterationCell) {
+                const iterationNumber = iterationCell.textContent.trim();
+                iterationInput.value = iterationNumber || '';
+            } else {
+                iterationInput.value = '';
             }
-        });
+        }
+    });
 
     }
 
@@ -202,3 +202,16 @@ document.addEventListener('DOMContentLoaded', function () {
         window.history.replaceState({}, document.title, url.toString());
     }
 });
+
+
+function filterGames() {
+  const input = document.getElementById('searchGame').value.toLowerCase();
+  const cards = document.querySelectorAll('.game-card');
+
+  cards.forEach(card => {
+    const name = card.querySelector('h5').textContent.toLowerCase();
+    card.style.display = name.includes(input) ? '' : 'none';
+  });
+}
+
+

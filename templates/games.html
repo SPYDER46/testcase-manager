@@ -9,36 +9,40 @@
 <body>
 <div class="container py-5">
 
-    <h2 class="text-center mb-4">G A M E S</h2>
+    <h2 class="text-center">G A M E S</h2>
 
-    <!-- 🔹 Add Game Form -->
-  <form method="POST" class="add-game-form">
-  <input type="text" name="new_game" placeholder="Enter new game" required />
-  <button type="submit">Add Game</button>
-</form>
+<!-- Add Game + Search Bar -->
+<div class="game-action-bar d-flex flex-column flex-md-row justify-content-center align-items-center gap-3 mb-4">
+  
+  <!-- Add Game -->
+  <form method="POST" class="add-game-form d-flex align-items-center gap-2">
+    <input type="text" name="new_game" placeholder="Add new game" required />
+    <button type="submit">Add</button>
+  </form>
+
+  <!-- Search Bar-->
+  <div class="search-container flex-grow-1" style="max-width: 320px;">
+    <input type="text" id="searchGame" placeholder="Search games..." onkeyup="filterGames()" />
+  </div>
+</div>
 
 
-    <!-- 🔹 Game Cards -->
+    <!-- Game Cards -->
     <div class="game-cards-container">
         {% for game in games %}
         <div class="game-card position-relative">
 
             <!-- Delete Form -->
- <form method="POST" action="{{ url_for('delete_game', game_name=game) }}" class="position-absolute">
-  
-    <button type="submit" class="btn-delete-game" aria-label="Delete {{ game }}" onclick="return confirm('Are you sure you want to delete {{ game }}?');" title="Delete {{ game }}">
-        <!-- Trash Can SVG icon -->
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <!-- Trash lid (optional for animation) -->
-            <path class="lid" d="M3 6h18" stroke="#dc3545" stroke-width="2" fill="none"/>
-            <!-- Trash can body -->
-            <rect x="6" y="6" width="12" height="14" rx="2" ry="2" fill="none" stroke="#dc3545" stroke-width="2"/>
-            <!-- Trash handle -->
-            <path d="M8 6V4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2" stroke="#dc3545" stroke-width="2" fill="none"/>
-            </svg>
-    </button>
-
-</form>
+            <form method="POST" action="{{ url_for('delete_game', game_name=game) }}" class="position-absolute">
+                <button type="submit" class="btn-delete-game" aria-label="Delete {{ game }}" onclick="return confirm('Are you sure you want to delete {{ game }}?');" title="Delete {{ game }}">
+                    <!-- Trash Can SVG icon -->
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path class="lid" d="M3 6h18" stroke="#dc3545" stroke-width="2" fill="none"/>
+                        <rect x="6" y="6" width="12" height="14" rx="2" ry="2" fill="none" stroke="#dc3545" stroke-width="2"/>
+                        <path d="M8 6V4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2" stroke="#dc3545" stroke-width="2" fill="none"/>
+                    </svg>
+                </button>
+            </form>
 
             <!-- Game Card Link -->
             <a href="{{ url_for('index', game_name=game) }}" class="d-block text-decoration-none">
@@ -50,10 +54,11 @@
                 </div>
                 <h5 class="text-primary mb-0">{{ game }}</h5>
             </a>
-        
         </div>
         {% endfor %}
     </div>
 </div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
