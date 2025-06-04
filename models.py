@@ -453,24 +453,21 @@ def get_test_suites(testcase_id):
             SELECT id, suite_name, description, created_at, testcase_id, status, iteration, actual
             FROM test_suites
             WHERE testcase_id = %s
+            ORDER BY iteration ASC, created_at ASC  -- you can adjust this
         """, (testcase_id,))
         rows = cur.fetchall()
     conn.close()
     return [
-    {
-        'id': row[0],
-        'suite_name': row[1],
-        'description': row[2],
-        'created_at': row[3],
-        'testcase_id': row[4],
-        'status': row[5],
-        'iteration': row[6],
-        'actual': row[7]
-    }
-    for row in rows
-]
-
-
-
-
+        {
+            'id': row[0],
+            'suite_name': row[1],
+            'description': row[2],
+            'created_at': row[3],
+            'testcase_id': row[4],
+            'status': row[5],
+            'iteration': row[6],
+            'actual': row[7]
+        }
+        for row in rows
+    ]
 

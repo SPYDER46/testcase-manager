@@ -28,7 +28,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 } else {
                     deleteConfirmMessage.textContent = "Are you sure you want to delete this item? This action cannot be undone.";
                 } 
-                
 
                 currentForm = this.closest('form');
                 deleteConfirmModal.show();
@@ -45,30 +44,44 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
     // === Summary Modal Setup ===
-const summaryModalEl = document.getElementById('summaryFormModal');
-if (summaryModalEl) {
-    const summaryModal = new bootstrap.Modal(summaryModalEl, {
-        backdrop: 'static',
-        keyboard: false
-    });
+    const summaryModalEl = document.getElementById('summaryFormModal');
+    if (summaryModalEl) {
+        const summaryModal = new bootstrap.Modal(summaryModalEl, {
+            backdrop: 'static',
+            keyboard: false
+        });
 
-    const openSummaryBtn = document.getElementById('openSummaryModalBtn');
-    if (openSummaryBtn) {
-        openSummaryBtn.addEventListener('click', function () {
-            summaryModal.show();
+        const openSummaryBtn = document.getElementById('openSummaryModalBtn');
+        if (openSummaryBtn) {
+            openSummaryBtn.addEventListener('click', function () {
+                summaryModal.show();
+            });
+        }
+
+        // Automatically set iteration_no input when modal opens
+        summaryModalEl.addEventListener("show.bs.modal", function () {
+            const iterationInput = document.querySelector("input[name='iteration_no']");
+            if (iterationInput) {
+                const iterationCell = document.querySelector("td.iteration");
+                if (iterationCell) {
+                    const iterationNumber = iterationCell.textContent.trim();
+                    iterationInput.value = iterationNumber || '';
+                } else {
+                    iterationInput.value = '';
+                }
+            }
+        });
+
+    }
+
+    // === Add Test Suite Modal Setup ===
+    const suiteModalEl = document.getElementById('testSuiteModal');
+    if (suiteModalEl) {
+        const suiteModal = new bootstrap.Modal(suiteModalEl, {
+            backdrop: 'static',
+            keyboard: false
         });
     }
-}
-
-// === Add Test Suite Modal Setup ===
-const suiteModalEl = document.getElementById('testSuiteModal');
-if (suiteModalEl) {
-    const suiteModal = new bootstrap.Modal(suiteModalEl, {
-        backdrop: 'static',
-        keyboard: false
-    });
-}
-
 
     // === Toast Setup ===
     const toastEl = document.getElementById('deleteToast');
@@ -175,19 +188,17 @@ if (suiteModalEl) {
             }
         });
     }
+
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('error') === 'duplicate') {
-    const customAlert = document.getElementById('customAlert');
-    if (customAlert) {
-        customAlert.style.display = 'block';
+        const customAlert = document.getElementById('customAlert');
+        if (customAlert) {
+            customAlert.style.display = 'block';
+        }
+
+        // Remove error param so alert doesn't reappear on reload
+        const url = new URL(window.location);
+        url.searchParams.delete('error');
+        window.history.replaceState({}, document.title, url.toString());
     }
-
-    // Remove error param so alert doesn't reappear on reload
-    const url = new URL(window.location);
-    url.searchParams.delete('error');
-    window.history.replaceState({}, document.title, url.toString());
-}
-
-
-    
 });

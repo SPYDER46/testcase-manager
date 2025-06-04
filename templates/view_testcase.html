@@ -131,24 +131,25 @@
     <div class="table-responsive mx-auto" style="max-width: 1200px;">
       <table class="table table-bordered table-sm mb-4 align-middle">
         <thead>
-          <tr class="text-center">
-            <th>Iteration</th>
-            <th style="min-width: 220px;">Description</th>
-            <th style="min-width: 180px;">Actual Result</th>
-            <th class="status">Status</th>
-            <th class="priority">Priority</th>
-            <th class="updated_by">Updated By</th>
-            <th class="date_created">Update date</th>
-            <th class="actions">Actions</th>
-          </tr>
-        </thead>
+  <tr class="text-center">
+    <th style="min-width: 100px;">Iteration</th>
+    <th style="min-width: 220px;">Description</th>
+    <th style="min-width: 20px;">Actual Result</th>
+    <th style="min-width: 100px;">Status</th>
+    <th style="min-width: 100px;">Priority</th>
+    <th style="min-width: 150px;">Updated By</th>
+    <th style="min-width: 150px;">Update Date</th>
+    <th style="min-width: 100px;">Actions</th>
+  </tr>
+</thead>
+
         <tbody>
           {% for h in iterations %}
           <tr>
             <td class="text-center">{{ loop.index }}</td>
-            <td>{{ h.description }}</td>
-            <td>{{ h.actual_result }}</td>
-           <td class="text-center
+            <td class="text-start">{{ h.description }}</td>
+            <td class="text-start">{{ h.actual_result }}</td>
+            <td class="text-center
               {% if h.status.lower() == 'fail' or h.status.lower() == 'failed' %}
                 text-danger fw-bold
               {% elif h.status.lower() == 'pass' or h.status.lower() == 'passed' %}
@@ -156,18 +157,20 @@
               {% endif %}">
               {{ h.status }}
             </td>
-
             <td class="text-center">{{ h.priority }}</td>
             <td class="text-center">{{ h.updated_by }}</td>
-            <td>{{ h.updated_at | datetimeformat }}</td>
-            <td class="text-center d-flex justify-content-center gap-2">
+            <td class="text-center">{{ h.updated_at | datetimeformat }}</td>
+
+            <td class="text-center d-flex justify-content-center gap-2 ">
               <a href="{{ url_for('edit_iteration', game_name=game_name, testcase_id=test_case['id'], iteration_id=h['id']) }}" class="btn btn-sm btn-warning" title="Edit"><i class="bi bi-pencil"></i></a>
               <form method="POST" action="{{ url_for('delete_iteration_route', game_name=game_name, testcase_id=test_case.id, iteration_id=h.id) }}" style="display:inline;">
+                
                 <button type="button" class="btn btn-sm btn-danger btn-delete" 
                         data-url="{{ url_for('delete_iteration_route', game_name=game_name, testcase_id=test_case.id, iteration_id=h.id) }}"  
                         data-item="iteration" title="Delete">
                   <i class="bi bi-trash"></i>
                 </button>
+
               </form>
             </td>
           </tr>
@@ -298,7 +301,7 @@
                 <label for="description" class="form-label">Description</label>
                 <textarea class="form-control" id="description" name="description" rows="3"></textarea>
               </div>
-
+              
               <div class="mb-3">
                 <label for="suite_status" class="form-label">Status</label>
                 <select class="form-select" id="suite_status" name="status" required>
