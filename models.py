@@ -14,8 +14,8 @@ from collections import defaultdict
 #     'port': 5432
 # }
 
-def get_connection():
-    return psycopg2.connect(**DB_CONFIG)
+# def get_connection():
+#     return psycopg2.connect(**DB_CONFIG)
 
 def get_connection():
     url = os.environ.get('DATABASE_URL')
