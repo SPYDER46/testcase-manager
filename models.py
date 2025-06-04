@@ -4,6 +4,7 @@ from psycopg2.extras import RealDictCursor
 from datetime import datetime
 from dateutil import parser
 from urllib.parse import urlparse
+from collections import defaultdict
 
 # DB_CONFIG = {
 #     'host': 'localhost',
@@ -13,8 +14,8 @@ from urllib.parse import urlparse
 #     'port': 5432
 # }
 
-# def get_connection():
-#     return psycopg2.connect(**DB_CONFIG)
+def get_connection():
+    return psycopg2.connect(**DB_CONFIG)
 
 def get_connection():
     url = os.environ.get('DATABASE_URL')
@@ -470,4 +471,62 @@ def get_test_suites(testcase_id):
         }
         for row in rows
     ]
+
+def calculate_bug_differences(test_cases, current_iteration):
+    new_bugs = 0
+    repeated_bugs = 0
+
+    iteration_status_map = defaultdict(dict)
+    for tc in test_cases:
+        tc_id = tc.get('id') or tc.get('testcase_id')
+        if tc_id is None:
+            continue
+        iteration = tc.get('iteration')
+        status = tc.get('status', '').strip().lower()
+        if iteration is not None:
+            iteration_status_map[int(iteration)][tc_id] = status
+
+    prev_status_map = iteration_status_map.get(current_iteration - 1, {})
+    current_status_map = iteration_status_map.get(current_iteration, {})
+
+    for tc_id, curr_status in current_status_map.items():
+        prev_status = prev_status_map.get(tc_id)
+        if curr_status == 'fail':
+            if prev_status == 'pass':
+                new_bugs += 1
+            elif prev_status == 'fail':
+                repeated_bugs += 1
+
+    return new_bugs, repeated_bugs
+
+# To Delete Games from game page
+def delete_game_from_db(game_name):
+    conn = get_connection()
+    with conn.cursor() as cur:
+        cur.execute("DELETE FROM games WHERE name = %s", (game_name,))
+        conn.commit()
+
+def delete_game_data(game_name):
+    conn = get_connection()
+    with conn.cursor() as cur:
+        # Delete iterations related to test cases of this game
+        cur.execute("""
+            DELETE FROM iterations 
+            WHERE testcase_id IN (
+                SELECT id FROM test_cases WHERE game_name = %s
+            )
+        """, (game_name,))
+        
+        # Delete test suites related to test cases of this game
+        cur.execute("""
+            DELETE FROM test_suites 
+            WHERE testcase_id IN (
+                SELECT id FROM test_cases WHERE game_name = %s
+            )
+        """, (game_name,))
+        
+        # Delete test cases of this game
+        cur.execute("DELETE FROM test_cases WHERE game_name = %s", (game_name,))
+        
+        conn.commit()
 

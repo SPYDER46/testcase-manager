@@ -33,23 +33,7 @@ app = Flask(__name__)
 init_db()
 backfill_testcase_numbers()
 
-# PHASES = {
-#     'Phase 1': ['Aviator', 'CricketX', 'Hilo', 'Mines', 'Roulette', 'Keno', 'Tower', 'Rummy', 'TeenPatti', 'Ludo', 'Snake&Ladder', 'Andar Bahar', 'Poker', 'Carrom'],
-#     'Phase 2': ['GoColor', 'Ballon'],
-#     'Phase 3': ['Joker', 'TeenPatti']
-# }
-
-# @app.route('/phases')
-# def phases_page():
-#     return render_template('phases.html', phases=PHASES)
-
-# @app.route('/phase/<phase_name>')
-# def games_by_phase(phase_name):
-#     games_in_phase = PHASES.get(phase_name, [])
-#     return render_template('games.html', games=games_in_phase)
-
-
-GAMES = ['Aviator', 'CricketX', 'Piggy Dash', 'Roller Blitz', 'Marble Gp', 'Hilo', 'Mines', 'Roulette', 'Keno',
+GAMES =['Aviator', 'CricketX', 'Piggy Dash', 'Roller Blitz', 'Marble Gp', 'Hilo', 'Mines', 'Roulette', 'Keno',
          'Tower', 'Rummy', 'TeenPatti', 'Ludo', 'Snake&Ladder', 'Andar Bahar', 'Poker', 'Carrom']
 
 
@@ -519,6 +503,19 @@ def delete_suite(game_name, testcase_id, suite_id):
 
     return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
     
+
+# To Delete Games from game page
+from models import delete_game_data
+@app.route('/delete/<game_name>', methods=['POST'])
+def delete_game(game_name):
+    global GAMES
+    if game_name in GAMES:
+        GAMES.remove(game_name)
+
+    delete_game_data(game_name)
+
+    return redirect(url_for('home'))
+
 
 
 if __name__ == '__main__':

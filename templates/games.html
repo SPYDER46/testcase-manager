@@ -12,31 +12,48 @@
     <h2 class="text-center mb-4">G A M E S</h2>
 
     <!-- 🔹 Add Game Form -->
-    <!-- <form method="POST" class="row justify-content-center mb-5">
-        <div class="col-md-6 d-flex gap-2">
-            <input type="text" name="new_game" class="form-control" placeholder="Enter new game name" required>
-            <button type="submit" class="btn btn-primary">Add Game</button>
-        </div>
-    </form> -->
+  <form method="POST" class="add-game-form">
+  <input type="text" name="new_game" placeholder="Enter new game" required />
+  <button type="submit">Add Game</button>
+</form>
+
 
     <!-- 🔹 Game Cards -->
-     
-    <div class="row justify-content-center g-4">
+    <div class="game-cards-container">
         {% for game in games %}
-        <div class="col-12 col-sm-6 col-md-4 col-lg-3">
-            <a href="{{ url_for('index', game_name=game) }}" class="game-card d-block text-center p-4 text-decoration-none">
+        <div class="game-card position-relative">
+
+            <!-- Delete Form -->
+ <form method="POST" action="{{ url_for('delete_game', game_name=game) }}" class="position-absolute">
+  
+    <button type="submit" class="btn-delete-game" aria-label="Delete {{ game }}" onclick="return confirm('Are you sure you want to delete {{ game }}?');" title="Delete {{ game }}">
+        <!-- Trash Can SVG icon -->
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <!-- Trash lid (optional for animation) -->
+            <path class="lid" d="M3 6h18" stroke="#dc3545" stroke-width="2" fill="none"/>
+            <!-- Trash can body -->
+            <rect x="6" y="6" width="12" height="14" rx="2" ry="2" fill="none" stroke="#dc3545" stroke-width="2"/>
+            <!-- Trash handle -->
+            <path d="M8 6V4a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v2" stroke="#dc3545" stroke-width="2" fill="none"/>
+            </svg>
+    </button>
+
+</form>
+
+            <!-- Game Card Link -->
+            <a href="{{ url_for('index', game_name=game) }}" class="d-block text-decoration-none">
                 <div class="game-icon mb-3">
-                    <svg width="48" height="48" fill="#007bff" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+                    <svg width="56" height="56" fill="#007bff" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
                         <circle cx="8" cy="8" r="7" stroke="#007bff" stroke-width="2" fill="none"/>
                         <text x="8" y="12" text-anchor="middle" fill="#007bff" font-size="10" font-family="Segoe UI">{{ game[0] }}</text>
                     </svg>
                 </div>
-                <h5 class="mb-0 text-primary fw-semibold">{{ game }}</h5>
+                <h5 class="text-primary mb-0">{{ game }}</h5>
             </a>
+        
         </div>
         {% endfor %}
     </div>
-
 </div>
 </body>
 </html>

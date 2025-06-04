@@ -129,43 +129,43 @@
             <div class="row gx-3">
               <div class="col-6 mb-3">
                 <label for="iteration_no" class="form-label">Iteration no</label>
-                <input type="number" name="iteration_no" id="iteration_no" class="form-control" readonly>
+                <input type="number" name="iteration_no" id="iteration_no" class="form-control" readonly value="{{ request.args.get('iteration_no', '') }}">
               </div>
               <div class="col-6 mb-3">
                 <label for="New_bug" class="form-label">New Bug</label>
-                <input type="number" name="New_bug" class="form-control" required>
+                <input type="number" name="New_bug" class="form-control" required value="{{ request.args.get('New_bug', '') }}">
               </div>
               <div class="col-6 mb-3">
                 <label for="Repeated_bugs" class="form-label">Repeated Bug</label>
-                <input type="number" name="Repeated_bugs" class="form-control" required>
+                <input type="number" name="Repeated_bugs" class="form-control" required value="{{ request.args.get('Repeated_bugs', '') }}">
               </div>
               <div class="col-6 mb-3">
                 <label for="art_version" class="form-label">Art Document Version</label>
-                <input type="text" name="art_version" class="form-control" required>
+                <input type="text" name="art_version" class="form-control" required value="{{ request.args.get('art_version', '') }}">
               </div>
               <div class="col-6 mb-3">
                 <label for="uiux_version" class="form-label">UI/UX Document Version</label>
-                <input type="text" name="uiux_version" class="form-control" required>
+                <input type="text" name="uiux_version" class="form-control" required value="{{ request.args.get('uiux_version', '') }}">
               </div>
               <div class="col-6 mb-3">
                 <label for="developer_name" class="form-label">Developer Name</label>
-                <input type="text" name="developer_name" class="form-control" required>
+                <input type="text" name="developer_name" class="form-control" required value="{{ request.args.get('developer_name', '') }}">
               </div>
               <div class="col-6 mb-3">
                 <label for="tester" class="form-label">Tester Name</label>
-                <input type="text" name="tester" class="form-control" required>
+                <input type="text" name="tester" class="form-control" required value="{{ request.args.get('tester', '') }}">
               </div>
               <div class="col-6 mb-3">
                 <label for="phase_no" class="form-label">Phase No</label>
-                <input type="number" name="phase_no" class="form-control" required>
+                <input type="number" name="phase_no" class="form-control" required value="{{ request.args.get('phase_no', '') }}">
               </div>
               <div class="col-6 mb-3">
                 <label for="date_time_received" class="form-label">Date & Time Received</label>
-                <input type="datetime-local" name="date_time_received" class="form-control" required>
+                <input type="datetime-local" name="date_time_received" class="form-control" required value="{{ request.args.get('date_time_received', '') }}">
               </div>
               <div class="col-6 mb-3">
                 <label for="date_time_delivered" class="form-label">Date & Time Delivered</label>
-                <input type="datetime-local" name="date_time_delivered" class="form-control" required>
+                <input type="datetime-local" name="date_time_delivered" class="form-control" required value="{{ request.args.get('date_time_delivered', '') }}">
               </div>
             </div>
           </div>
@@ -178,7 +178,6 @@
     </div>
   </div>
 </div>
-
 
 
 

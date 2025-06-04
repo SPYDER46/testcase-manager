@@ -77,8 +77,9 @@
                     <td style="text-align: center;">{{ priorities['Major'] }}</td>
                     <td style="text-align: center;">{{ priorities['Medium'] }}</td>
                     <td style="text-align: center;">{{ priorities['Minor'] }}</td>
-                    <td style="text-align: center;">{{ repeated_bugs }}</td>
-                    <td style="text-align: center;">{{ new_bugs }}</td>
+                    <td style="text-align: center;">{{ repeated_bugs if repeated_bugs is not none else 'N/A' }}</td>
+                    <td style="text-align: center;">{{ new_bugs if new_bugs is not none else 'N/A' }}</td>
+
 
                 </tr>
             </tbody>
