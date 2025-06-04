@@ -9,9 +9,6 @@ from flask import jsonify
 from models import get_connection
 from flask import flash, get_flashed_messages
 
-
-
-
 from models import (
     init_db,
     add_test_case,
@@ -25,7 +22,10 @@ from models import (
     update_iteration,
     delete_iteration_by_id,
     get_latest_tester_and_update,
-    get_test_suites
+    get_test_suites,
+    get_all_games,        
+    add_game_db,           
+    delete_game_data 
 
 )
 
@@ -33,9 +33,10 @@ app = Flask(__name__)
 init_db()
 backfill_testcase_numbers()
 
-GAMES =['Aviator', 'CricketX', 'Piggy Dash', 'Roller Blitz', 'Marble Gp', 'Hilo', 'Mines', 'Roulette', 'Keno',
-         'Tower', 'Rummy', 'TeenPatti', 'Ludo', 'Snake&Ladder', 'Andar Bahar', 'Poker', 'Carrom']
+# GAMES =['Aviator', 'CricketX', 'Piggy Dash', 'Roller Blitz', 'Marble Gp', 'Hilo', 'Mines', 'Roulette', 'Keno',
+#          'Tower', 'Rummy', 'TeenPatti', 'Ludo', 'Snake&Ladder', 'Andar Bahar', 'Poker', 'Carrom']
 
+games_list = []
 
 def smart_csv_reader(file_contents):
     sniffer = csv.Sniffer()
@@ -45,10 +46,34 @@ def smart_csv_reader(file_contents):
 @app.route('/', methods=['GET', 'POST'])
 def home():
     if request.method == 'POST':
-        new_game = request.form.get('new_game', '').strip()
-        if new_game and new_game not in GAMES:
-            GAMES.append(new_game)
-    return render_template('games.html', games=GAMES)
+        name = request.form['game_name']
+        phase = request.form['game_phase']
+        category = request.form['category']
+        add_game_db(name, phase, category)  #
+        return redirect(url_for('home'))
+    
+    # Fetch all games from DB on GET
+    games_from_db = get_all_games()  # This should return list of dicts or objects
+    return render_template('games.html', games=games_from_db)
+
+
+@app.route('/delete/<game_name>', methods=['POST'])
+def delete_game(game_name):
+    global games_list
+    games_list = [g for g in games_list if g['name'] != game_name]
+    return redirect(url_for('home'))
+
+@app.route('/add_game', methods=['POST'])
+def add_game():
+    game_name = request.form.get('game_name', '').strip()
+    game_phase = request.form.get('game_phase', '').strip()
+    categories = request.form.get('categories', '').strip()
+
+    if game_name:
+        add_game_db(game_name, game_phase, categories)
+        flash(f"Game '{game_name}' added!", 'success')
+
+    return redirect(url_for('home'))
 
 
 @app.route('/games/<game_name>')
@@ -504,18 +529,17 @@ def delete_suite(game_name, testcase_id, suite_id):
     return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
     
 
-# To Delete Games from game page
-from models import delete_game_data
-@app.route('/delete/<game_name>', methods=['POST'])
-def delete_game(game_name):
-    global GAMES
-    if game_name in GAMES:
-        GAMES.remove(game_name)
+# # To Delete Games from game page
+# from models import delete_game_data
+# @app.route('/delete/<game_name>', methods=['POST'])
+# def delete_game(game_name):
+#     global GAMES
+#     if game_name in GAMES:
+#         GAMES.remove(game_name)
 
-    delete_game_data(game_name)
+#     delete_game_data(game_name)
 
-    return redirect(url_for('home'))
-
+#     return redirect(url_for('home'))
 
 
 if __name__ == '__main__':

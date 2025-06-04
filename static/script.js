@@ -205,7 +205,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
 function filterGames() {
-  const input = document.getElementById('searchGame').value.toLowerCase();
+  const input = document.getElementById('searchInput').value.toLowerCase();
   const cards = document.querySelectorAll('.game-card');
 
   cards.forEach(card => {
@@ -215,3 +215,109 @@ function filterGames() {
 }
 
 
+// Add Game function
+document.addEventListener('DOMContentLoaded', function () {
+  // Helper function to update button text for a dropdown
+  function updateDropdownText(dropdownId, buttonId, placeholder) {
+    const dropdown = document.getElementById(dropdownId);
+    const button = document.getElementById(buttonId);
+    const radios = dropdown.querySelectorAll('input[type="radio"]');
+
+    let selectedLabel = '';
+    radios.forEach(radio => {
+      if (radio.checked) {
+        const label = dropdown.querySelector(`label[for="${radio.id}"]`);
+        if (label) selectedLabel = label.textContent.trim();
+      }
+    });
+
+    button.textContent = selectedLabel || placeholder;
+  }
+
+  // Attach listeners to radio inputs for phases dropdown
+  const phasesMenu = document.getElementById('gamePhaseDropdownMenu');
+  if (phasesMenu) {
+    phasesMenu.querySelectorAll('input[type="radio"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        updateDropdownText('gamePhaseDropdownMenu', 'gamePhaseDropdown', 'Select Phases');
+      });
+    });
+  }
+
+  // Attach listeners to radio inputs for categories dropdown
+  const categoriesMenu = document.getElementById('gameCategoryDropdownMenu');
+  if (categoriesMenu) {
+    categoriesMenu.querySelectorAll('input[type="radio"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        updateDropdownText('gameCategoryDropdownMenu', 'gameCategoryDropdown', 'Select Categories');
+      });
+    });
+  }
+
+  // Initial call to set button text properly on load
+  updateDropdownText('gamePhaseDropdownMenu', 'gamePhaseDropdown', 'Select Phases');
+  updateDropdownText('gameCategoryDropdownMenu', 'gameCategoryDropdown', 'Select Categories');
+});
+
+var addGameModal = new bootstrap.Modal(document.getElementById('addGameModal'), {
+  backdrop: 'static',
+  keyboard: false
+});
+
+
+function filterGames() {
+  const searchInput = document.getElementById('searchInput').value.toLowerCase();
+  const phaseFilter = document.getElementById('filterPhase').value;
+  const categoryFilter = document.getElementById('filterCategory').value;
+
+  const gameCards = document.querySelectorAll('.game-card');
+
+  gameCards.forEach(card => {
+    const gameName = card.querySelector('h5').textContent.toLowerCase();
+
+    // Assuming each card has data attributes for phase and category for filtering, e.g.:
+    // <div class="game-card" data-phase="Phase 1" data-category="Turbo">
+    const gamePhase = card.getAttribute('data-phase') || '';
+    const gameCategory = card.getAttribute('data-category') || '';
+
+    // Check filters
+    const matchesSearch = gameName.includes(searchInput);
+    const matchesPhase = phaseFilter === '' || gamePhase === phaseFilter;
+    const matchesCategory = categoryFilter === '' || gameCategory === categoryFilter;
+
+    if (matchesSearch && matchesPhase && matchesCategory) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+
+
+
+
+// Clear all filters and search, then show all games
+document.getElementById('clearBtn').addEventListener('click', () => {
+  // Clear search input
+  document.getElementById('searchInput').value = '';
+
+  // Reset filter selects
+  document.getElementById('filterPhase').value = '';
+  document.getElementById('filterCategory').value = '';
+
+  // Optionally close filter panel if open
+  const filterPanel = document.getElementById('filterPanel');
+  if (filterPanel.classList.contains('show')) {
+    const bsCollapse = bootstrap.Collapse.getInstance(filterPanel);
+    if (bsCollapse) bsCollapse.hide();
+  }
+
+  // Run filter function to reset display
+  filterGames();
+});
+
+
+ function confirmDelete(button) {
+    const name = button.getAttribute('data-game-name');
+    return confirm(`Are you sure you want to delete ${name}?`);
+  }

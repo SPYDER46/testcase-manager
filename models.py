@@ -8,7 +8,7 @@ from collections import defaultdict
 
 # DB_CONFIG = {
 #     'host': 'localhost',
-#     'database': 'testdb',
+#     'database': 'postgres',
 #     'user': 'postgres',
 #     'password': 'root',
 #     'port': 5432
@@ -35,7 +35,19 @@ def get_connection():
 def init_db():
     with get_connection() as conn:
         with conn.cursor() as c:
-            # Existing tables
+            c.execute("SELECT COUNT(*) FROM games")
+            count = c.fetchone()[0]
+            print(f"Games in DB on startup: {count}")
+             # Create games table to store game info with phase and category
+            c.execute('''
+                CREATE TABLE IF NOT EXISTS games (
+                    id SERIAL PRIMARY KEY,
+                    name TEXT UNIQUE NOT NULL,
+                    phase TEXT NOT NULL,
+                    category TEXT NOT NULL
+                )
+            ''')
+
             c.execute('''
                 CREATE TABLE IF NOT EXISTS test_cases (
                     id SERIAL PRIMARY KEY,
@@ -107,11 +119,22 @@ def init_db():
 
             conn.commit()
         
-def add_test_case(game, data, created_by):
+def add_test_case(game, data, created_by, phase="default_phase", category="default_category"):
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as c:
+            # Check if game exists
+            c.execute('SELECT 1 FROM games WHERE name = %s', (game,))
+            if not c.fetchone():
+                # Insert new game dynamically with defaults or parameters
+                c.execute(
+                    'INSERT INTO games (name, phase, category) VALUES (%s, %s, %s) ON CONFLICT (name) DO NOTHING',
+                    (game, phase, category)
+                )
+                conn.commit()
+            
+            # Now continue with adding test case
             c.execute('SELECT COALESCE(MAX(testcase_number), 0) FROM test_cases WHERE game = %s', (game,))
-            max_tc_num = c.fetchone()['coalesce'] or 0  # Using RealDictCursor
+            max_tc_num = c.fetchone()['coalesce'] or 0
             new_tc_num = max_tc_num + 1
             now = datetime.now()  
             
@@ -132,13 +155,14 @@ def add_test_case(game, data, created_by):
 
             conn.commit()
 
-            # formatted_date_created = date_created.strftime("%b %d, %Y %I:%M %p")
             if isinstance(date_created, str):
                 date_created = parser.parse(date_created)
 
             formatted_date_created = date_created.strftime("%b %d, %Y %I:%M %p")
 
             return new_id, formatted_date_created
+
+
 
 def get_all_test_cases(game):
     with get_connection() as conn:
@@ -530,3 +554,49 @@ def delete_game_data(game_name):
         
         conn.commit()
 
+def add_game(name, phase, category):
+    with get_connection() as conn:
+        with conn.cursor() as c:
+            # Insert game with phase and category
+            c.execute('''
+                INSERT INTO games (name, phase, category)
+                VALUES (%s, %s, %s)
+                ON CONFLICT (name) DO NOTHING
+            ''', (name, phase, category))
+            conn.commit()
+
+def get_test_cases_by_phase_and_category(phase, category):
+    with get_connection() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as c:
+            c.execute('''
+                SELECT tc.*
+                FROM test_cases tc
+                JOIN games g ON tc.game = g.name
+                WHERE g.phase = %s AND g.category = %s
+                ORDER BY tc.testcase_number
+            ''', (phase, category))
+            return c.fetchall()
+        
+def get_all_games():
+    conn = get_connection()
+    with conn.cursor() as cur:
+        cur.execute("SELECT name, phase, category FROM games ORDER BY name")
+        rows = cur.fetchall()
+    games = [{'name': r[0], 'phase': r[1], 'category': r[2]} for r in rows]
+    return games
+
+def add_game_db(name, phase, category):  
+    conn = get_connection()
+    with conn.cursor() as cur:
+        cur.execute(
+            "INSERT INTO games (name, phase, category) VALUES (%s, %s, %s) ON CONFLICT (name) DO NOTHING",
+            (name, phase, category)
+        )
+        conn.commit()
+
+        
+def delete_game_db(game_name):
+    conn = get_connection()
+    with conn.cursor() as cur:
+        cur.execute("DELETE FROM games WHERE name = %s", (game_name,))
+        conn.commit()
