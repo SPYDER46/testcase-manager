@@ -333,7 +333,8 @@ h5.text-primary {
   flex-wrap: wrap;
   gap: 24px;
   justify-content: flex-start;
-  padding: 12px 0;
+  padding-top: 0;
+  margin-top: 0;
   margin: 0 auto; /* optional */
   max-width: 1000px; /* or any width */
 }
@@ -392,6 +393,7 @@ h5.text-primary {
   width: 100%;
   max-width: 460px;
   margin: 2rem auto;
+  margin-top: 0;
   padding: 0 1rem;
 }
 
@@ -436,6 +438,7 @@ h5.text-primary {
 .add-game-form {
   max-width: 460px;
   margin: 3rem auto;
+  margin-top: 0.5;
   display: flex;
   gap: 14px;
   padding: 20px 24px;
@@ -505,7 +508,8 @@ h2.text-center {
   color: #007bff;
   text-align: center;
   position: relative;
-  margin-bottom: 2.5rem;
+  margin-top: 0.5rem; /* Reduce top margin */
+  margin-bottom: 1.5rem;
   text-transform: uppercase;
 }
 
@@ -784,51 +788,18 @@ h5.text-primary {
 
 
 @media (min-width: 1024px) and (max-width: 1366px) {
-  /* Move main container up */
+  /* Move up main container */
   .container {
-    margin-top: 0; /* remove default top margin if any */
-    padding-top: 0;
-  }
-  
-  /* Reduce top margin for headings */
-  h2, h4, h5 {
-    margin-top: 0.5rem;  /* less top margin */
-    margin-bottom: 1rem; /* keep bottom margin */
+    margin-top: 0; /* Remove any top margin */
+    padding-top: 0; /* Remove top padding if any */
   }
 
-  /* Move search and action bars up */
+  /* If you have other wrappers or sections with spacing, adjust them here */
   .search-container,
-  .game-action-bar,
-  .add-game-form {
-    margin-top: 0.5rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  /* Move game cards container up */
-  .game-cards-container {
-    padding-top: 6px;
-    margin-top: 0;
-    gap: 16px; /* optional: reduce gap to compact */
-  }
-  
-  /* Reduce vertical padding inside game cards */
-  .game-card {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-  }
-  
-  /* Reduce padding for table and related elements */
-  .responsive-table,
-  .table {
-    margin-top: 1rem;
-  }
-
-  .responsive-table th,
-  .responsive-table td,
-  .table thead th,
-  .table tbody td {
-    padding-top: 6px;
-    padding-bottom: 6px;
+  .add-game-form,
+  .game-action-bar {
+    margin-top: 0.5rem; /* reduce vertical spacing */
   }
 }
+
 
