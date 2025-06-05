@@ -458,19 +458,21 @@ def format_date(dt_str):
 def add_suite(game_name, testcase_id):
     suite_name = request.form['suite_name']
     description = request.form['description']
+    
     status = request.form['status']
     iteration = request.form.get('iteration', '')  
+    expected = request.form['expected']
     conn = get_connection()
 
     try:
         with conn.cursor() as cur:
             cur.execute("""
-                INSERT INTO test_suites (testcase_id, suite_name, description, status, iteration)
-                VALUES (%s, %s, %s, %s, %s)
-            """, (testcase_id, suite_name, description, status, iteration))
+                INSERT INTO test_suites (testcase_id, suite_name, description, status, iteration, expected)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (testcase_id, suite_name, description, status, iteration, expected))
             conn.commit()
     except Exception as e:
-        # Redirect with error flag in URL
+        print(f"[ERROR] Failed to insert suite: {e}")  
         return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id, error='duplicate'))
 
     return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
@@ -480,7 +482,7 @@ def add_suite(game_name, testcase_id):
 def edit_suite(game_name, testcase_id, suite_id):
     if request.method == 'POST':
         suite_name = request.form['suite_name']
-        description = request.form['description']
+        description = request.form['description']        
         status = request.form['status']
         iteration = request.form.get('iteration') 
         actual = request.form.get('actual')
@@ -505,19 +507,34 @@ def edit_suite(game_name, testcase_id, suite_id):
     if not row:
         return "Suite not found", 404
 
+    # suite = {
+    #     'id': row[0],
+    #     'suite_name': row[2],
+    #     'description': row[3],
+    #     'created_at': row[6],
+    #     'testcase_id': row[4],
+    #     'status': row[4],
+    #     'iteration': row[5],
+    #     'actual': row[7]
+
+    # }
+    
+    # For moniter DB
+
     suite = {
         'id': row[0],
-        'suite_name': row[2],
-        'description': row[3],
-        'created_at': row[6],
+        'suite_name': row[1],
+        'description': row[2],
+        'created_at': row[3],
         'testcase_id': row[4],
-        'status': row[4],
-        'iteration': row[5],
-        'actual': row[7]
+        'status': row[5],
+        'iteration': row[6],
+        'actual': row[7],
+        'expected': row[8]
 
     }
-    return render_template('edit_suite.html', game_name=game_name, testcase_id=testcase_id, suite_id=suite_id, suite=suite)
 
+    return render_template('edit_suite.html', game_name=game_name, testcase_id=testcase_id, suite_id=suite_id, suite=suite)
 
 @app.route('/delete_suite/<game_name>/<int:testcase_id>/<int:suite_id>', methods=['POST'])
 def delete_suite(game_name, testcase_id, suite_id):
@@ -528,7 +545,6 @@ def delete_suite(game_name, testcase_id, suite_id):
 
     return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
     
-
 # # To Delete Games from game page
 # from models import delete_game_data
 # @app.route('/delete/<game_name>', methods=['POST'])

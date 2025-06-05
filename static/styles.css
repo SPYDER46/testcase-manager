@@ -928,3 +928,25 @@ h5.text-primary {
   user-select: none;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
+
+/* Typing Animation */
+.creative-type {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-weight: 450;
+  font-size: 1.1rem;
+  color: #2c3e50; /* dark slate blue */
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  padding-right: 5px;
+  animation: typing 4s steps(35, end) forwards;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Typing effect */
+@keyframes typing {
+  from { width: 0; }
+  to { width: 30ch; }
+}
+

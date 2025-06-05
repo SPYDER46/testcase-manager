@@ -6,31 +6,32 @@ from dateutil import parser
 from urllib.parse import urlparse
 from collections import defaultdict
 
-# DB_CONFIG = {
-#     'host': 'localhost',
-#     'database': 'postgres',
-#     'user': 'postgres',
-#     'password': 'root',
-#     'port': 5432
-# }
 
-# def get_connection():
-#     return psycopg2.connect(**DB_CONFIG)
+DB_CONFIG = {
+    'host': 'localhost',
+    'database': 'testdb',
+    'user': 'postgres',
+    'password': 'root',
+    'port': 5432
+}
 
 def get_connection():
-    url = os.environ.get('DATABASE_URL')
-    if not url:
-        raise Exception("DATABASE_URL not found in environment variables.")
+    return psycopg2.connect(**DB_CONFIG)
 
-    parsed = urlparse(url)  
-    db_config = {
-        'dbname': parsed.path[1:],  
-        'user': parsed.username,
-        'password': parsed.password,
-        'host': parsed.hostname,
-        'port': parsed.port
-    }
-    return psycopg2.connect(**db_config)
+# def get_connection():
+#     url = os.environ.get('DATABASE_URL')
+#     if not url:
+#         raise Exception("DATABASE_URL not found in environment variables.")
+
+#     parsed = urlparse(url)  
+#     db_config = {
+#         'dbname': parsed.path[1:],  
+#         'user': parsed.username,
+#         'password': parsed.password,
+#         'host': parsed.hostname,
+#         'port': parsed.port
+#     }
+#     return psycopg2.connect(**db_config)
 
 def init_db():
     with get_connection() as conn:
@@ -103,21 +104,42 @@ def init_db():
             ''')
 
             c.execute('''
-            CREATE TABLE IF NOT EXISTS test_suites (
-                id SERIAL PRIMARY KEY,
-                testcase_id INTEGER NOT NULL,
-                suite_name VARCHAR(255) NOT NULL,
-                description TEXT,
-                status VARCHAR(50),
-                iteration INTEGER,
-                actual TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (testcase_id) REFERENCES test_cases(id)
-            )
-        ''')
+                CREATE TABLE IF NOT EXISTS suite_history (
+                    id SERIAL PRIMARY KEY,
+                    test_case_id INTEGER NOT NULL REFERENCES test_cases(id),
+                    suite_id INTEGER NOT NULL REFERENCES test_suites(id),
+                    modified_by TEXT,
+                    modified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    changes TEXT
+                )
+            ''')
 
 
             conn.commit()
+
+def get_all_games():
+    conn = get_connection()
+    with conn.cursor() as cur:
+        cur.execute("SELECT name, phase, category FROM games ORDER BY name")
+        rows = cur.fetchall()
+    games = [{'name': r[0], 'phase': r[1], 'category': r[2]} for r in rows]
+    return games
+
+def add_game_db(name, phase, category):  
+    conn = get_connection()
+    with conn.cursor() as cur:
+        cur.execute(
+            "INSERT INTO games (name, phase, category) VALUES (%s, %s, %s) ON CONFLICT (name) DO NOTHING",
+            (name, phase, category)
+        )
+        conn.commit()
+
+        
+def delete_game_db(game_name):
+    conn = get_connection()
+    with conn.cursor() as cur:
+        cur.execute("DELETE FROM games WHERE name = %s", (game_name,))
+        conn.commit()
         
 def add_test_case(game, data, created_by, phase="default_phase", category="default_category"):
     with get_connection() as conn:
@@ -161,8 +183,6 @@ def add_test_case(game, data, created_by, phase="default_phase", category="defau
             formatted_date_created = date_created.strftime("%b %d, %Y %I:%M %p")
 
             return new_id, formatted_date_created
-
-
 
 def get_all_test_cases(game):
     with get_connection() as conn:
@@ -475,10 +495,10 @@ def get_test_suites(testcase_id):
     conn = get_connection()
     with conn.cursor() as cur:
         cur.execute("""
-            SELECT id, suite_name, description, created_at, testcase_id, status, iteration, actual
+            SELECT id, suite_name, description, created_at, testcase_id, status, iteration, actual, expected
             FROM test_suites
             WHERE testcase_id = %s
-            ORDER BY iteration ASC, created_at ASC  -- you can adjust this
+            ORDER BY iteration ASC, created_at ASC  
         """, (testcase_id,))
         rows = cur.fetchall()
     conn.close()
@@ -491,7 +511,8 @@ def get_test_suites(testcase_id):
             'testcase_id': row[4],
             'status': row[5],
             'iteration': row[6],
-            'actual': row[7]
+            'actual': row[7],
+            'expected': row[8]
         }
         for row in rows
     ]
@@ -577,26 +598,6 @@ def get_test_cases_by_phase_and_category(phase, category):
             ''', (phase, category))
             return c.fetchall()
         
-def get_all_games():
-    conn = get_connection()
-    with conn.cursor() as cur:
-        cur.execute("SELECT name, phase, category FROM games ORDER BY name")
-        rows = cur.fetchall()
-    games = [{'name': r[0], 'phase': r[1], 'category': r[2]} for r in rows]
-    return games
 
-def add_game_db(name, phase, category):  
-    conn = get_connection()
-    with conn.cursor() as cur:
-        cur.execute(
-            "INSERT INTO games (name, phase, category) VALUES (%s, %s, %s) ON CONFLICT (name) DO NOTHING",
-            (name, phase, category)
-        )
-        conn.commit()
 
-        
-def delete_game_db(game_name):
-    conn = get_connection()
-    with conn.cursor() as cur:
-        cur.execute("DELETE FROM games WHERE name = %s", (game_name,))
-        conn.commit()
+

@@ -6,9 +6,14 @@
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
+      
     />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code&display=swap" rel="stylesheet">
+ 
+
+
 </head>
 
 <body class="bg-light">
@@ -57,7 +62,6 @@
       </table>
     </div>
 
-    <!-- Iteration History section below Test Suites -->
     <!-- Test Suites header + Add Test Suite button aligned horizontally -->
     <div class="d-flex justify-content-between align-items-center mb-3 mt-4">
       <h4>{{ game_name }} Test Cases</h4>
@@ -74,6 +78,7 @@
             <th>Iteration</th>
             <th>TestCase Name</th>
             <th>Description</th>
+            <th>Expected Result</th>
             <th>Status</th> 
             <th>Actual Result</th>
             <th>Created At</th>
@@ -87,10 +92,12 @@
             <td class="text-center">{{ suite.iteration}}</td>
             <td>{{ suite.suite_name }}</td>
             <td>{{ suite.description }}</td>
+            <td>{{ suite.expected }}</td>
             <td class="text-center
-              {% if suite.status.lower() == 'fail' or suite.status.lower() == 'failed' %}
+    
+              {% if suite.status|string|lower == 'fail' or suite.status|string|lower == 'failed' %}
                 text-danger fw-bold
-              {% elif suite.status.lower() == 'pass' or suite.status.lower() == 'passed' %}
+             {% elif suite.status|string|lower == 'pass' or suite.status|string|lower == 'passed' %}
                 text-success fw-bold
               {% endif %}">
               {{ suite.status }}
@@ -102,6 +109,7 @@
               <a href="{{ url_for('edit_suite', game_name=game_name, testcase_id=test_case.id, suite_id=suite.id) }}" class="btn btn-sm btn-warning" title="Edit">
                 <i class="bi bi-pencil"></i>
               </a>
+
               <form method="POST" action="{{ url_for('delete_suite', game_name=game_name, testcase_id=test_case.id, suite_id=suite.id) }}">
                 <button type="button" class="btn btn-sm btn-danger btn-delete" 
                         data-url="{{ url_for('delete_suite', game_name=game_name, testcase_id=test_case.id, suite_id=suite.id) }}" 
@@ -109,6 +117,15 @@
                   <i class="bi bi-trash"></i>
                 </button>
               </form>
+              <button type="button"
+                      class="btn btn-info btn-sm me-2 history-btn"
+                      data-bs-toggle="modal"
+                      data-bs-target="#historyModal"
+                      data-suite-id="{{ suite.id }}"
+                      data-testcase-id="{{ test_case.id }}">
+                <i class="bi bi-clock-history me-1"></i>
+              </button>
+
             </td>
           </tr>
           {% endfor %}
@@ -116,7 +133,7 @@
       </table>
     </div>
     {% else %}
-    <p>No test suites added.</p>
+    <p class="creative-type">No test Case for this suite...</p>
     {% endif %}
 
     <!-- Iteration History header + Update Iteration button aligned horizontally on a new line -->
@@ -178,9 +195,9 @@
         </tbody>
       </table>
     </div>
-    {% else %}
-    <p>No iteration history available.</p>
-    {% endif %}
+  {% else %}
+  <p class="creative-type">Testing not Yet started...</p>
+  {% endif %}
 
     <!-- Update Iteration Modal -->
     <div class="modal fade" id="updateModal" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true"
@@ -301,6 +318,11 @@
                 <label for="description" class="form-label">Description</label>
                 <textarea class="form-control" id="description" name="description" rows="3"></textarea>
               </div>
+
+              <div class="mb-3">
+                <label for="expected" class="form-label">Expected Result</label>
+                <textarea class="form-control" id="expected" name="expected" rows="3"></textarea>
+              </div>
               
               <div class="mb-3">
                 <label for="suite_status" class="form-label">Status</label>
@@ -318,6 +340,24 @@
       </div>
     </div>
 
+<!-- History Modal -->
+<div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="historyModalLabel">Suite History</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="historyContent">
+        <p>Loading history...</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
 </div> <!-- end container -->
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -325,6 +365,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
 <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+
+
+
 
 </body>
 </html>
