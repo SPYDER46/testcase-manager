@@ -9,7 +9,7 @@ from collections import defaultdict
 
 # DB_CONFIG = {
 #     'host': 'localhost',
-#     'database': 'testdb',
+#     'database': 'postgres',
 #     'user': 'postgres',
 #     'password': 'root',
 #     'port': 5432

@@ -52,15 +52,26 @@
         </div>
 
         <div class="card-footer d-flex justify-content-end bg-light custom-card-footer">
-          <button type="submit" class="btn btn-success me-2 custom-btn-success">
-            <i class="bi bi-check2-circle me-1"></i>Update
-          </button>
+
           <a href="{{ url_for('view_testcase', game_name=game_name, testcase_id=testcase_id) }}" class="btn btn-outline-secondary custom-btn-outline">
             Cancel
           </a>
+          
+          <button type="submit" class="btn btn-success me-2 custom-btn-success">
+            <i class="bi bi-check2-circle me-1"></i>Update
+          </button>
+          
         </div>
       </form>
     </div>
   </div>
+{% if error %}
+<script>
+    alert("{{ error }}");
+</script>
+{% endif %}
+
+
+
 </body>
 </html>

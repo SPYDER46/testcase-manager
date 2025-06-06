@@ -548,6 +548,8 @@ select.form-select {
 
     .card-header {
       padding: 0.75rem 1.25rem;
+      background-color: #343a40;
+      color: white;
     }
 
     .form-label {
@@ -589,6 +591,7 @@ h2, h4 {
     border-radius: 4px;
     font-weight: 500;
 }
+
 
 /* Table base styling */
 .table {
@@ -650,9 +653,14 @@ td.status, td.priority, td.updated_by, td.date_created, td.actions {
 }
 
 .modal-header {
-    background-color: #0d6efd;
+    background-color: #343a40;
     color: white;
     border-bottom: none;
+}
+
+.testsuite_modal-header{
+  background-color: #343a40;
+    color: white;
 }
 
 .modal-footer {
@@ -1039,7 +1047,4 @@ body.dark-mode .btn-outline-secondary {
   color: #ccc;
   border-color: #777;
 }
-
-
-
 

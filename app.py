@@ -508,6 +508,7 @@ def edit_suite(game_name, testcase_id, suite_id):
             """, (suite_id, suite_name, description, status, iteration, actual))
 
 
+
             # Update the suite
             cur.execute("""
                 UPDATE test_suites
@@ -515,7 +516,6 @@ def edit_suite(game_name, testcase_id, suite_id):
                 WHERE id = %s
             """, (suite_name, description, status, iteration, actual, suite_id))
             conn.commit()
-
             
         return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
 
