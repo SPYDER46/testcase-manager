@@ -5,40 +5,39 @@
   <title>Edit Test Suite - {{ suite.suite_name }}</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
-  <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet" /> 
-
+  <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet" />
 </head>
 
 <body>
   <div class="container mt-5">
-    <div class="card shadow-sm border-0 rounded-3">
-      <div class="card-header bg-gradient bg-primary text-white">
-        <h6 class="mb-0">
+    <div class="card shadow-sm border-0 rounded-4 custom-card">
+      <div class="card-header custom-card-header">
+        <h6 class="mb-0 d-flex align-items-center">
           <i class="bi bi-pencil-fill me-2"></i>Edit Test Case
         </h6>
       </div>
 
       <form method="POST" action="{{ url_for('edit_suite', game_name=game_name, testcase_id=testcase_id, suite_id=suite_id) }}">
-        <div class="card-body px-4 py-3">
-          <div class="row g-3">
+        <div class="card-body px-4 py-4">
+          <div class="row g-4">
             <div class="col-md-6">
-              <label for="iteration" class="form-label">Iteration</label>
-              <input type="text" class="form-control" id="iteration" name="iteration" value="{{ suite.iteration }}" required>
+              <label for="iteration" class="form-label custom-label">Iteration</label>
+              <input type="text" class="form-control custom-input" id="iteration" name="iteration" value="{{ suite.iteration }}" required>
             </div>
 
             <div class="col-md-6">
-              <label for="suite_name" class="form-label">Case Name</label>
-              <input type="text" class="form-control" id="suite_name" name="suite_name" value="{{ suite.suite_name }}" required>
+              <label for="suite_name" class="form-label custom-label">Case Name</label>
+              <input type="text" class="form-control custom-input" id="suite_name" name="suite_name" value="{{ suite.suite_name }}" required>
             </div>
 
             <div class="col-12">
-              <label for="description" class="form-label">Description</label>
-              <textarea class="form-control" id="description" name="description" rows="3" placeholder="Enter description...">{{ suite.description }}</textarea>
+              <label for="description" class="form-label custom-label">Description</label>
+              <textarea class="form-control custom-input" id="description" name="description" rows="3" placeholder="Enter description...">{{ suite.description }}</textarea>
             </div>
 
             <div class="col-md-6">
-              <label for="status" class="form-label">Status</label>
-              <select class="form-select" id="status" name="status">
+              <label for="status" class="form-label custom-label">Status</label>
+              <select class="form-select custom-input" id="status" name="status">
                 {% for option in ['To do', 'Passed', 'Failed', 'Pending', 'Hold', 'Discussion'] %}
                   <option value="{{ option }}" {% if suite.status == option %}selected{% endif %}>{{ option }}</option>
                 {% endfor %}
@@ -46,17 +45,17 @@
             </div>
 
             <div class="col-12">
-              <label for="actual" class="form-label">Actual Result</label>
-              <textarea class="form-control" id="actual" name="actual" rows="3" placeholder="Enter actual result...">{{ suite.actual }}</textarea>
+              <label for="actual" class="form-label custom-label">Actual Result</label>
+              <textarea class="form-control custom-input" id="actual" name="actual" rows="3" placeholder="Enter actual result...">{{ suite.actual }}</textarea>
             </div>
           </div>
         </div>
 
-        <div class="card-footer d-flex justify-content-end bg-light">
-          <button type="submit" class="btn btn-success me-2">
+        <div class="card-footer d-flex justify-content-end bg-light custom-card-footer">
+          <button type="submit" class="btn btn-success me-2 custom-btn-success">
             <i class="bi bi-check2-circle me-1"></i>Update
           </button>
-          <a href="{{ url_for('view_testcase', game_name=game_name, testcase_id=testcase_id) }}" class="btn btn-outline-secondary">
+          <a href="{{ url_for('view_testcase', game_name=game_name, testcase_id=testcase_id) }}" class="btn btn-outline-secondary custom-btn-outline">
             Cancel
           </a>
         </div>

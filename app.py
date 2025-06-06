@@ -171,6 +171,7 @@ def view_testcase(game_name, testcase_id):
     return render_template(
         'view_testcase.html',
         game_name=game_name,
+        testcase_id=testcase_id,
         test_case=test_case,
         iterations=iterations,
         suites = get_test_suites(testcase_id), 
@@ -477,24 +478,44 @@ def add_suite(game_name, testcase_id):
 
     return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
 
+def safe_int(value):
+    try:
+        return int(value)
+    except (ValueError, TypeError):
+        return None
+
 
 @app.route('/edit_suite/<game_name>/<int:testcase_id>/<int:suite_id>', methods=['GET', 'POST'])
 def edit_suite(game_name, testcase_id, suite_id):
     if request.method == 'POST':
+    # Get form data
         suite_name = request.form['suite_name']
-        description = request.form['description']        
-        status = request.form['status']
-        iteration = request.form.get('iteration') 
+        description = request.form['description']
+        iteration = request.form.get('iteration')
+        status = request.form.get('status')
         actual = request.form.get('actual')
 
         conn = get_connection()
         with conn.cursor() as cur:
+            # Optional: Fetch current suite data for history before updating
+            cur.execute("SELECT * FROM test_suites WHERE id = %s", (suite_id,))
+            old_row = cur.fetchone()
+
+            # Insert current state into history table
+            cur.execute("""
+                INSERT INTO suite_history (suite_id, suite_name, description, status, iteration, actual, modified_at)
+                VALUES (%s, %s, %s, %s, %s, %s, now())
+            """, (suite_id, suite_name, description, status, iteration, actual))
+
+
+            # Update the suite
             cur.execute("""
                 UPDATE test_suites
                 SET suite_name = %s, description = %s, status = %s, iteration = %s, actual = %s
                 WHERE id = %s
             """, (suite_name, description, status, iteration, actual, suite_id))
             conn.commit()
+
             
         return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
 
@@ -535,6 +556,45 @@ def edit_suite(game_name, testcase_id, suite_id):
     }
 
     return render_template('edit_suite.html', game_name=game_name, testcase_id=testcase_id, suite_id=suite_id, suite=suite)
+
+@app.route('/suite_history/<game_name>/<int:testcase_id>/<int:suite_id>')
+def suite_history(game_name, testcase_id, suite_id):
+    conn = get_connection()
+    with conn.cursor() as cur:
+        # Fetch suite history entries for the given suite_id
+        cur.execute("""
+            SELECT * FROM suite_history
+            WHERE suite_id = %s
+            ORDER BY modified_at DESC
+        """, (suite_id,))
+        history = cur.fetchall()
+
+        # Fetch suite info from test_suites table using suite_id
+        cur.execute("""
+            SELECT * FROM test_suites
+            WHERE id = %s
+        """, (suite_id,))
+        suite = cur.fetchone()
+
+    return render_template(
+        'case_history.html',
+        history=history,
+        suite=suite,
+        suite_id=suite_id,
+        game_name=game_name,
+        testcase_id=testcase_id
+    )
+
+@app.route('/delete_suite_history/<int:history_id>/<int:suite_id>/<game_name>/<int:testcase_id>', methods=['POST'])
+def delete_suite_history(history_id, suite_id, game_name, testcase_id):
+    conn = get_connection()
+    with conn.cursor() as cur:
+        cur.execute("DELETE FROM suite_history WHERE id = %s", (history_id,))
+        conn.commit()
+    return redirect(url_for('suite_history', suite_id=suite_id, game_name=game_name, testcase_id=testcase_id))
+
+
+
 
 @app.route('/delete_suite/<game_name>/<int:testcase_id>/<int:suite_id>', methods=['POST'])
 def delete_suite(game_name, testcase_id, suite_id):
