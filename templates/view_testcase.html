@@ -90,7 +90,7 @@
             <td class="text-center">{{ suite.iteration}}</td>
             <td>{{ suite.suite_name }}</td>
             <td>{{ suite.description }}</td>
-            <td>{{ suite.expected }}</td>
+            <td style="white-space: pre-wrap;">{{ suite.expected }}</td>
             <td class="text-center
     
               {% if suite.status|string|lower == 'fail' or suite.status|string|lower == 'failed' %}
