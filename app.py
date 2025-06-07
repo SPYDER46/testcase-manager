@@ -539,21 +539,35 @@ def edit_suite(game_name, testcase_id, suite_id):
     #     'actual': row[7]
 
     # }
-    
-    # For moniter DB
 
+    # For Railway app
     suite = {
         'id': row[0],
-        'suite_name': row[1],
-        'description': row[2],
-        'created_at': row[3],
-        'testcase_id': row[4],
-        'status': row[5],
-        'iteration': row[6],
+        'suite_name': row[2],
+        'description': row[3],
+        'created_at': row[6],
+        'testcase_id': row[1],
+        'status': row[4],
+        'iteration': row[5],
         'actual': row[7],
         'expected': row[8]
 
     }
+    
+    # For moniter DB
+
+    # suite = {
+    #     'id': row[0],
+    #     'suite_name': row[1],
+    #     'description': row[2],
+    #     'created_at': row[3],
+    #     'testcase_id': row[4],
+    #     'status': row[5],
+    #     'iteration': row[6],
+    #     'actual': row[7],
+    #     'expected': row[8]
+
+    # }
 
     return render_template('edit_suite.html', game_name=game_name, testcase_id=testcase_id, suite_id=suite_id, suite=suite)
 

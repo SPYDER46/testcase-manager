@@ -44,7 +44,6 @@ from dotenv import load_dotenv
 #     return psycopg2.connect(**db_config)
 
 
-
 # DB_CONFIG = {
 #     'host': 'localhost',
 #     # 'database': 'postgres',
