@@ -13,7 +13,7 @@
   <div class="container d-flex justify-content-between align-items-center flex-wrap">
 
     <!-- GameHub Title -->
-    <h1 class="fs-4 fw-bold text-primary mb-0">LOOTRIX GAMES</h1>
+    <h1 class="fs-4 fw-bold text-black mb-0">LOOTRIX GAMES</h1>
 
     <!-- Center: Search Bar -->
     <div class="col-md-6 col-sm-12 mb-2 mb-md-0">
@@ -23,10 +23,10 @@
     <div class="d-flex align-items-center gap-2">
 
       <!-- Add Game Button -->
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addGameModal">+ Add Game</button>
+      <button class="btn btn-orange" data-bs-toggle="modal" data-bs-target="#addGameModal">+ Add Game</button>
 
       <!-- Filter Button -->
-        <button class="btn btn-outline-primary ms-2 d-flex align-items-center" id="filterBtn" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-expanded="false" aria-controls="filterPanel" title="Filter Games">
+        <button class="btn btn-outline-black ms-2 d-flex align-items-center" id="filterBtn" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-expanded="false" aria-controls="filterPanel" title="Filter Games">
         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-funnel me-1" viewBox="0 0 16 16">
             <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .39.812l-4.8 6.4a.5.5 0 0 0-.11.28v4.978a.5.5 0 0 1-.746.434L6 11.681V7.492a.5.5 0 0 0-.11-.28L1.11 1.812A.5.5 0 0 1 1.5 1.5z"/>
         </svg>
@@ -150,7 +150,7 @@
     </div>
     </div>
         <div class="modal-footer">
-            <button type="submit" class="btn btn-success">Add Game</button>
+            <button type="submit" class="btn btn-orange">Add Game</button>
             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
         </div>
         </form>
@@ -182,15 +182,17 @@
 
 
     <!-- Game Card Link -->
-    <a href="{{ url_for('index', game_name=game['name']) }}" class="d-block text-decoration-none">
-        <div class="game-icon mb-3">
-            <svg width="56" height="56" fill="#007bff" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
-                <circle cx="8" cy="8" r="7" stroke="#007bff" stroke-width="2" fill="none"/>
-                <text x="8" y="12" text-anchor="middle" fill="#007bff" font-size="10" font-family="Segoe UI">{{ game['name'][0] }}</text>
-            </svg>
-        </div>
-        <h5 class="text-primary mb-0">{{ game['name'] }}</h5>
-    </a>
+    <!-- Game Card Link -->
+<a href="{{ url_for('index', game_name=game['name']) }}" class="d-block text-decoration-none">
+    <div class="game-icon mb-3">
+        <svg width="56" height="56" fill="#FFA500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
+            <circle cx="8" cy="8" r="7" stroke="#FFA500" stroke-width="2" fill="none"/>
+            <text x="8" y="12" text-anchor="middle" fill="#FFA500" font-size="10" font-family="Segoe UI">{{ game['name'][0] }}</text>
+        </svg>
+    </div>
+    <h5 class="mb-0" style="color: #FFA500;">{{ game['name'] }}</h5>
+</a>
+
   </div>
 {% endfor %}
 

@@ -548,8 +548,6 @@ select.form-select {
 
     .card-header {
       padding: 0.75rem 1.25rem;
-      background-color: #343a40;
-      color: white;
     }
 
     .form-label {
@@ -591,7 +589,6 @@ h2, h4 {
     border-radius: 4px;
     font-weight: 500;
 }
-
 
 /* Table base styling */
 .table {
@@ -653,14 +650,9 @@ td.status, td.priority, td.updated_by, td.date_created, td.actions {
 }
 
 .modal-header {
-    background-color: #343a40;
+    background-color: black;
     color: white;
     border-bottom: none;
-}
-
-.testsuite_modal-header{
-  background-color: #343a40;
-    color: white;
 }
 
 .modal-footer {
@@ -785,20 +777,15 @@ h5.text-primary {
 
 /* Site Header */
 .site-header {
-  background: linear-gradient(135deg, #e0f0ff, #f7fbff);
+  background: linear-gradient(135deg, #f0f0f0, #e0e0e0); /* light gray gradient */
   padding: 1rem 1.5rem;
-  border-bottom: 1px solid #d0e2ff;
-  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.05);
+  border-bottom: 1px solid #ccc; /* soft gray border */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); /* subtle shadow */
   margin-bottom: 2rem;
-  
-}
-
-.site-header {
   position: sticky;
   top: 0;
   z-index: 1000;
 }
-
 
 .site-header .header-content {
   display: flex;
@@ -834,6 +821,7 @@ h5.text-primary {
 .site-header .add-game-form button {
   padding: 12px 20px;
 }
+
 
 /* Add Game Dropdown Design */
 
@@ -957,7 +945,7 @@ h5.text-primary {
 }
 
 .custom-modal-position .modal-dialog {
-    margin-top: 10vh; /* Adjust this value to move it further up or down */
+    margin-top: 10vh; 
 }
 
 .custom-modal-position .modal-dialog {
@@ -1048,3 +1036,224 @@ body.dark-mode .btn-outline-secondary {
   border-color: #777;
 }
 
+
+/* Orange color design */
+
+.btn-orange {
+  background-color: #FFC178; /* lighter orange */
+  color: #333;                    
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-orange:hover {
+  background-color: #ffc266;     
+  transform: translateY(-2px);   
+}
+
+.btn-orange-case {
+  background-color: #FFC178;     
+  color: #000;                   
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-orange-case:hover {
+  background-color: #ffc266;     
+  transform: translateY(-2px);   
+}
+
+.btn-orange-iteration {
+  background-color: #FFC178;     
+  color: #000;                   
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.btn-orange-iteration:hover {
+  background-color: #ffc266;     
+  transform: translateY(-2px);   
+}
+
+
+/* style for Testsuite table */
+
+.testsuite-table {
+  width: 100%;
+  font-family: system-ui, sans-serif;
+  font-size: 0.95rem;
+  color: #212529;
+}
+
+.pro-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  overflow-x: auto;
+  display: block;
+}
+
+.pro-table th,
+.pro-table td {
+  padding: 12px 14px;
+  border: 1px solid #dcdcdc;
+  vertical-align: top;
+  text-align: left;
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* Column widths */
+.pro-table th:nth-child(1),
+.pro-table td:nth-child(1),
+.pro-table th:nth-child(2),
+.pro-table td:nth-child(2),
+.pro-table th:nth-child(3),
+.pro-table td:nth-child(3) {
+  width: 20%;
+}
+.pro-table th:nth-child(4),
+.pro-table td:nth-child(4),
+.pro-table th:nth-child(5),
+.pro-table td:nth-child(5),
+.pro-table th:nth-child(6),
+.pro-table td:nth-child(6),
+.pro-table th:nth-child(7),
+.pro-table td:nth-child(7) {
+  width: 10%;
+  text-align: center;
+}
+
+/* Header styling */
+.pro-table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+  color: #333;
+}
+
+/* Zebra & hover */
+.pro-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+.pro-table tr:hover {
+  background-color: #eef2f5;
+}
+
+/* Responsive tweaks */
+@media (max-width: 768px) {
+  .pro-table {
+    font-size: 0.8rem;
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .pro-table th,
+  .pro-table td {
+    padding: 6px 8px;
+    min-width: 120px;
+  }
+
+  /* Optional: Prevent the table from being squished */
+  .pro-table th:nth-child(1),
+  .pro-table td:nth-child(1),
+  .pro-table th:nth-child(2),
+  .pro-table td:nth-child(2),
+  .pro-table th:nth-child(3),
+  .pro-table td:nth-child(3),
+  .pro-table th:nth-child(4),
+  .pro-table td:nth-child(4),
+  .pro-table th:nth-child(5),
+  .pro-table td:nth-child(5),
+  .pro-table th:nth-child(6),
+  .pro-table td:nth-child(6),
+  .pro-table th:nth-child(7),
+  .pro-table td:nth-child(7) {
+    width: auto;
+  }
+}
+
+/* Login style */
+
+   .login-container {
+      background: white;
+      padding: 2rem 3rem;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      width: 320px;
+    }
+
+    .login-container h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #333;
+    }
+
+    .login-container label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #555;
+      font-weight: bold;
+    }
+
+    .login-container input[type="text"],
+    .login-container input[type="password"] {
+      width: 100%;
+      padding: 0.6rem;
+      margin-bottom: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 1rem;
+    }
+
+    .login-container .checkbox-container {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .login-container .checkbox-container input[type="checkbox"] {
+      margin-right: 0.5rem;
+    }
+
+    .login-container button {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #FFC178;
+      border: none;
+      color: white;
+      font-size: 1rem;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .login-container button:hover {
+      background-color: #777;
+    }
+
+    .login-container .forgot-password {
+      display: block;
+      text-align: right;
+      margin-top: 0.5rem;
+      text-decoration: none;
+      color: #007bff;
+      font-size: 0.9rem;
+    }
+
+    .login-container .forgot-password:hover {
+      text-decoration: underline;
+    }
