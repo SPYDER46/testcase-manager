@@ -7,26 +7,23 @@ from urllib.parse import urlparse
 from collections import defaultdict
 from dotenv import load_dotenv
 
-load_dotenv()
+# load_dotenv()
 
-def get_connection():
-    url = os.environ.get('NEON_DATABASE_URL')
-    if not url:
-        raise Exception("DATABASE_URL environment variable not found. Make sure .env is correct.")
+# def get_connection():
+#     url = os.environ.get('NEON_DATABASE_URL')
+#     if not url:
+#         raise Exception("DATABASE_URL environment variable not found. Make sure .env is correct.")
     
-    parsed = urlparse(url)
-    db_config = {
-        'dbname': parsed.path[1:],  
-        'user': parsed.username,
-        'password': parsed.password,
-        'host': parsed.hostname,
-        'port': parsed.port,
-        'sslmode': 'require',  
-    }
-    return psycopg2.connect(**db_config)
-
-
-
+#     parsed = urlparse(url)
+#     db_config = {
+#         'dbname': parsed.path[1:],  
+#         'user': parsed.username,
+#         'password': parsed.password,
+#         'host': parsed.hostname,
+#         'port': parsed.port,
+#         'sslmode': 'require',  
+#     }
+#     return psycopg2.connect(**db_config)
 
 
 # load_dotenv()
@@ -60,20 +57,20 @@ def get_connection():
 # def get_connection():
 #     return psycopg2.connect(**DB_CONFIG)
 
-# def get_connection():
-#     url = os.environ.get('DATABASE_URL')
-#     if not url:
-#         raise Exception("DATABASE_URL not found in environment variables.")
+def get_connection():
+    url = os.environ.get('DATABASE_URL')
+    if not url:
+        raise Exception("DATABASE_URL not found in environment variables.")
 
-#     parsed = urlparse(url)  
-#     db_config = {
-#         'dbname': parsed.path[1:],  
-#         'user': parsed.username,
-#         'password': parsed.password,
-#         'host': parsed.hostname,
-#         'port': parsed.port
-#     }
-#     return psycopg2.connect(**db_config)
+    parsed = urlparse(url)  
+    db_config = {
+        'dbname': parsed.path[1:],  
+        'user': parsed.username,
+        'password': parsed.password,
+        'host': parsed.hostname,
+        'port': parsed.port
+    }
+    return psycopg2.connect(**db_config)
 
 def init_db():
     with get_connection() as conn:
