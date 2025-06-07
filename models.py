@@ -341,6 +341,7 @@ def delete_test_case(testcase_id):
         with conn.cursor() as c:
             c.execute('DELETE FROM test_case_history WHERE test_case_id = %s', (testcase_id,))
             c.execute('DELETE FROM iteration WHERE test_case_id = %s', (testcase_id,))
+            c.execute('DELETE FROM test_suites WHERE testcase_id = %s', (testcase_id,))
             c.execute('DELETE FROM test_cases WHERE id = %s', (testcase_id,))
             conn.commit()
 
