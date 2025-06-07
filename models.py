@@ -7,10 +7,16 @@ from urllib.parse import urlparse
 from collections import defaultdict
 from dotenv import load_dotenv
 
+import os
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from urllib.parse import urlparse
+from dotenv import load_dotenv
+
 load_dotenv()
 
 def get_connection():
-    url = os.environ.get('DATABASE_URL')
+    url = os.environ.get('NEON_DATABASE_URL')
     if not url:
         raise Exception("DATABASE_URL environment variable not found. Make sure .env is correct.")
     
@@ -20,9 +26,31 @@ def get_connection():
         'user': parsed.username,
         'password': parsed.password,
         'host': parsed.hostname,
-        'port': parsed.port
+        'port': parsed.port,
+        'sslmode': 'require',  
     }
     return psycopg2.connect(**db_config)
+
+
+
+
+
+# load_dotenv()
+
+# def get_connection():
+#     url = os.environ.get('DATABASE_URL')
+#     if not url:
+#         raise Exception("DATABASE_URL environment variable not found. Make sure .env is correct.")
+    
+#     parsed = urlparse(url)
+#     db_config = {
+#         'dbname': parsed.path[1:],  
+#         'user': parsed.username,
+#         'password': parsed.password,
+#         'host': parsed.hostname,
+#         'port': parsed.port
+#     }
+#     return psycopg2.connect(**db_config)
 
 
 
