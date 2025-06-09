@@ -11,6 +11,7 @@ from flask import flash, get_flashed_messages
 from werkzeug.security import generate_password_hash, check_password_hash
 import uuid 
 from flask_mail import Mail, Message
+import os
 
 
 
@@ -48,8 +49,8 @@ app.config.update(
     MAIL_SERVER='smtp.gmail.com',
     MAIL_PORT=587,
     MAIL_USE_TLS=True,
-    MAIL_USERNAME='muthuvelraj2818@gmail.com',
-    MAIL_PASSWORD='kxgh igwf elbh xibo',
+    MAIL_USERNAME=os.environ.get('MAIL_USERNAME'),
+    MAIL_PASSWORD=os.environ.get('MAIL_PASSWORD')
 )
 
 mail = Mail(app)
@@ -708,6 +709,7 @@ def edit_suite(game_name, testcase_id, suite_id):
     # }
 
     # For Railway app
+    
     suite = {
         'id': row[0],
         'suite_name': row[2],
