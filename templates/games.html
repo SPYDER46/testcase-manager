@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>TestCase</title>
+  <title>TEST SLOW — Quality Matters</title>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+</head>
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet" />
 </head>
@@ -13,17 +16,22 @@
   <div class="container d-flex justify-content-between align-items-center flex-wrap">
 
     <!-- GameHub Title -->
-    <h1 class="fs-4 fw-bold text-black mb-0">LOOTRIX GAMES</h1>
+   
+    <div class="d-flex align-items-center gap-2">
+      <!-- <img src="static\Logo.png" alt="Test Slow Logo" width="40" height="40"> -->
+      <h1 class="fs-4 fw-bold text-black mb-0">TEST SLOW</h1>
+    </div>
+
 
     <!-- Center: Search Bar -->
     <div class="col-md-6 col-sm-12 mb-2 mb-md-0">
-      <input type="text" class="form-control" id="searchInput" placeholder="Search games..." onkeyup="filterGames()">
+      <input type="text" class="form-control" id="searchInput" placeholder="Search project..." onkeyup="filterGames()">
     </div>
 
 <div class="d-flex align-items-center gap-2">
 
   <!-- Add Game Button -->
-  <button class="btn btn-orange" data-bs-toggle="modal" data-bs-target="#addGameModal">+ Add Game</button>
+  <button class="btn btn-orange" data-bs-toggle="modal" data-bs-target="#addGameModal">+ Add Project</button>
 
   <!-- Filter Button -->
   <button class="btn btn-outline-black ms-2 d-flex align-items-center" id="filterBtn" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-expanded="false" aria-controls="filterPanel" title="Filter Games">
@@ -91,12 +99,12 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content rounded-4 shadow-sm">
       <div class="modal-header" style="text-align: center;">
-        <h5 class="modal-title" id="addGameModalLabel">Add New Game</h5>
+        <h5 class="modal-title" id="addGameModalLabel">Add New Project</h5>
       </div>
       <form method="POST" action="{{ url_for('home') }}">
         <div class="modal-body">
             <div class="mb-3">
-            <label for="gameName" class="form-label">Game Name:</label>
+            <label for="gameName" class="form-label">Project Name:</label>
             <input type="text" class="form-control" id="gameName" name="game_name" required>
             </div>
             <div class="mb-3">
@@ -161,7 +169,7 @@
     </div>
     </div>
         <div class="modal-footer">
-            <button type="submit" class="btn btn-orange">Add Game</button>
+            <button type="submit" class="btn btn-orange">Add Project</button>
             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
         </div>
         </form>
