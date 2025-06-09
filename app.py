@@ -80,7 +80,7 @@ def register():
         finally:
             cur.close()
             conn.close()
-    return render_template('register.html', message=message)
+    return render_template('login.html', message=message)
 
 def send_welcome_email(user_email, username):
     """Send a welcome email to the newly registered user."""
@@ -124,12 +124,12 @@ def login():
         print(f"Retrieved User: {user}", flush=True)
 
         if user:
-            # Debugging: Print stored password hash and entered password
+            
             print(f"Stored Hash: {user[3]}", flush=True)
             print(f"Entered Password: {password}", flush=True)
 
-            if check_password_hash(user[3], password):  # Assuming password is at index 3
-                return render_template('games.html', message=message)  # Assuming username is at index 1
+            if check_password_hash(user[3], password): 
+                return render_template('games.html', message=message) 
             else:
                 message = "Invalid email or password."
         else:
