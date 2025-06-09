@@ -321,4 +321,30 @@ document.getElementById('clearBtn').addEventListener('click', () => {
     return confirm(`Are you sure you want to delete ${name}?`);
   }
 
-  
+
+// Login page
+ function confirmLogout() {
+    return confirm("Are you sure you want to log out?");
+  }
+
+function togglePassword() {
+    const passwordInput = document.getElementById("password");
+    const type = passwordInput.getAttribute("type");
+    passwordInput.setAttribute("type", type === "password" ? "text" : "password");
+  }
+
+
+
+ const confirmDeleteModal = document.getElementById('confirmDeleteModal');
+  confirmDeleteModal.addEventListener('show.bs.modal', function (event) {
+    const button = event.relatedTarget;
+    const gameName = button.getAttribute('data-game-name');
+
+    // Update modal game name
+    const gameToDeleteName = confirmDeleteModal.querySelector('#gameToDeleteName');
+    gameToDeleteName.textContent = gameName;
+
+    // Update form action
+    const deleteForm = confirmDeleteModal.querySelector('#deleteGameForm');
+    deleteForm.action = `/delete/${encodeURIComponent(gameName)}`;
+  });

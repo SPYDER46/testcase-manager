@@ -20,21 +20,32 @@
       <input type="text" class="form-control" id="searchInput" placeholder="Search games..." onkeyup="filterGames()">
     </div>
 
-    <div class="d-flex align-items-center gap-2">
+<div class="d-flex align-items-center gap-2">
 
-      <!-- Add Game Button -->
-      <button class="btn btn-orange" data-bs-toggle="modal" data-bs-target="#addGameModal">+ Add Game</button>
+  <!-- Add Game Button -->
+  <button class="btn btn-orange" data-bs-toggle="modal" data-bs-target="#addGameModal">+ Add Game</button>
 
-      <!-- Filter Button -->
-        <button class="btn btn-outline-black ms-2 d-flex align-items-center" id="filterBtn" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-expanded="false" aria-controls="filterPanel" title="Filter Games">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-funnel me-1" viewBox="0 0 16 16">
-            <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .39.812l-4.8 6.4a.5.5 0 0 0-.11.28v4.978a.5.5 0 0 1-.746.434L6 11.681V7.492a.5.5 0 0 0-.11-.28L1.11 1.812A.5.5 0 0 1 1.5 1.5z"/>
-        </svg>
-        <span id="filterBtnLabel"></span>
-        </button>
-          <button class="btn btn-outline-secondary" id="clearBtn" title="Clear Search and Filters" type="button">Clear</button>
+  <!-- Filter Button -->
+  <button class="btn btn-outline-black ms-2 d-flex align-items-center" id="filterBtn" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-expanded="false" aria-controls="filterPanel" title="Filter Games">
+    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-funnel me-1" viewBox="0 0 16 16">
+      <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .39.812l-4.8 6.4a.5.5 0 0 0-.11.28v4.978a.5.5 0 0 1-.746.434L6 11.681V7.492a.5.5 0 0 0-.11-.28L1.11 1.812A.5.5 0 0 1 1.5 1.5z"/>
+    </svg>
+    <span id="filterBtnLabel"></span>
+  </button>
 
-    </div>
+  <!-- Clear Filters Button -->
+  <button class="btn btn-outline-secondary" id="clearBtn" title="Clear Search and Filters" type="button">Clear</button>
+
+  <!-- Logout Button -->
+  <button type="button" class="btn btn-danger ms-2" data-bs-toggle="modal" data-bs-target="#logoutModal">
+    Logout
+  </button>
+
+
+
+</div>
+
+
 
     <!-- Filter Panel right below the Filter Button -->
     <div class="w-100 mt-2 collapse" id="filterPanel">
@@ -166,11 +177,12 @@
   <div class="game-card position-relative" data-phase="{{ game.phase }}" data-category="{{ game.category }}">
 
     <!-- Delete Form -->
-<form method="POST" action="{{ url_for('delete_game', game_name=game['name']) }}" class="position-absolute">
-  <button type="submit" class="btn-delete-game" aria-label="Delete {{ game['name'] }}"
-    data-game-name="{{ game['name'] | e }}"
-    title="Delete {{ game['name'] }}"
-    onclick="return confirmDelete(this);">
+  <form method="POST" action="{{ url_for('delete_game', game_name=game['name']) }}" class="position-absolute" >
+    <button type="button"
+          class="btn-delete-game"
+          data-game-name="{{ game['name'] }}"
+          data-bs-toggle="modal"
+          data-bs-target="#confirmDeleteModal">
     <!-- Trash Can SVG icon -->
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
       <path class="lid" d="M3 6h18" stroke="#dc3545" stroke-width="2" fill="none"/>
@@ -180,8 +192,6 @@
   </button>
 </form>
 
-
-    <!-- Game Card Link -->
     <!-- Game Card Link -->
 <a href="{{ url_for('index', game_name=game['name']) }}" class="d-block text-decoration-none">
     <div class="game-icon mb-3">
@@ -192,12 +202,55 @@
     </div>
     <h5 class="mb-0" style="color: #FFA500;">{{ game['name'] }}</h5>
 </a>
-
-  </div>
+</div>
 {% endfor %}
+</div>
+</div>
 
-        </div>
+<!-- Logout Confirmation Modal -->
+<div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true"
+     data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered" style="margin-top: -100px;"> 
+    <div class="modal-content rounded-4 shadow-sm">
+      <div class="modal-header">
+        <h5 class="modal-title" id="logoutModalLabel">Confirm Logout</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to log out?
+      </div>
+      <div class="modal-footer">
+        <form method="POST" action="{{ url_for('logout') }}">
+          <button type="submit" class="btn btn-danger">Yes, Logout</button>
+        </form>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
     </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow-sm">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmDeleteModalLabel">Confirm Delete</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete <strong id="gameToDeleteName"></strong>?
+      </div>
+      <div class="modal-footer">
+        <form id="deleteGameForm" method="POST">
+          <button type="submit" class="btn btn-danger">Yes, Delete</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="{{ url_for('static', filename='script.js') }}"></script>

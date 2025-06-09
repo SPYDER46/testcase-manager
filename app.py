@@ -8,6 +8,9 @@ import psycopg2
 from flask import jsonify
 from models import get_connection
 from flask import flash, get_flashed_messages
+from werkzeug.security import generate_password_hash, check_password_hash
+import uuid 
+from flask_mail import Mail, Message
 
 from models import (
     init_db,
@@ -25,7 +28,7 @@ from models import (
     get_test_suites,
     get_all_games,        
     add_game_db,           
-    delete_game_data 
+    delete_game_db
 
 )
 
@@ -38,6 +41,123 @@ backfill_testcase_numbers()
 
 games_list = []
 
+app.config.update(
+    MAIL_SERVER='smtp.gmail.com',
+    MAIL_PORT=587,
+    MAIL_USE_TLS=True,
+    MAIL_USERNAME='muthuvelraj2818@gmail.com',
+    MAIL_PASSWORD='kxgh igwf elbh xibo',
+)
+
+mail = Mail(app)
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    message = ""
+    if request.method == 'POST':
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+        hashed_password = generate_password_hash(password)
+
+        conn = get_connection()
+        cur = conn.cursor()
+        try:
+            cur.execute("INSERT INTO users (username, email, password) VALUES (%s, %s, %s)",
+                        (username, email, hashed_password))
+            conn.commit()
+            return redirect(url_for('login'))
+        except psycopg2.errors.UniqueViolation:
+            conn.rollback()
+            message = "Email or Username already exists!"
+        finally:
+            cur.close()
+            conn.close()
+    return render_template('register.html', message=message)
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    message = ""
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM users WHERE email=%s", (email,))
+        user = cur.fetchone()
+        cur.close()
+        conn.close()
+
+        # Debugging: Print retrieved user data
+        print(f"Retrieved User: {user}", flush=True)
+
+        if user:
+            # Debugging: Print stored password hash and entered password
+            print(f"Stored Hash: {user[3]}", flush=True)
+            print(f"Entered Password: {password}", flush=True)
+
+            if check_password_hash(user[3], password):  # Assuming password is at index 3
+                return render_template('games.html', message=message)  # Assuming username is at index 1
+            else:
+                message = "Invalid email or password."
+        else:
+            message = "Invalid email or password."
+    return render_template('login.html', message=message)
+
+@app.route('/forgot-password', methods=['GET', 'POST'])
+def forgot_password():
+    message = ""
+    if request.method == 'POST':
+        email = request.form.get('email')
+
+        conn = get_connection()
+        cur = conn.cursor()
+        cur.execute("SELECT * FROM users WHERE email=%s", (email,))
+        user = cur.fetchone()
+        cur.close()
+        conn.close()
+
+        if user:
+            reset_token = str(uuid.uuid4())
+            reset_link = url_for('reset_password', token=reset_token, _external=True)
+
+            # Send email
+            msg = Message(
+                subject="Password Reset Request",
+                sender=app.config['MAIL_USERNAME'],
+                recipients=[email],
+                body=f"Click the following link to reset your password: {reset_link}"
+            )
+            mail.send(msg)
+
+            message = "If this email exists in our system, a password reset link has been sent."
+        else:
+            message = "If this email exists in our system, a password reset link has been sent."
+
+    return render_template('forgot_password.html', message=message)
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    message = ""
+    # TODO: Validate token (check DB and expiry)
+    
+    if request.method == 'POST':
+        new_password = request.form.get('password')
+        hashed_password = generate_password_hash(new_password)
+
+        # TODO: Find user by token, update password in DB, invalidate token
+        
+        message = "Password has been reset successfully."
+        return redirect(url_for('login'))
+
+    return render_template('reset_password.html', message=message)
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    return redirect(url_for('login'))
+
+
 def smart_csv_reader(file_contents):
     sniffer = csv.Sniffer()
     dialect = sniffer.sniff(file_contents.splitlines()[0])
@@ -47,9 +167,10 @@ def smart_csv_reader(file_contents):
 def home():
     if request.method == 'POST':
         name = request.form['game_name']
-        phase = request.form['game_phase']
-        category = request.form['category']
-        add_game_db(name, phase, category)  #
+        # Use request.form.get() to handle missing values
+        phase = request.form.get('game_phase')  
+        category = request.form.get('category') 
+        add_game_db(name, phase, category)  
         return redirect(url_for('home'))
     
     # Fetch all games from DB on GET
@@ -59,9 +180,21 @@ def home():
 
 @app.route('/delete/<game_name>', methods=['POST'])
 def delete_game(game_name):
-    global games_list
-    games_list = [g for g in games_list if g['name'] != game_name]
+    delete_game_db(game_name)  # Delete game from DB
     return redirect(url_for('home'))
+
+
+# # To Delete Games from game page
+# from models import delete_game_data
+# @app.route('/delete/<game_name>', methods=['POST'])
+# def delete_game(game_name):
+#     global games_list
+#     if game_name in games_list:
+#         games_list.remove(game_name)
+
+#     delete_game_data(game_name)
+
+#     return redirect(url_for('home'))
 
 @app.route('/add_game', methods=['POST'])
 def add_game():
@@ -608,8 +741,6 @@ def delete_suite_history(history_id, suite_id, game_name, testcase_id):
     return redirect(url_for('suite_history', suite_id=suite_id, game_name=game_name, testcase_id=testcase_id))
 
 
-
-
 @app.route('/delete_suite/<game_name>/<int:testcase_id>/<int:suite_id>', methods=['POST'])
 def delete_suite(game_name, testcase_id, suite_id):
     conn = get_connection()
@@ -619,18 +750,6 @@ def delete_suite(game_name, testcase_id, suite_id):
 
     return redirect(url_for('view_testcase', game_name=game_name, testcase_id=testcase_id))
     
-# # To Delete Games from game page
-# from models import delete_game_data
-# @app.route('/delete/<game_name>', methods=['POST'])
-# def delete_game(game_name):
-#     global GAMES
-#     if game_name in GAMES:
-#         GAMES.remove(game_name)
-
-#     delete_game_data(game_name)
-
-#     return redirect(url_for('home'))
-
 
 if __name__ == '__main__':
     app.run(debug=True)

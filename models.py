@@ -172,12 +172,15 @@ def add_game_db(name, phase, category):
         )
         conn.commit()
 
-        
 def delete_game_db(game_name):
     conn = get_connection()
     with conn.cursor() as cur:
         cur.execute("DELETE FROM games WHERE name = %s", (game_name,))
         conn.commit()
+
+        # Debugging: Log the number of rows affected
+        print(f"Deleted {cur.rowcount} game(s) with name {game_name}")
+
         
 def add_test_case(game, data, created_by, phase="default_phase", category="default_category"):
     with get_connection() as conn:

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login</title>
+  <link rel="stylesheet" href="static/styles.css" />
+</head>
+<body class="auth-page">
+  <div class="login_container">
+    <h2>Login</h2>
+    {% if message %}
+      <p class="message">{{ message }}</p>
+    {% endif %}
+    <form method="POST" novalidate>
+      <input name="email" type="email" placeholder="Email" required autocomplete="email" />
+
+   <div class="form-group password-wrapper">
+  <input id="password" name="password" type="password" placeholder="Password" required autocomplete="current-password" />
+  <span class="toggle-password" onclick="togglePassword()" title="Show/Hide Password">
+    <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="22" height="22">
+      <path d="M12 4.5C7 4.5 2.73 8.11 1 12c1.73 3.89 6 7.5 11 7.5s9.27-3.61 11-7.5c-1.73-3.89-6-7.5-11-7.5zm0 13a5.5 5.5 0 1 1 0-11 5.5 5.5 0 0 1 0 11zm0-9a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z" fill="#999"/>
+    </svg>
+  </span>
+</div>
+
+
+
+      <button type="submit">Login</button>
+    </form>
+    <p><a href="/forgot-password">Forgot Password?</a></p>
+    <a href="/register">Don't have an account? Register</a>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+
+</body>
+</html>
