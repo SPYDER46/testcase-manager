@@ -154,6 +154,7 @@ def init_db():
 
             conn.commit()
 
+
 def get_all_games():
     conn = get_connection()
     with conn.cursor() as cur:

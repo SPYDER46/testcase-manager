@@ -12,6 +12,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import uuid 
 from flask_mail import Mail, Message
 
+
+
 from models import (
     init_db,
     add_test_case,
@@ -29,7 +31,7 @@ from models import (
     get_all_games,        
     add_game_db,           
     delete_game_db,
-    send_welcome_email
+
 
 )
 
