@@ -49,10 +49,9 @@ app.config.update(
     MAIL_SERVER='smtp.gmail.com',
     MAIL_PORT=587,
     MAIL_USE_TLS=True,
-    MAIL_USERNAME='muthuvelraj2818@gmail.com',
-    MAIL_PASSWORD='kxgh igwf elbh xibo'
-    # MAIL_USERNAME=os.environ.get('MAIL_USERNAME'),
-    # MAIL_PASSWORD=os.environ.get('MAIL_PASSWORD')
+   
+    MAIL_USERNAME=os.environ.get('MAIL_USERNAME'),
+    MAIL_PASSWORD=os.environ.get('MAIL_PASSWORD')
 )
 
 mail = Mail(app)
