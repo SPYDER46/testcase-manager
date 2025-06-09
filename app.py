@@ -28,7 +28,8 @@ from models import (
     get_test_suites,
     get_all_games,        
     add_game_db,           
-    delete_game_db
+    delete_game_db,
+    send_welcome_email
 
 )
 
@@ -66,6 +67,10 @@ def register():
             cur.execute("INSERT INTO users (username, email, password) VALUES (%s, %s, %s)",
                         (username, email, hashed_password))
             conn.commit()
+
+            # Send welcome email after successful registration
+            send_welcome_email(email, username)
+
             return redirect(url_for('login'))
         except psycopg2.errors.UniqueViolation:
             conn.rollback()
@@ -74,6 +79,30 @@ def register():
             cur.close()
             conn.close()
     return render_template('register.html', message=message)
+
+def send_welcome_email(user_email, username):
+    """Send a welcome email to the newly registered user."""
+    msg = Message(
+        subject="Welcome to Lootrix Games!",
+        sender=app.config['MAIL_USERNAME'],
+        recipients=[user_email],
+        body=f"""
+Hi {username},
+
+Welcome to TEST SLOW! 
+
+We're thrilled to have you join our platform. Dive in, and enjoy the experience!
+
+Best regards,  
+TEST SLOW
+"""
+    )
+    try:
+        mail.send(msg)
+        print(f"Welcome email sent to {user_email}")
+    except Exception as e:
+        print(f"Error sending welcome email: {e}")
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

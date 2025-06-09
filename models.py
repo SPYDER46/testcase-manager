@@ -152,7 +152,6 @@ def init_db():
                 )
             ''')
 
-
             conn.commit()
 
 def get_all_games():
