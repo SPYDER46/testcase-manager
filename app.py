@@ -85,7 +85,7 @@ def register():
 def send_welcome_email(user_email, username):
     """Send a welcome email to the newly registered user."""
     msg = Message(
-        subject="Welcome to Lootrix Games!",
+        subject="Welcome to TEST SLOW!",
         sender=app.config['MAIL_USERNAME'],
         recipients=[user_email],
         body=f"""
