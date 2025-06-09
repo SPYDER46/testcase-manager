@@ -44,32 +44,32 @@ from dotenv import load_dotenv
 #     return psycopg2.connect(**db_config)
 
 
-DB_CONFIG = {
-    'host': 'localhost',
-    # 'database': 'postgres',
-    'database': 'testdb',
-    'user': 'postgres',
-    'password': 'root',
-    'port': 5432
-}
-
-def get_connection():
-    return psycopg2.connect(**DB_CONFIG)
+# DB_CONFIG = {
+#     'host': 'localhost',
+#     # 'database': 'postgres',
+#     'database': 'testdb',
+#     'user': 'postgres',
+#     'password': 'root',
+#     'port': 5432
+# }
 
 # def get_connection():
-#     url = os.environ.get('DATABASE_URL')
-#     if not url:
-#         raise Exception("DATABASE_URL not found in environment variables.")
+#     return psycopg2.connect(**DB_CONFIG)
 
-#     parsed = urlparse(url)  
-#     db_config = {
-#         'dbname': parsed.path[1:],  
-#         'user': parsed.username,
-#         'password': parsed.password,
-#         'host': parsed.hostname,
-#         'port': parsed.port
-#     }
-#     return psycopg2.connect(**db_config)
+def get_connection():
+    url = os.environ.get('DATABASE_URL')
+    if not url:
+        raise Exception("DATABASE_URL not found in environment variables.")
+
+    parsed = urlparse(url)  
+    db_config = {
+        'dbname': parsed.path[1:],  
+        'user': parsed.username,
+        'password': parsed.password,
+        'host': parsed.hostname,
+        'port': parsed.port
+    }
+    return psycopg2.connect(**db_config)
 
 def init_db():
     with get_connection() as conn:
