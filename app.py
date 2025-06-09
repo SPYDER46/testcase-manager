@@ -120,21 +120,24 @@ def login():
         cur.close()
         conn.close()
 
-        # Debugging: Print retrieved user data
-        print(f"Retrieved User: {user}", flush=True)
+        if user and check_password_hash(user[3], password):
+            # Successful login - fetch games
+            conn = get_connection()
+            cur = conn.cursor()
+            cur.execute("SELECT name, phase, category FROM games")
+            games = cur.fetchall()  # list of tuples
+            cur.close()
+            conn.close()
 
-        if user:
-            
-            print(f"Stored Hash: {user[3]}", flush=True)
-            print(f"Entered Password: {password}", flush=True)
+            # Convert to list of dicts for easier template usage
+            games_list = [{'name': g[0], 'phase': g[1], 'category': g[2]} for g in games]
 
-            if check_password_hash(user[3], password): 
-                return render_template('games.html', message=message) 
-            else:
-                message = "Invalid email or password."
+            return render_template('games.html', message=message, games=games_list)
         else:
             message = "Invalid email or password."
+
     return render_template('login.html', message=message)
+
 
 @app.route('/forgot-password', methods=['GET', 'POST'])
 def forgot_password():
