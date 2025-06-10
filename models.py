@@ -186,24 +186,20 @@ def delete_game_db(game_name):
 def add_test_case(game, data, created_by, phase="default_phase", category="default_category"):
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as c:
-            # Check if game exists
             c.execute('SELECT 1 FROM games WHERE name = %s', (game,))
             if not c.fetchone():
-                # Insert new game dynamically with defaults or parameters
                 c.execute(
                     'INSERT INTO games (name, phase, category) VALUES (%s, %s, %s) ON CONFLICT (name) DO NOTHING',
                     (game, phase, category)
                 )
                 conn.commit()
             
-            # Now continue with adding test case
             c.execute('SELECT COALESCE(MAX(testcase_number), 0) FROM test_cases WHERE game = %s', (game,))
             max_tc_num = c.fetchone()['coalesce'] or 0
             new_tc_num = max_tc_num + 1
-            ist = pytz.timezone('Asia/Kolkata')
-            now = datetime.now(pytz.utc).astimezone(ist)
- 
-            
+
+            now = datetime.now(pytz.utc)  # Always store in UTC
+
             c.execute('''
                 INSERT INTO test_cases (
                     game, testcase_number, title, description, steps, expected_result,
@@ -215,15 +211,19 @@ def add_test_case(game, data, created_by, phase="default_phase", category="defau
                 game, new_tc_num, data['title'], data['description'], data['steps'], data['expected_result'],
                 '', data['status'], data['priority'], data['iteration'], created_by, now
             ))
+
             row = c.fetchone()
             new_id = row['id']
             date_created = row['date_created']
 
-            conn.commit()
-
+            # Ensure timezone and convert to IST
             if isinstance(date_created, str):
                 date_created = parser.parse(date_created)
 
+            if date_created.tzinfo is None:
+                date_created = pytz.utc.localize(date_created)
+
+            date_created = date_created.astimezone(pytz.timezone("Asia/Kolkata"))
             formatted_date_created = date_created.strftime("%b %d, %Y %I:%M %p")
 
             return new_id, formatted_date_created
