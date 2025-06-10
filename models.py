@@ -6,6 +6,7 @@ from dateutil import parser
 from urllib.parse import urlparse
 from collections import defaultdict
 from dotenv import load_dotenv
+import pytz
 
 # load_dotenv()
 
@@ -199,7 +200,9 @@ def add_test_case(game, data, created_by, phase="default_phase", category="defau
             c.execute('SELECT COALESCE(MAX(testcase_number), 0) FROM test_cases WHERE game = %s', (game,))
             max_tc_num = c.fetchone()['coalesce'] or 0
             new_tc_num = max_tc_num + 1
-            now = datetime.now()  
+            ist = pytz.timezone('Asia/Kolkata')
+            now = datetime.now(pytz.utc).astimezone(ist)
+ 
             
             c.execute('''
                 INSERT INTO test_cases (
