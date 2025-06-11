@@ -34,12 +34,12 @@
   <button class="btn btn-orange" data-bs-toggle="modal" data-bs-target="#addGameModal">+ Add Project</button>
 
   <!-- Filter Button -->
-  <button class="btn btn-outline-black ms-2 d-flex align-items-center" id="filterBtn" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-expanded="false" aria-controls="filterPanel" title="Filter Games">
+  <!-- <button class="btn btn-outline-black ms-2 d-flex align-items-center" id="filterBtn" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-expanded="false" aria-controls="filterPanel" title="Filter Games">
     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-funnel me-1" viewBox="0 0 16 16">
       <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .39.812l-4.8 6.4a.5.5 0 0 0-.11.28v4.978a.5.5 0 0 1-.746.434L6 11.681V7.492a.5.5 0 0 0-.11-.28L1.11 1.812A.5.5 0 0 1 1.5 1.5z"/>
     </svg>
     <span id="filterBtnLabel"></span>
-  </button>
+  </button> -->
 
   <!-- Clear Filters Button -->
   <button class="btn btn-outline-secondary" id="clearBtn" title="Clear Search and Filters" type="button">Clear</button>
@@ -63,7 +63,7 @@
           <div class="row g-3">
 
             <!-- Filter by Phase -->
-            <div class="col-md-6">
+            <!-- <div class="col-md-6">
               <label class="form-label fw-semibold">Filter by Phase</label>
               <select class="form-select" id="filterPhase" aria-label="Filter by Phase" onchange="filterGames()">
                 <option value="">All Phases</option>
@@ -71,10 +71,10 @@
                 <option value="Phase 2">Phase 2</option>
                 <option value="Phase 3">Phase 3</option>
               </select>
-            </div>
+            </div> -->
 
             <!-- Filter by Category -->
-            <div class="col-md-6">
+            <!-- <div class="col-md-6">
               <label class="form-label fw-semibold">Filter by Category</label>
               <select class="form-select" id="filterCategory" aria-label="Filter by Category" onchange="filterGames()">
                 <option value="">All Categories</option>
@@ -82,7 +82,7 @@
                 <option value="Live">Live</option>
                 <option value="Multiplayer">Multiplayer</option>
               </select>
-            </div>
+            </div> -->
 
           </div>
         </form>
@@ -107,7 +107,7 @@
             <label for="gameName" class="form-label">Project Name:</label>
             <input type="text" class="form-control" id="gameName" name="game_name" required>
             </div>
-            <div class="mb-3">
+            <!-- <div class="mb-3">
             <label class="form-label">Game Phase:</label>
             <div class="dropdown">
             <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="gamePhaseDropdown" data-bs-toggle="dropdown" aria-expanded="false" data-placeholder="Select Phases">
@@ -136,8 +136,8 @@
                 </ul>
 
       </div>
-    </div>
-
+    </div> -->
+<!-- 
     <div class="mb-3">
       <label class="form-label">Categories:</label>
       <div class="dropdown">
@@ -167,7 +167,7 @@
 
       </div>
     </div>
-    </div>
+    </div> -->
         <div class="modal-footer">
             <button type="submit" class="btn btn-orange">Add Project</button>
             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>

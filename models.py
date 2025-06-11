@@ -6,7 +6,7 @@ from dateutil import parser
 from urllib.parse import urlparse
 from collections import defaultdict
 from dotenv import load_dotenv
-import pytz
+import hashlib
 
 # load_dotenv()
 
@@ -45,32 +45,32 @@ import pytz
 #     return psycopg2.connect(**db_config)
 
 
-# DB_CONFIG = {
-#     'host': 'localhost',
-#     # 'database': 'postgres',
-#     'database': 'testdb',
-#     'user': 'postgres',
-#     'password': 'root',
-#     'port': 5432
-# }
-
-# def get_connection():
-#     return psycopg2.connect(**DB_CONFIG)
+DB_CONFIG = {
+    'host': 'localhost',
+    'database': 'postgres',
+    # 'database': 'testdb',
+    'user': 'postgres',
+    'password': 'root',
+    'port': 5432
+}
 
 def get_connection():
-    url = os.environ.get('DATABASE_URL')
-    if not url:
-        raise Exception("DATABASE_URL not found in environment variables.")
+    return psycopg2.connect(**DB_CONFIG)
 
-    parsed = urlparse(url)  
-    db_config = {
-        'dbname': parsed.path[1:],  
-        'user': parsed.username,
-        'password': parsed.password,
-        'host': parsed.hostname,
-        'port': parsed.port
-    }
-    return psycopg2.connect(**db_config)
+# def get_connection():
+#     url = os.environ.get('DATABASE_URL')
+#     if not url:
+#         raise Exception("DATABASE_URL not found in environment variables.")
+
+#     parsed = urlparse(url)  
+#     db_config = {
+#         'dbname': parsed.path[1:],  
+#         'user': parsed.username,
+#         'password': parsed.password,
+#         'host': parsed.hostname,
+#         'port': parsed.port
+#     }
+#     return psycopg2.connect(**db_config)
 
 def init_db():
     with get_connection() as conn:
@@ -153,7 +153,56 @@ def init_db():
                 )
             ''')
 
+            # Users table
+            c.execute('''
+                CREATE TABLE IF NOT EXISTS users (
+                    id SERIAL PRIMARY KEY,
+                    username TEXT UNIQUE NOT NULL,
+                    email TEXT UNIQUE NOT NULL,
+                    password TEXT NOT NULL,
+                    organization TEXT NOT NULL
+                );
+            ''')
+
+            # Projects table
+            c.execute('''
+                CREATE TABLE IF NOT EXISTS projects (
+                    id SERIAL PRIMARY KEY,
+                    user_id INTEGER REFERENCES users(id),
+                    name TEXT NOT NULL,
+                    description TEXT
+                );
+            ''')
+
             conn.commit()
+
+def create_user(username, email, hashed_password, organization=None):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "INSERT INTO users (username, email, password, organization) VALUES (%s, %s, %s, %s) RETURNING id",
+                (username, email, hashed_password, organization)
+            )
+            user_id = cur.fetchone()[0]
+            conn.commit()
+            return user_id
+
+def get_user_by_username(username):
+    with get_connection() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT * FROM users WHERE username = %s", (username,))
+            return cur.fetchone()
+
+def create_project(user_id, name, description):
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            cur.execute(
+                "INSERT INTO projects (user_id, name, description) VALUES (%s, %s, %s) RETURNING id",
+                (user_id, name, description)
+            )
+            project_id = cur.fetchone()[0]
+            conn.commit()
+            return project_id
 
 
 def get_all_games():
@@ -164,42 +213,47 @@ def get_all_games():
     games = [{'name': r[0], 'phase': r[1], 'category': r[2]} for r in rows]
     return games
 
-def add_game_db(name, phase, category):  
-    conn = get_connection()
-    with conn.cursor() as cur:
-        cur.execute(
-            "INSERT INTO games (name, phase, category) VALUES (%s, %s, %s) ON CONFLICT (name) DO NOTHING",
-            (name, phase, category)
-        )
+def add_game_db(name, phase, category, organization=None):  
+    with get_connection() as conn:
+        with conn.cursor() as cur:
+            if organization:
+                cur.execute(
+                    "INSERT INTO games (name, phase, category, organization) VALUES (%s, %s, %s, %s) ON CONFLICT (name) DO NOTHING",
+                    (name, phase, category, organization)
+                )
+            else:
+                cur.execute(
+                    "INSERT INTO games (name, phase, category) VALUES (%s, %s, %s) ON CONFLICT (name) DO NOTHING",
+                    (name, phase, category)
+                )
         conn.commit()
-
+        
 def delete_game_db(game_name):
     conn = get_connection()
     with conn.cursor() as cur:
         cur.execute("DELETE FROM games WHERE name = %s", (game_name,))
         conn.commit()
-
-        # Debugging: Log the number of rows affected
-        print(f"Deleted {cur.rowcount} game(s) with name {game_name}")
-
         
 def add_test_case(game, data, created_by, phase="default_phase", category="default_category"):
     with get_connection() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as c:
+            # Check if game exists
             c.execute('SELECT 1 FROM games WHERE name = %s', (game,))
             if not c.fetchone():
+                # Insert new game dynamically with defaults or parameters
                 c.execute(
                     'INSERT INTO games (name, phase, category) VALUES (%s, %s, %s) ON CONFLICT (name) DO NOTHING',
                     (game, phase, category)
                 )
                 conn.commit()
             
-            c.execute('SELECT COALESCE(MAX(testcase_number), 0) FROM test_cases WHERE game = %s', (game,))
-            max_tc_num = c.fetchone()['coalesce'] or 0
+            # Now continue with adding test case
+            c.execute('SELECT COALESCE(MAX(testcase_number), 0) AS max_num FROM test_cases WHERE game = %s', (game,))
+            max_tc_num = c.fetchone()['max_num'] or 0
+
             new_tc_num = max_tc_num + 1
-
-            now = datetime.now(pytz.utc)  # Always store in UTC
-
+            now = datetime.now()  
+            
             c.execute('''
                 INSERT INTO test_cases (
                     game, testcase_number, title, description, steps, expected_result,
@@ -211,19 +265,15 @@ def add_test_case(game, data, created_by, phase="default_phase", category="defau
                 game, new_tc_num, data['title'], data['description'], data['steps'], data['expected_result'],
                 '', data['status'], data['priority'], data['iteration'], created_by, now
             ))
-
             row = c.fetchone()
             new_id = row['id']
             date_created = row['date_created']
 
-            # Ensure timezone and convert to IST
+            conn.commit()
+
             if isinstance(date_created, str):
                 date_created = parser.parse(date_created)
 
-            if date_created.tzinfo is None:
-                date_created = pytz.utc.localize(date_created)
-
-            date_created = date_created.astimezone(pytz.timezone("Asia/Kolkata"))
             formatted_date_created = date_created.strftime("%b %d, %Y %I:%M %p")
 
             return new_id, formatted_date_created

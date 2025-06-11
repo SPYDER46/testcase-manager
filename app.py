@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 import models
 from collections import defaultdict
 from datetime import datetime
@@ -37,6 +37,7 @@ from models import (
 )
 
 app = Flask(__name__)
+app.secret_key = 'dev-secret-1234'
 init_db()
 backfill_testcase_numbers()
 
@@ -63,13 +64,15 @@ def register():
         username = request.form['username']
         email = request.form['email']
         password = request.form['password']
+        organization = request.form['organization']
+        
         hashed_password = generate_password_hash(password)
 
         conn = get_connection()
         cur = conn.cursor()
         try:
-            cur.execute("INSERT INTO users (username, email, password) VALUES (%s, %s, %s)",
-                        (username, email, hashed_password))
+            cur.execute("INSERT INTO users (username, email, password, organization) VALUES (%s, %s, %s, %s)",
+                        (username, email, hashed_password,organization ))
             conn.commit()
 
             # Send welcome email after successful registration
@@ -119,22 +122,30 @@ def login():
         cur = conn.cursor()
         cur.execute("SELECT * FROM users WHERE email=%s", (email,))
         user = cur.fetchone()
+
+        print(f"Trying to login with email: {email}")
+        print(f"User found: {user}")
+
+        if user:
+            print("User exists, checking password...")
+            if check_password_hash(user[3], password):
+                print("Password matched!")
+            else:
+                print("Password mismatch.")
+        else:
+            print("No user found.")
+      
         cur.close()
-        conn.close()
+        conn.close()     
 
-        if user and check_password_hash(user[3], password):
-            # Successful login - fetch games
-            conn = get_connection()
-            cur = conn.cursor()
-            cur.execute("SELECT name, phase, category FROM games")
-            games = cur.fetchall()  # list of tuples
-            cur.close()
-            conn.close()
+        if user and check_password_hash(user[2], password):
+            # Set session data
+            session['user_id'] = user[0]
+            session['username'] = user[1]
+            session['email'] = user[2]
+            session['organization'] = user[4]  
 
-            # Convert to list of dicts for easier template usage
-            games_list = [{'name': g[0], 'phase': g[1], 'category': g[2]} for g in games]
-
-            return render_template('games.html', message=message, games=games_list)
+            return redirect(url_for('home'))
         else:
             message = "Invalid email or password."
 
@@ -191,6 +202,7 @@ def reset_password(token):
 
 @app.route('/logout', methods=['POST'])
 def logout():
+    session.clear()  
     return redirect(url_for('login'))
 
 
@@ -199,50 +211,68 @@ def smart_csv_reader(file_contents):
     dialect = sniffer.sniff(file_contents.splitlines()[0])
     return csv.DictReader(StringIO(file_contents), dialect=dialect)
 
+@app.route('/organization/<org_name>')
+def organization_users(org_name):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT username, email FROM users WHERE organization = %s ORDER BY username ASC", (org_name,))
+    users = cur.fetchall()
+    cur.close()
+    conn.close()
+    return render_template('games.html', organization=org_name, users=users)
+
+
 @app.route('/', methods=['GET', 'POST'])
 def home():
+    if 'organization' not in session:
+        return redirect(url_for('login'))
+
+    org_name = session['organization']
+
     if request.method == 'POST':
         name = request.form['game_name']
-        # Use request.form.get() to handle missing values
         phase = request.form.get('game_phase')  
-        category = request.form.get('category') 
-        add_game_db(name, phase, category)  
+        category = request.form.get('category')
+        add_game_db(name, phase, category, org_name)  
         return redirect(url_for('home'))
-    
-    # Fetch all games from DB on GET
-    games_from_db = get_all_games()  # This should return list of dicts or objects
+
+    # Fetch games by organization
+    games_from_db = get_all_games_by_organization(org_name)
     return render_template('games.html', games=games_from_db)
 
+def add_game_db(name, phase, category, organization):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("INSERT INTO games (name, phase, category, organization) VALUES (%s, %s, %s, %s)",
+                (name, phase, category, organization))
+    conn.commit()
+    cur.close()
+    conn.close()
 
-@app.route('/delete/<game_name>', methods=['POST'])
-def delete_game(game_name):
-    delete_game_db(game_name)  # Delete game from DB
-    return redirect(url_for('home'))
-
-
-# # To Delete Games from game page
-# from models import delete_game_data
-# @app.route('/delete/<game_name>', methods=['POST'])
-# def delete_game(game_name):
-#     global games_list
-#     if game_name in games_list:
-#         games_list.remove(game_name)
-
-#     delete_game_data(game_name)
-
-#     return redirect(url_for('home'))
+def get_all_games_by_organization(organization):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT name, phase, category FROM games WHERE organization = %s", (organization,))
+    games = cur.fetchall()
+    cur.close()
+    conn.close()
+    return [{'name': g[0], 'phase': g[1], 'category': g[2]} for g in games]
 
 @app.route('/add_game', methods=['POST'])
 def add_game():
+    if 'organization' not in session:
+        return redirect(url_for('login'))
+
     game_name = request.form.get('game_name', '').strip()
     game_phase = request.form.get('game_phase', '').strip()
     categories = request.form.get('categories', '').strip()
+    organization = session['organization'] 
 
     if game_name:
-        add_game_db(game_name, game_phase, categories)
-        flash(f"Game '{game_name}' added!", 'success')
+        add_game_db(game_name, game_phase, categories, organization)
 
     return redirect(url_for('home'))
+
 
 
 @app.route('/games/<game_name>')
@@ -278,6 +308,11 @@ def add(game_name):
         return redirect(url_for('index', game_name=game_name))
     return render_template('add_testcase.html', game_name=game_name)
 
+
+@app.route('/delete/<game_name>', methods=['POST'])
+def delete_game(game_name):
+    delete_game_db(game_name)  # Delete game from DB
+    return redirect(url_for('home'))
 
 from models import add_iteration, update_test_case_iteration
 @app.route('/games/<game_name>/testcase/<int:testcase_id>', methods=['GET', 'POST'])
