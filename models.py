@@ -47,8 +47,8 @@ import hashlib
 
 # DB_CONFIG = {
 #     'host': 'localhost',
-#     'database': 'postgres',
-#     # 'database': 'testdb',
+#     # 'database': 'postgres',
+#     'database': 'testdb',
 #     'user': 'postgres',
 #     'password': 'root',
 #     'port': 5432

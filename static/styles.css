@@ -1314,7 +1314,7 @@ a {
 
 a:hover {
   color: #d67e00;
-  text-decoration: underline;
+  /* text-decoration: underline; */
 }
 
 /* Message box */
