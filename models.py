@@ -44,7 +44,6 @@ import hashlib
 #     }
 #     return psycopg2.connect(**db_config)
 
-
 # DB_CONFIG = {
 #     'host': 'localhost',
 #     # 'database': 'postgres',

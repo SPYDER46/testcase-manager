@@ -46,11 +46,8 @@
 
   <!-- Logout Button -->
   <button type="button" class="btn btn-danger ms-2" data-bs-toggle="modal" data-bs-target="#logoutModal">
-    Logout
+    Logout 
   </button>
-
-
-
 </div>
 
 
@@ -63,7 +60,7 @@
           <div class="row g-3">
 
             <!-- Filter by Phase -->
-            <!-- <div class="col-md-6">
+            <div class="col-md-6">
               <label class="form-label fw-semibold">Filter by Phase</label>
               <select class="form-select" id="filterPhase" aria-label="Filter by Phase" onchange="filterGames()">
                 <option value="">All Phases</option>
@@ -71,10 +68,10 @@
                 <option value="Phase 2">Phase 2</option>
                 <option value="Phase 3">Phase 3</option>
               </select>
-            </div> -->
+            </div>
 
             <!-- Filter by Category -->
-            <!-- <div class="col-md-6">
+            <div class="col-md-6">
               <label class="form-label fw-semibold">Filter by Category</label>
               <select class="form-select" id="filterCategory" aria-label="Filter by Category" onchange="filterGames()">
                 <option value="">All Categories</option>
@@ -82,7 +79,7 @@
                 <option value="Live">Live</option>
                 <option value="Multiplayer">Multiplayer</option>
               </select>
-            </div> -->
+            </div>
 
           </div>
         </form>
@@ -92,6 +89,18 @@
   </div>
 </header>
 
+<!-- Flash Messages -->
+<div id="flash-container" style="position: fixed; top: 20px; right: 20px; z-index: 1050;">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+</div>
 
 <!-- Add Game Modal -->
 <div class="modal fade" id="addGameModal" tabindex="-1" aria-labelledby="addGameModalLabel" aria-hidden="true"   data-bs-backdrop="static"
@@ -137,8 +146,8 @@
 
       </div>
     </div> -->
-<!-- 
-    <div class="mb-3">
+
+    <!-- <div class="mb-3">
       <label class="form-label">Categories:</label>
       <div class="dropdown">
         <button class="btn btn-outline-secondary dropdown-toggle w-100 text-start" type="button" id="gameCategoryDropdown" data-bs-toggle="dropdown" aria-expanded="false">

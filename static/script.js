@@ -348,3 +348,14 @@ function togglePassword() {
     const deleteForm = confirmDeleteModal.querySelector('#deleteGameForm');
     deleteForm.action = `/delete/${encodeURIComponent(gameName)}`;
   });
+
+// Flash popup
+    setTimeout(() => {
+    const alerts = document.querySelectorAll('#flash-container .alert');
+    alerts.forEach(alert => {
+      // Use Bootstrap's fade class
+      alert.classList.remove('show');
+      alert.classList.add('fade');
+      setTimeout(() => alert.remove(), 300); 
+    });
+  }, 3000);

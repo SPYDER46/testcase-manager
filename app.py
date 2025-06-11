@@ -37,7 +37,9 @@ from models import (
 )
 
 app = Flask(__name__)
-app.secret_key = 'dev-secret-1234'
+
+app.secret_key = os.environ.get('SECRET_KEY')
+
 init_db()
 backfill_testcase_numbers()
 
@@ -65,7 +67,7 @@ def register():
         email = request.form['email']
         password = request.form['password']
         organization = request.form['organization']
-        
+
         hashed_password = generate_password_hash(password)
 
         conn = get_connection()
@@ -138,6 +140,9 @@ def login():
         cur.close()
         conn.close()     
 
+
+        # if user and check_password_hash(user[3], password):
+            # ----- For Railway and Laptop ------#
         if user and check_password_hash(user[2], password):
             # Set session data
             session['user_id'] = user[0]
@@ -211,16 +216,7 @@ def smart_csv_reader(file_contents):
     dialect = sniffer.sniff(file_contents.splitlines()[0])
     return csv.DictReader(StringIO(file_contents), dialect=dialect)
 
-@app.route('/organization/<org_name>')
-def organization_users(org_name):
-    conn = get_connection()
-    cur = conn.cursor()
-    cur.execute("SELECT username, email FROM users WHERE organization = %s ORDER BY username ASC", (org_name,))
-    users = cur.fetchall()
-    cur.close()
-    conn.close()
-    return render_template('games.html', organization=org_name, users=users)
-
+from flask import flash
 
 @app.route('/', methods=['GET', 'POST'])
 def home():
@@ -233,21 +229,36 @@ def home():
         name = request.form['game_name']
         phase = request.form.get('game_phase')  
         category = request.form.get('category')
-        add_game_db(name, phase, category, org_name)  
+
+        success, error_message = add_game_db(name, phase, category, org_name)
+
+        if not success:
+            flash(error_message, 'danger')  
+        else:
+            flash("Game added successfully!", 'success')
+
         return redirect(url_for('home'))
 
-    # Fetch games by organization
     games_from_db = get_all_games_by_organization(org_name)
     return render_template('games.html', games=games_from_db)
 
-def add_game_db(name, phase, category, organization):
+
+def add_game_db(name, phase, category, org_name):
     conn = get_connection()
     cur = conn.cursor()
-    cur.execute("INSERT INTO games (name, phase, category, organization) VALUES (%s, %s, %s, %s)",
-                (name, phase, category, organization))
-    conn.commit()
-    cur.close()
-    conn.close()
+    try:
+        cur.execute(
+            "INSERT INTO games (name, phase, category, organization) VALUES (%s, %s, %s, %s)",
+            (name, phase, category, org_name)
+        )
+        conn.commit()
+        return True, None  
+    except psycopg2.errors.UniqueViolation:
+        conn.rollback()
+        return False, "Game with this name already exists."
+    finally:
+        cur.close()
+        conn.close()
 
 def get_all_games_by_organization(organization):
     conn = get_connection()
@@ -272,7 +283,6 @@ def add_game():
         add_game_db(game_name, game_phase, categories, organization)
 
     return redirect(url_for('home'))
-
 
 
 @app.route('/games/<game_name>')

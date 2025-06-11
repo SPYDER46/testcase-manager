@@ -53,13 +53,14 @@
 
         <div class="card-footer d-flex justify-content-end bg-light custom-card-footer">
 
-          <a href="{{ url_for('view_testcase', game_name=game_name, testcase_id=testcase_id) }}" class="btn btn-outline-secondary custom-btn-outline">
+          <a href="{{ url_for('view_testcase', game_name=game_name, testcase_id=testcase_id) }}"  class="btn btn-outline-secondary">
             Cancel
           </a>
           
-          <button type="submit" class="btn btn-orange me-2 custom-btn-success">
-            <i class="bi bi-check2-circle me-1"></i>Update
-          </button>
+        <button type="submit" class="btn btn-orange ms-2">
+          <i class="bi bi-check1-circle me-1"></i>Update
+        </button>
+
           
         </div>
       </form>
