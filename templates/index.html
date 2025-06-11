@@ -8,6 +8,29 @@
 </head>
 <body class="bg-light">
 
+
+<!-- Header -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm px-4">
+  <div class="container-fluid">
+    <div class="mx-auto" style="width: 50%;">
+      <form class="d-flex w-100">
+        <input class="form-control" type="search" placeholder="Search test plans..." aria-label="Search">
+      </form>
+    </div>
+
+    <div class="dropdown">
+      <button class="btn btn-link text-dark" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="bi bi-gear" style="font-size: 1.5rem;"></i>
+      </button>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="settingsDropdown">
+        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#inviteModal">Invite to Project</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+
+
 <!-- Loader -->
 <div id="page-loader">
   <div class="bar-loader">
@@ -176,6 +199,38 @@
         </div>
       </form>
     </div>
+  </div>
+</div>
+
+<!-- Invite Modal -->
+<div class="modal fade" id="inviteModal" tabindex="-1" aria-labelledby="inviteModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog">
+    <form method="POST" action="{{ url_for('invite_user', game_name=game_name) }}">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="inviteModalLabel">Invite User to Project</h5>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="email" class="form-label">User Email</label>
+            <input type="email" class="form-control" name="email" id="email" required>
+          </div>
+          <div class="mb-3">
+            <label for="role" class="form-label">Assign Role</label>
+            <select class="form-select" name="role" id="role" required>
+               <option value="" disabled selected>Select Role</option>
+              <option value="pm">Project Manager</option>
+              <option value="tester">Quality Analyst</option>
+              <option value="developer">Developer</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Send Invite</button>
+        </div>
+      </div>
+    </form>
   </div>
 </div>
 

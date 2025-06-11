@@ -37,7 +37,7 @@ from models import (
 )
 
 app = Flask(__name__)
-
+# app.secret_key = 'dev-secret-1234'
 app.secret_key = os.environ.get('SECRET_KEY')
 
 init_db()
@@ -53,8 +53,9 @@ app.config.update(
     MAIL_PORT=587,
     MAIL_USE_TLS=True,
 
-    MAIL_USERNAME=os.environ.get('MAIL_USERNAME'),
-    MAIL_PASSWORD=os.environ.get('MAIL_PASSWORD')
+
+    # MAIL_USERNAME=os.environ.get('MAIL_USERNAME'),
+    # MAIL_PASSWORD=os.environ.get('MAIL_PASSWORD')
 )
 
 mail = Mail(app)
@@ -67,17 +68,20 @@ def register():
         email = request.form['email']
         password = request.form['password']
         organization = request.form['organization']
+        role = request.form['role']
 
         hashed_password = generate_password_hash(password)
 
         conn = get_connection()
         cur = conn.cursor()
         try:
-            cur.execute("INSERT INTO users (username, email, password, organization) VALUES (%s, %s, %s, %s)",
-                        (username, email, hashed_password,organization ))
+            cur.execute("""
+                INSERT INTO users (username, email, password, organization, role) 
+                VALUES (%s, %s, %s, %s, %s)
+            """, (username, email, hashed_password, organization, role))
             conn.commit()
 
-            # Send welcome email after successful registration
+            # Send welcome email
             send_welcome_email(email, username)
 
             return redirect(url_for('login'))
@@ -87,7 +91,9 @@ def register():
         finally:
             cur.close()
             conn.close()
+
     return render_template('register.html', message=message)
+
 
 def send_welcome_email(user_email, username):
     """Send a welcome email to the newly registered user."""
@@ -149,6 +155,7 @@ def login():
             session['username'] = user[1]
             session['email'] = user[2]
             session['organization'] = user[4]  
+            session['role'] = user[5]       
 
             return redirect(url_for('home'))
         else:
@@ -189,6 +196,40 @@ def forgot_password():
 
     return render_template('forgot_password.html', message=message)
 
+@app.route('/<game_name>/invite', methods=['POST'])
+def invite_user(game_name):
+    email = request.form['email']
+    role = request.form['role']
+
+    try:
+        # Correctly generate the full URL to the project's test plan page
+        project_url = url_for('index', game_name=game_name, _external=True)
+
+        msg = Message(
+            subject=f"You're invited to join project: {game_name}",
+            recipients=[email],
+            body=f"""
+You've been invited to join the project '{game_name}' as a {role.capitalize()}.
+
+Click the link below to access the project:
+{project_url}
+
+If you don’t have an account yet, please register first.
+
+Thanks,  
+TestSlow Team
+"""
+        )
+        mail.send(msg)
+        flash(f"Invitation sent to {email}.", "success")
+    except Exception as e:
+        print(f"Email send failed: {e}")
+        flash("Failed to send email. Please check your configuration.", "danger")
+
+    return redirect(url_for('index', game_name=game_name))
+
+
+
 @app.route('/reset-password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     message = ""
@@ -224,13 +265,15 @@ def home():
         return redirect(url_for('login'))
 
     org_name = session['organization']
+    user_role = session.get('role')       
+    username = session.get('username')    
 
     if request.method == 'POST':
         name = request.form['game_name']
         phase = request.form.get('game_phase')  
         category = request.form.get('category')
 
-        success, error_message = add_game_db(name, phase, category, org_name)
+        success, error_message = add_game_db(name, phase, category, org_name, user_role)
 
         if not success:
             flash(error_message, 'danger')  
@@ -240,10 +283,18 @@ def home():
         return redirect(url_for('home'))
 
     games_from_db = get_all_games_by_organization(org_name)
-    return render_template('games.html', games=games_from_db)
+    return render_template(
+        'games.html',
+        games=games_from_db,
+        user_role=user_role,    
+        username=username,
+        user_organization=org_name
+    )
 
+def add_game_db(name, phase, category, org_name, user_role):
+    if user_role.lower() not in ('pm', 'tester'):
+        return False, "Only PMs or Testers can add new games."
 
-def add_game_db(name, phase, category, org_name):
     conn = get_connection()
     cur = conn.cursor()
     try:
@@ -252,13 +303,14 @@ def add_game_db(name, phase, category, org_name):
             (name, phase, category, org_name)
         )
         conn.commit()
-        return True, None  
+        return True, None
     except psycopg2.errors.UniqueViolation:
         conn.rollback()
         return False, "Game with this name already exists."
     finally:
         cur.close()
         conn.close()
+
 
 def get_all_games_by_organization(organization):
     conn = get_connection()
