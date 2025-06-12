@@ -37,8 +37,8 @@ from models import (
 )
 
 app = Flask(__name__)
-
-app.secret_key = os.environ.get('SECRET_KEY')
+app.secret_key = 'dev-secret-1234'
+# app.secret_key = os.environ.get('SECRET_KEY')
 
 init_db()
 backfill_testcase_numbers()
@@ -53,6 +53,7 @@ app.config.update(
     MAIL_PORT=587,
     MAIL_USE_TLS=True,
 
+    MAIL_DEFAULT_SENDER='muthuvelraj2818@gmail.com',
     MAIL_USERNAME=os.environ.get('MAIL_USERNAME'),
     MAIL_PASSWORD=os.environ.get('MAIL_PASSWORD')
 )
