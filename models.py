@@ -176,6 +176,7 @@ def init_db():
             conn.commit()
 
 def create_user(username, email, hashed_password, organization=None):
+    organization = organization.strip().lower() if organization else None
     with get_connection() as conn:
         with conn.cursor() as cur:
             cur.execute(
@@ -185,6 +186,7 @@ def create_user(username, email, hashed_password, organization=None):
             user_id = cur.fetchone()[0]
             conn.commit()
             return user_id
+
 
 def get_user_by_username(username):
     with get_connection() as conn:

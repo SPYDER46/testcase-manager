@@ -52,11 +52,12 @@ app.config.update(
     MAIL_SERVER='smtp.gmail.com',
     MAIL_PORT=587,
     MAIL_USE_TLS=True,
+    MAIL_USERNAME='muthuvelraj2818@gmail.com',
+    MAIL_PASSWORD='kxgh igwf elbh xibo',
 
-
-    MAIL_DEFAULT_SENDER='muthuvelraj2818@gmail.com',
-    MAIL_USERNAME=os.environ.get('MAIL_USERNAME'),
-    MAIL_PASSWORD=os.environ.get('MAIL_PASSWORD')
+    MAIL_DEFAULT_SENDER='muthuvelraj2818@gmail.com'
+    # MAIL_USERNAME=os.environ.get('MAIL_USERNAME'),
+    # MAIL_PASSWORD=os.environ.get('MAIL_PASSWORD')
 )
 
 mail = Mail(app)
@@ -68,7 +69,7 @@ def register():
         username = request.form['username']
         email = request.form['email']
         password = request.form['password']
-        organization = request.form['organization']
+        organization = request.form['organization'].strip().lower()
         role = request.form['role']
 
         hashed_password = generate_password_hash(password)
@@ -291,7 +292,7 @@ def home():
     )
 
 def add_game_db(name, phase, category, org_name, user_role):
-    if user_role.lower() not in ('pm', 'tester', 'admin'):
+    if user_role.lower() not in ('ProjectManager', 'tester', 'admin'):
         return False, "Only PMs or Testers can add new games."
 
     conn = get_connection()
