@@ -16,56 +16,57 @@
 
 <!-- Site Header -->
 <header class="site-header py-3 bg-white shadow-sm">
-  <div class="container d-flex justify-content-between align-items-center flex-wrap">
+  <div class="container">
+    <div class="row align-items-center g-3">
 
-    <!-- GameHub Title -->
-   
-    <div class="d-flex align-items-center gap-2">
-      <!-- <img src="static\Logo.png" alt="Test Slow Logo" width="40" height="40"> -->
-      <h1 class="fs-4 fw-bold text-black mb-0">TEST SLOW</h1>
-    </div>
+      <!-- Left: Logo and Title -->
+      <div class="col-auto d-flex align-items-center gap-2">
+        <!-- <img src="static/Logo.png" alt="Logo" width="40" height="40"> -->
+        <h1 class="fs-4 fw-bold text-black mb-0">TEST SLOW</h1>
+      </div>
 
-    <!-- Center: Search Bar -->
-    <div class="col-md-6 col-sm-12 mb-2 mb-md-0">
-      <input type="text" class="form-control" id="searchInput" placeholder="Search project..." onkeyup="filterGames()">
-    </div>
+      <!-- Center: Search Input -->
+      <div class="col-12 col-md">
+        <input type="text" class="form-control" id="searchInput" placeholder="Search project..." onkeyup="filterGames()">
+      </div>
 
-  <div class="d-flex align-items-center gap-2">
+      <!-- Right: Buttons and Profile -->
+      <div class="col-auto d-flex align-items-center gap-2 flex-wrap">
 
-  <!-- Add Game Button -->
-  <button class="btn btn-orange" data-bs-toggle="modal" data-bs-target="#addGameModal">+ Add Project</button>
-
-  <!-- Clear Filters Button -->
-  <button class="btn btn-outline-secondary" id="clearBtn" title="Clear Search and Filters" type="button">Clear</button>
-
-<!-- Profile Dropdown -->
-<div class="dropdown">
-  <button class="btn d-flex align-items-center border-0 bg-white" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-    <img src="https://ui-avatars.com/api/?name={{ username }}&background=0D8ABC&color=fff&size=32" class="rounded-circle me-2" width="32" height="32" alt="User Avatar">
-    <span class="fw-semibold text-dark">{{ username }}</span>
-    <i class="bi bi-caret-down-fill ms-2 text-muted"></i>
-  </button>
-  <ul class="dropdown-menu dropdown-menu-end shadow-sm mt-2" aria-labelledby="profileDropdown" style="min-width: 220px;">
-    <li class="px-3 py-2">
-    <div class="fw-bold">{{ username }}</div>
-    <small class="text-muted d-block">Role: {{ user_role|default('Guest')|capitalize }}</small>
-    <small class="text-muted d-block">Organization: {{ user_organization|default('N/A') }}</small>
-  </li>
-
-    <li><hr class="dropdown-divider"></li>
-    <!-- Future: <li><a class="dropdown-item" href="#">Account Settings</a></li> -->
-    <li>
-      <form method="POST" action="{{ url_for('logout') }}">
-        <button type="submit" class="dropdown-item text-danger">
-          <i class="bi bi-box-arrow-right me-2"></i> Logout
+        <button class="btn btn-orange" data-bs-toggle="modal" data-bs-target="#addGameModal">
+          + Add Project
         </button>
-      </form>
-    </li>
-  </ul>
-</div>
 
+        <button class="btn btn-outline-secondary" id="clearBtn" title="Clear Search and Filters">
+          Clear
+        </button>
 
-
+        <!-- Profile Dropdown -->
+        <div class="dropdown">
+          <button class="btn d-flex align-items-center border-0 bg-white" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+            <img src="https://ui-avatars.com/api/?name={{ username }}&background=0D8ABC&color=fff&size=32"
+                 class="rounded-circle me-2" width="32" height="32" alt="User Avatar">
+            <span class="fw-semibold text-dark text-truncate d-inline-block" style="max-width: 120px;">
+              {{ username }}
+            </span>
+            <i class="bi bi-caret-down-fill ms-2 text-muted"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end shadow-sm mt-2" aria-labelledby="profileDropdown" style="min-width: 220px;">
+            <li class="px-3 py-2">
+              <div class="fw-bold">{{ username }}</div>
+              <small class="text-muted d-block">Role: {{ user_role|default('Guest')|capitalize }}</small>
+              <small class="text-muted d-block">Organization: {{ user_organization|default('N/A') }}</small>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <form method="POST" action="{{ url_for('logout') }}">
+                <button type="submit" class="dropdown-item text-danger">
+                  <i class="bi bi-box-arrow-right me-2"></i> Logout
+                </button>
+              </form>
+            </li>
+          </ul>
+        </div>
 
   <!-- Filter Button -->
   <!-- <button class="btn btn-outline-black ms-2 d-flex align-items-center" id="filterBtn" data-bs-toggle="collapse" data-bs-target="#filterPanel" aria-expanded="false" aria-controls="filterPanel" title="Filter Games">
