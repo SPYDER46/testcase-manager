@@ -1411,3 +1411,139 @@ p.message {
   fill: #f39c12;
 }
 
+
+/* Register form-------------- */
+.register-modal {
+  display: none; 
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+}
+
+
+.register-modal-content {
+  position: relative;
+  background: #fff;
+  padding: 30px 25px 25px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.3s ease-in-out;
+  box-sizing: border-box;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.register-modal-content h3 {
+  margin-top: 0;
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #333;
+}
+
+.register-modal input,
+.register-modal select {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 18px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.register-modal select {
+  background-color: #fff;
+}
+
+.register-modal button {
+  width: 100%;
+  padding: 12px;
+  background-color: #FFC178;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.register-modal button:hover {
+  background-color: #212529;
+}
+
+.close-btn {
+  position: absolute;
+  top: 12px;
+  right: 15px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #aaa;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.close-btn:hover {
+  color: #000;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+  .error {
+    color: red;
+    font-size: 0.85rem;
+    margin-top: 4px;
+  }
+  .invalid {
+    border-color: red;
+  }
+
+ button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+
+/* Profile Dropdown Custom Styling */
+#profileDropdown {
+  transition: background-color 0.2s;
+}
+#profileDropdown:hover {
+  background-color: #f8f9fa;
+}
+
+.dropdown-menu {
+  border: none;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.dropdown-menu .dropdown-item {
+  font-size: 14px;
+  padding: 10px 16px;
+}
+
+.dropdown-menu .dropdown-item:hover {
+  background-color: #f2f2f2;
+  border-radius: 6px;
+}
+
+.dropdown-divider {
+  margin: 0.5rem 0;
+}

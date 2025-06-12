@@ -22,7 +22,7 @@
         <div class="row">
             <div class="col-md-6">
                 <p><strong>Iteration:</strong> {{ iteration_no }}</p>
-                <p><strong>Phase No:</strong> {{ phase_no }}</p>
+                <!-- <p><strong>Phase No:</strong> {{ phase_no }}</p> -->
                 <p><strong>Game Name:</strong> {{ game_name }}</p>
                 <p><strong>Date & Time received:</strong> {{ date_received }}</p>
                 <p><strong>Date Delivered:</strong> {{ date_delivered }}</p>
@@ -107,7 +107,7 @@ document.getElementById('downloadPdfBtn').addEventListener('click', () => {
 
     doc.setFontSize(10);
     doc.text(`Iteration: {{ iteration_no }}`, marginLeft, y += 10);
-    doc.text(`Phase No: {{ phase_no }}`, marginLeft, y += 7);
+    // doc.text(`Phase No: {{ phase_no }}`, marginLeft, y += 7);
     doc.text(`Game Name: {{ game_name }}`, marginLeft, y += 7);
     doc.text(`Date & Time Received: {{ date_received }}`, marginLeft, y += 7);
     doc.text(`Date Delivered: {{ date_delivered }}`, marginLeft, y += 7);

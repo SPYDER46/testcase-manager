@@ -12,34 +12,154 @@
     {% if message %}
       <p class="message">{{ message }}</p>
     {% endif %}
-    <form method="POST" novalidate>
-      <input name="username" placeholder="Username" required autocomplete="username" />
-      <input name="email" type="email" placeholder="Email" required autocomplete="email" />
-      <input name="password" type="password" placeholder="Password" required autocomplete="new-password" />
+    <form id="registerForm" method="POST" novalidate>
+      <div class="form-group">
+        <input id="username" name="username" placeholder="Username" autocomplete="username" />
+        <small class="error" id="usernameError"></small>
+      </div>
 
-      <!-- Organization Dropdown -->
-     <input 
-      type="text" 
-      name="organization" 
-      placeholder="Enter your organization" 
-      required 
-      autocomplete="organization" 
-    />
+      <div class="form-group">
+        <input id="email" name="email" type="email" placeholder="Email" autocomplete="email" />
+        <small class="error" id="emailError"></small>
+      </div>
 
-    <!-- Role dropdown (fixed options) -->
-    <select name="role" required>
-      <option value="" disabled selected>Select your role</option>
-      <option value="admin">Admin</option>
-      <option value="pm">Project Manager</option>
-      <option value="tester">Quality Analyst</option>
-      <option value="developer">Developer</option>
-    </select>
+      <div class="form-group">
+        <input id="password" name="password" type="password" placeholder="Password" autocomplete="new-password" />
+        <small class="error" id="passwordError"></small>
+      </div>
 
-
-      <button type="submit">Register</button>
+      <button type="submit" id="submitBtn" disabled>Register</button>
     </form>
 
     <a href="/login">Already have an account? Login</a>
   </div>
+
+  <!-- Modal Popup for Organization and Role -->
+  <div class="register-modal" id="roleModal" style="display: none;">
+    <div class="register-modal-content">
+      <span class="close-btn" id="closeModal">&times;</span>
+      <h3>Additional Info</h3>
+      <input id="orgInput" name="organization" placeholder="Enter your organization" required />
+      <select id="roleInput" name="role" required>
+        <option value="" disabled selected>Select your role</option>
+        <option value="admin">Admin</option>
+        <option value="pm">Project Manager</option>
+        <option value="tester">Quality Analyst</option>
+        <option value="developer">Developer</option>
+      </select>
+      <button id="confirmBtn">Register</button>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('registerForm');
+    const modal = document.getElementById('roleModal');
+    const orgInput = document.getElementById('orgInput');
+    const roleInput = document.getElementById('roleInput');
+    const confirmBtn = document.getElementById('confirmBtn');
+    const closeModal = document.getElementById('closeModal');
+
+    const username = document.getElementById('username');
+    const email = document.getElementById('email');
+    const password = document.getElementById('password');
+    const submitBtn = document.getElementById('submitBtn');
+
+    const usernameError = document.getElementById('usernameError');
+    const emailError = document.getElementById('emailError');
+    const passwordError = document.getElementById('passwordError');
+
+    // Show error under input
+    function showError(input, errorElem, message) {
+      input.classList.add('invalid');
+      errorElem.textContent = message;
+    }
+
+    // Clear error
+    function clearError(input, errorElem) {
+      input.classList.remove('invalid');
+      errorElem.textContent = '';
+    }
+
+    // Validate form fields
+    function validateForm(showMessages = false) {
+      let isValid = true;
+
+      if (!username.value.trim()) {
+        if (showMessages) showError(username, usernameError, 'Username is required');
+        isValid = false;
+      } else {
+        clearError(username, usernameError);
+      }
+
+      if (!email.value.trim()) {
+        if (showMessages) showError(email, emailError, 'Email is required');
+        isValid = false;
+      } else if (!email.validity.valid) {
+        if (showMessages) showError(email, emailError, 'Enter a valid email');
+        isValid = false;
+      } else {
+        clearError(email, emailError);
+      }
+
+      if (!password.value.trim()) {
+        if (showMessages) showError(password, passwordError, 'Password is required');
+        isValid = false;
+      } else {
+        clearError(password, passwordError);
+      }
+
+      submitBtn.disabled = !isValid;
+      return isValid;
+    }
+
+    // Enable/disable Submit as user types
+    [username, email, password].forEach(input =>
+      input.addEventListener('input', () => validateForm(false))
+    );
+
+    // When form is submitted
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      // Re-validate on submit click
+      if (validateForm(true)) {
+        modal.style.display = 'flex'; // Only show modal if form is valid
+      }
+    });
+
+    // Close modal with × button
+    closeModal.addEventListener('click', () => {
+      modal.style.display = 'none';
+    });
+
+    // Final modal submit
+    confirmBtn.addEventListener('click', () => {
+      if (!orgInput.value.trim() || !roleInput.value) {
+        alert('Please fill out organization and role.');
+        return;
+      }
+
+      const orgHidden = document.createElement('input');
+      orgHidden.type = 'hidden';
+      orgHidden.name = 'organization';
+      orgHidden.value = orgInput.value;
+
+      const roleHidden = document.createElement('input');
+      roleHidden.type = 'hidden';
+      roleHidden.name = 'role';
+      roleHidden.value = roleInput.value;
+
+      form.appendChild(orgHidden);
+      form.appendChild(roleHidden);
+
+      modal.style.display = 'none';
+      form.submit(); // Final form submission
+    });
+
+    // Validate on page load (optional)
+    window.addEventListener('DOMContentLoaded', () => {
+      validateForm(false);
+    });
+  </script>
 </body>
 </html>

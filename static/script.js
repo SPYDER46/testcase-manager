@@ -20,11 +20,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 // Update modal message depending on item type
                if (itemType === 'suite') {
-                    deleteConfirmMessage.textContent = "Are you sure you want to delete this Test suite? This action cannot be undone.";
+                    deleteConfirmMessage.textContent = "Are you sure you want to delete this Test cases? This action cannot be undone.";
                 } else if (itemType === 'iteration') {
                     deleteConfirmMessage.textContent = "Are you sure you want to delete this iteration? This action cannot be undone.";
                 } else if (itemType === 'testcase') {
-                    deleteConfirmMessage.textContent = "Are you sure you want to delete this Test Case? This action cannot be undone.";
+                    deleteConfirmMessage.textContent = "Are you sure you want to delete this Test Plan? This action cannot be undone.";
                 } else {
                     deleteConfirmMessage.textContent = "Are you sure you want to delete this item? This action cannot be undone.";
                 }
@@ -213,6 +213,16 @@ function filterGames() {
   });
 }
 
+  document.getElementById('searchInput').addEventListener('input', function () {
+    const query = this.value.toLowerCase();
+    const cards = document.querySelectorAll('.game-card');
+
+    cards.forEach(card => {
+      const name = card.textContent.toLowerCase();
+      card.style.display = name.includes(query) ? 'block' : 'none';
+    });
+  });
+
 
 // Add Game function
 document.addEventListener('DOMContentLoaded', function () {
@@ -359,3 +369,118 @@ function togglePassword() {
       setTimeout(() => alert.remove(), 300); 
     });
   }, 3000);
+
+  // Register form -------------------
+  const form = document.getElementById('registerForm');
+  const modal = document.getElementById('roleModal');
+  const orgInput = document.getElementById('orgInput');
+  const roleInput = document.getElementById('roleInput');
+  const confirmBtn = document.getElementById('confirmBtn');
+  const closeModal = document.getElementById('closeModal');
+
+  const username = document.getElementById('username');
+  const email = document.getElementById('email');
+  const password = document.getElementById('password');
+  const submitBtn = document.getElementById('submitBtn');
+
+  const usernameError = document.getElementById('usernameError');
+  const emailError = document.getElementById('emailError');
+  const passwordError = document.getElementById('passwordError');
+
+  // Show error under input
+  function showError(input, errorElem, message) {
+    input.classList.add('invalid');
+    errorElem.textContent = message;
+  }
+
+  // Clear error
+  function clearError(input, errorElem) {
+    input.classList.remove('invalid');
+    errorElem.textContent = '';
+  }
+
+  // Validate form fields
+  function validateForm(showMessages = false) {
+    let isValid = true;
+
+    if (!username.value.trim()) {
+      if (showMessages) showError(username, usernameError, 'Username is required');
+      isValid = false;
+    } else {
+      clearError(username, usernameError);
+    }
+
+    if (!email.value.trim()) {
+      if (showMessages) showError(email, emailError, 'Email is required');
+      isValid = false;
+    } else if (!email.validity.valid) {
+      if (showMessages) showError(email, emailError, 'Enter a valid email');
+      isValid = false;
+    } else {
+      clearError(email, emailError);
+    }
+
+    if (!password.value.trim()) {
+      if (showMessages) showError(password, passwordError, 'Password is required');
+      isValid = false;
+    } else {
+      clearError(password, passwordError);
+    }
+
+    submitBtn.disabled = !isValid;
+    return isValid;
+  }
+
+  // Enable/disable Submit as user types
+  [username, email, password].forEach(input => {
+  input.addEventListener('input', () => validateForm(false));
+  input.addEventListener('change', () => validateForm(false));
+});
+
+
+  // When form is submitted
+form.addEventListener('submit', function (e) {
+  e.preventDefault();
+
+  // Re-validate on submit click
+  if (validateForm(true)) {
+
+    if (modal.style.display !== 'flex') {
+      modal.style.display = 'flex';
+    }
+  }
+});
+
+  // Close modal with × button
+  closeModal.addEventListener('click', () => {
+    modal.style.display = 'none';
+  });
+
+  // Final modal submit
+  confirmBtn.addEventListener('click', () => {
+    if (!orgInput.value.trim() || !roleInput.value) {
+      alert('Please fill out organization and role.');
+      return;
+    }
+
+    const orgHidden = document.createElement('input');
+    orgHidden.type = 'hidden';
+    orgHidden.name = 'organization';
+    orgHidden.value = orgInput.value;
+
+    const roleHidden = document.createElement('input');
+    roleHidden.type = 'hidden';
+    roleHidden.name = 'role';
+    roleHidden.value = roleInput.value;
+
+    form.appendChild(orgHidden);
+    form.appendChild(roleHidden);
+
+    modal.style.display = 'none';
+    form.submit(); // Final form submission
+  });
+
+  // Validate on page load (optional)
+  window.addEventListener('load', () => {
+    validateForm(false); // Catch autofill on load
+  });

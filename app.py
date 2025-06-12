@@ -37,7 +37,7 @@ from models import (
 )
 
 app = Flask(__name__)
-# app.secret_key = 'dev-secret-1234'
+
 app.secret_key = os.environ.get('SECRET_KEY')
 
 init_db()
@@ -53,9 +53,8 @@ app.config.update(
     MAIL_PORT=587,
     MAIL_USE_TLS=True,
 
-
-    # MAIL_USERNAME=os.environ.get('MAIL_USERNAME'),
-    # MAIL_PASSWORD=os.environ.get('MAIL_PASSWORD')
+    MAIL_USERNAME=os.environ.get('MAIL_USERNAME'),
+    MAIL_PASSWORD=os.environ.get('MAIL_PASSWORD')
 )
 
 mail = Mail(app)
@@ -228,8 +227,6 @@ TestSlow Team
 
     return redirect(url_for('index', game_name=game_name))
 
-
-
 @app.route('/reset-password/<token>', methods=['GET', 'POST'])
 def reset_password(token):
     message = ""
@@ -292,7 +289,7 @@ def home():
     )
 
 def add_game_db(name, phase, category, org_name, user_role):
-    if user_role.lower() not in ('pm', 'tester'):
+    if user_role.lower() not in ('pm', 'tester', 'admin'):
         return False, "Only PMs or Testers can add new games."
 
     conn = get_connection()

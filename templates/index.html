@@ -14,22 +14,32 @@
   <div class="container-fluid">
     <div class="mx-auto" style="width: 50%;">
       <form class="d-flex w-100">
-        <input class="form-control" type="search" placeholder="Search test plans..." aria-label="Search">
+        <input class="form-control" id="searchInput" type="search" placeholder="Search test plans..." aria-label="Search">
       </form>
     </div>
 
-    <div class="dropdown">
-      <button class="btn btn-link text-dark" type="button" id="settingsDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-        <i class="bi bi-gear" style="font-size: 1.5rem;"></i>
-      </button>
-      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="settingsDropdown">
-        <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#inviteModal">Invite to Project</a></li>
-      </ul>
-    </div>
+    <div class="dropdown ms-3">
+  <button class="btn btn-light border rounded-circle shadow-sm d-flex align-items-center justify-content-center"
+          id="settingsDropdown"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+          style="width: 40px; height: 40px;">
+    <i class="bi bi-gear-fill text-secondary" style="font-size: 1.25rem;"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end shadow-sm rounded-3" aria-labelledby="settingsDropdown">
+    <li>
+    </li>
+    <li>
+      <a class="dropdown-item d-flex align-items-center gap-2" href="#" data-bs-toggle="modal" data-bs-target="#inviteModal">
+        <i class="bi bi-person-plus text-primary"></i>
+        Invite to Project
+      </a>
+    </li>
+  </ul>
+</div>
+
   </div>
 </nav>
-
-
 
 <!-- Loader -->
 <div id="page-loader">
@@ -178,10 +188,10 @@
                 <label for="tester" class="form-label">Tester Name</label>
                 <input type="text" name="tester" class="form-control" required value="{{ request.args.get('tester', '') }}">
               </div>
-              <div class="col-6 mb-3">
+              <!-- <div class="col-6 mb-3">
                 <label for="phase_no" class="form-label">Phase No</label>
                 <input type="number" name="phase_no" class="form-control" required value="{{ request.args.get('phase_no', '') }}">
-              </div>
+              </div> -->
               <div class="col-6 mb-3">
                 <label for="date_time_received" class="form-label">Date & Time Received</label>
                 <input type="datetime-local" name="date_time_received" class="form-control" required value="{{ request.args.get('date_time_received', '') }}">
